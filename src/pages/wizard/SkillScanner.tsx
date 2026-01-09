@@ -143,9 +143,10 @@ export default function SkillScanner() {
 
       toast.success('Competențele au fost salvate!');
       navigate('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save error:', error);
-      toast.error('Eroare la salvarea competențelor');
+      const errorMessage = error?.message || error?.details || 'Eroare la salvarea competențelor';
+      toast.error(errorMessage);
     }
   };
 
