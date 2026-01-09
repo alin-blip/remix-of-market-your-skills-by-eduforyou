@@ -189,6 +189,30 @@ export default function ProfileBuilder() {
     }
   };
 
+  const upsertProfile = async (profile: SocialProfile) => {
+    const { data, error } = await supabase
+      .from('social_profiles')
+      .upsert(
+        {
+          user_id: user?.id,
+          platform: profile.platform,
+          bio: profile.bio,
+          headline: profile.headline,
+          about: profile.about,
+          hashtags: profile.hashtags,
+          content_pillars: profile.content_pillars,
+          cta: profile.cta,
+          username_suggestions: profile.username_suggestions,
+        },
+        { onConflict: 'user_id,platform' }
+      )
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return data?.id as string | undefined;
+  };
+
   const handleGenerate = async (platform: Platform) => {
     if (!offer || !ikigaiData) {
       toast({
@@ -240,9 +264,22 @@ export default function ProfileBuilder() {
         username_suggestions: data.username_suggestions || []
       };
 
+      // Auto-save immediately so it persists when navigating away/back
+      let savedId: string | undefined;
+      try {
+        savedId = await upsertProfile(generatedProfile);
+      } catch (saveError: any) {
+        console.error('Auto-save error:', saveError);
+        toast({
+          title: "Atenție",
+          description: saveError?.message || "Profilul a fost generat, dar nu am reușit să îl salvez automat.",
+          variant: "destructive",
+        });
+      }
+
       setProfiles(prev => ({
         ...prev,
-        [platform]: generatedProfile
+        [platform]: { ...generatedProfile, id: savedId ?? prev[platform]?.id }
       }));
 
       setTimeout(() => {
@@ -277,25 +314,9 @@ export default function ProfileBuilder() {
     setIsSaving(true);
     try {
       const profilesToSave = Object.values(profiles).filter(p => p !== null) as SocialProfile[];
-      
-      for (const profile of profilesToSave) {
-        const { error } = await supabase
-          .from('social_profiles')
-          .upsert({
-            user_id: user?.id,
-            platform: profile.platform,
-            bio: profile.bio,
-            headline: profile.headline,
-            about: profile.about,
-            hashtags: profile.hashtags,
-            content_pillars: profile.content_pillars,
-            cta: profile.cta,
-            username_suggestions: profile.username_suggestions
-          }, {
-            onConflict: 'user_id,platform'
-          });
 
-        if (error) throw error;
+      for (const profile of profilesToSave) {
+        await upsertProfile(profile);
       }
 
       toast({
@@ -513,7 +534,14 @@ export default function ProfileBuilder() {
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
                         </div>
-                        <Button variant={hasProfile ? "outline" : "default"} size="sm">
+                        <Button
+                          variant={hasProfile ? "outline" : "default"}
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerate(platform);
+                          }}
+                        >
                           {hasProfile ? (
                             <>
                               <RefreshCw className="h-4 w-4 mr-1" />
