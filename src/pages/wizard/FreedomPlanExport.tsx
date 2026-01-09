@@ -15,7 +15,7 @@ import {
   Download,
   FileText,
 } from 'lucide-react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -374,6 +374,31 @@ export default function FreedomPlanExport() {
 
         {/* Health Check */}
         <PdfHealthCheck data={planData} />
+
+        {/* PDF Preview */}
+        {allCompleted && planData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Preview PDF
+              </CardTitle>
+              <CardDescription>
+                Vizualizează planul tău înainte de a-l descărca
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg overflow-hidden bg-muted/30">
+                <PDFViewer
+                  style={{ width: '100%', height: '600px', border: 'none' }}
+                  showToolbar={true}
+                >
+                  <FreedomPlanPDF data={planData} />
+                </PDFViewer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Export Section */}
         <Card className={!allCompleted ? 'opacity-60' : ''}>
