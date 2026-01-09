@@ -11,7 +11,16 @@ serve(async (req) => {
   }
 
   try {
-    const { experiences, interests, studyField } = await req.json();
+    const body = await req.json();
+    const { experiences, studyField } = body;
+    
+    // Handle interests - could be array, string, or null
+    let interestsText = '';
+    if (Array.isArray(body.interests)) {
+      interestsText = body.interests.join(', ');
+    } else if (typeof body.interests === 'string') {
+      interestsText = body.interests;
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -42,7 +51,7 @@ Răspunde DOAR prin tool call, nu text liber.`;
 ${experiences || 'Nicio experiență specificată'}
 
 **Interese și hobby-uri:**
-${interests?.join(', ') || 'Niciun interes specificat'}
+${interestsText || 'Niciun interes specificat'}
 
 Identifică toate competențele monetizabile.`;
 

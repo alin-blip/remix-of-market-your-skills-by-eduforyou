@@ -11,7 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { skills, studyField, goals, values } = await req.json();
+    const body = await req.json();
+    const { skills, studyField } = body;
+    
+    // Handle goals and values - could be array, string, or null
+    const goalsText = Array.isArray(body.goals) ? body.goals.join(', ') : 
+                      typeof body.goals === 'string' ? body.goals : '';
+    const valuesText = Array.isArray(body.values) ? body.values.join(', ') : 
+                       typeof body.values === 'string' ? body.values : '';
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -42,9 +49,9 @@ Răspunde DOAR prin tool call, nu text liber. Fii specific, acționabil și orie
 
 **Competențe identificate:** ${skillsList}
 
-**Obiective personale:** ${goals?.join(', ') || 'Nespecificate'}
+**Obiective personale:** ${goalsText || 'Nespecificate'}
 
-**Valori personale:** ${values?.join(', ') || 'Nespecificate'}
+**Valori personale:** ${valuesText || 'Nespecificate'}
 
 Generează un Ikigai complet și poziționare unică.`;
 

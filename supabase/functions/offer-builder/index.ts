@@ -36,10 +36,10 @@ Pentru studenți, prețurile starter încep de la ${locale === 'ro' ? '150-300 R
 Fii specific cu livrabilele și include metrici concrete.
 Răspunde DOAR prin tool call, nu text liber.`;
 
-    const skillsList = skills?.map((s: any) => `${s.skill} (${s.category}, ${s.confidence}% încredere)`).join(', ') || 'Nicio competență';
-    const serviceAngles = ikigaiResult?.service_angles?.map((a: any) => a.title).join(', ') || 'Nespecificate';
+    const skillsList = Array.isArray(skills) ? skills.map((s: any) => `${s.skill} (${s.category}, ${s.confidence}% încredere)`).join(', ') : 'Nicio competență';
+    const serviceAngles = Array.isArray(ikigaiResult?.service_angles) ? ikigaiResult.service_angles.map((a: any) => a.title).join(', ') : 'Nespecificate';
     const corePositioning = ikigaiResult?.core_positioning || 'Nespecificat';
-    const whatCanBePaidFor = ikigaiResult?.what_you_can_be_paid_for?.join(', ') || 'Nespecificat';
+    const whatCanBePaidFor = Array.isArray(ikigaiResult?.what_you_can_be_paid_for) ? ikigaiResult.what_you_can_be_paid_for.join(', ') : 'Nespecificat';
 
     const userPrompt = `Creează oferta de servicii pentru acest student:
 
