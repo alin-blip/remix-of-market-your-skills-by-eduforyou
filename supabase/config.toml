@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.offer-builder]
 verify_jwt = false
+
+[functions.outreach-generator]
+verify_jwt = false
