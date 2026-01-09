@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IkigaiCircles } from '@/components/ikigai/IkigaiCircles';
 import { 
   Target, 
   ArrowRight, 
@@ -359,6 +360,20 @@ export default function IkigaiBuilder() {
                   {result.core_positioning}
                 </p>
               </div>
+
+              {/* Interactive Ikigai Visualization */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <IkigaiCircles
+                  whatYouLove={result.what_you_love}
+                  whatYoureGoodAt={result.what_youre_good_at}
+                  whatWorldNeeds={result.what_world_needs}
+                  whatYouCanBePaidFor={result.what_you_can_be_paid_for}
+                />
+              </motion.div>
 
               {/* Ikigai Quadrants */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
