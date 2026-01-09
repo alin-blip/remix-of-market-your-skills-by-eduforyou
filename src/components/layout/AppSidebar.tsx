@@ -7,6 +7,7 @@ import {
   Package,
   User,
   MessageSquare,
+  FileDown,
   ChevronDown,
   Compass,
 } from 'lucide-react';
@@ -38,6 +39,7 @@ const pathItems = [
   { title: 'Offer Builder', url: '/wizard/offer', icon: Package },
   { title: 'Profile Builder', url: '/wizard/profile', icon: User },
   { title: 'Outreach Generator', url: '/wizard/outreach', icon: MessageSquare },
+  { title: 'Freedom Plan Export', url: '/wizard/export', icon: FileDown },
 ];
 
 interface AppSidebarProps {
@@ -45,7 +47,7 @@ interface AppSidebarProps {
   totalSteps?: number;
 }
 
-export function AppSidebar({ completedSteps = 0, totalSteps = 5 }: AppSidebarProps) {
+export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();

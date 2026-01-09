@@ -16,6 +16,7 @@ import IkigaiBuilder from "./pages/wizard/IkigaiBuilder";
 import OfferBuilder from "./pages/wizard/OfferBuilder";
 import ProfileBuilder from "./pages/wizard/ProfileBuilder";
 import OutreachGenerator from "./pages/wizard/OutreachGenerator";
+import FreedomPlanExport from "./pages/wizard/FreedomPlanExport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -92,6 +93,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <OutreachGenerator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/wizard/export" 
+              element={
+                <ProtectedRoute>
+                  <FreedomPlanExport />
                 </ProtectedRoute>
               } 
             />
