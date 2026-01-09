@@ -212,6 +212,30 @@ interface Props {
   data: FreedomPlanData;
 }
 
+const toText = (val: unknown): string => {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (Array.isArray(val)) return val.map(toText).filter(Boolean).join(', ');
+  if (typeof val === 'object') {
+    const anyVal = val as any;
+    if (typeof anyVal.statement === 'string') return anyVal.statement;
+    if (typeof anyVal.title === 'string') return anyVal.title;
+    if (typeof anyVal.name === 'string') return anyVal.name;
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return String(val);
+    }
+  }
+  return String(val);
+};
+
+const toTextArray = (val: unknown): string[] => {
+  if (!Array.isArray(val)) return [];
+  return val.map(toText).map((s) => s.trim()).filter(Boolean);
+};
+
 const BulletPoint: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <View style={{ flexDirection: 'row', marginBottom: 4 }}>
     <Text style={styles.bullet}>•</Text>
@@ -225,38 +249,38 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <Text style={styles.title}>Freedom Plan</Text>
-        <Text style={styles.subtitle}>{data.profile.fullName}</Text>
-        <Text style={styles.date}>Generat pe {data.generatedAt}</Text>
+        <Text style={styles.subtitle}>{toText(data.profile.fullName)}</Text>
+        <Text style={styles.date}>Generat pe {toText(data.generatedAt)}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Profil Personal</Text>
-        {data.profile.email && (
+        {toText(data.profile.email) && (
           <View style={styles.row}>
             <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{data.profile.email}</Text>
+            <Text style={styles.value}>{toText(data.profile.email)}</Text>
           </View>
         )}
-        {data.profile.studyField && (
+        {toText(data.profile.studyField) && (
           <View style={styles.row}>
             <Text style={styles.label}>Domeniu:</Text>
-            <Text style={styles.value}>{data.profile.studyField}</Text>
+            <Text style={styles.value}>{toText(data.profile.studyField)}</Text>
           </View>
         )}
-        
-        {data.profile.goals.length > 0 && (
+
+        {toTextArray(data.profile.goals).length > 0 && (
           <>
             <Text style={styles.sectionSubtitle}>Obiective</Text>
-            {data.profile.goals.map((goal, i) => (
+            {toTextArray(data.profile.goals).map((goal, i) => (
               <BulletPoint key={i}>{goal}</BulletPoint>
             ))}
           </>
         )}
 
-        {data.profile.values.length > 0 && (
+        {toTextArray(data.profile.values).length > 0 && (
           <>
             <Text style={styles.sectionSubtitle}>Valori</Text>
-            {data.profile.values.map((value, i) => (
+            {toTextArray(data.profile.values).map((value, i) => (
               <BulletPoint key={i}>{value}</BulletPoint>
             ))}
           </>
@@ -269,14 +293,18 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
           {data.skills.map((skill, i) => (
             <View key={i} style={styles.skillBadge}>
               <Text style={styles.skillText}>
-                {skill.skill} ({skill.confidence}%)
+                {toText(skill.skill)} ({typeof skill.confidence === 'number' ? skill.confidence : 0}%)
               </Text>
             </View>
           ))}
         </View>
       </View>
 
-      <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} fixed />
+      <Text
+        style={styles.pageNumber}
+        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+        fixed
+      />
     </Page>
 
     {/* Page 2: Ikigai */}
@@ -285,55 +313,57 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Analiza Ikigai</Text>
 
-          {data.ikigai.ikigaiStatements.length > 0 && (
+          {toTextArray(data.ikigai.ikigaiStatements).length > 0 && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Declarații Ikigai</Text>
-              {data.ikigai.ikigaiStatements.map((statement, i) => (
-                <Text key={i} style={styles.paragraph}>{i + 1}. {statement}</Text>
+              {toTextArray(data.ikigai.ikigaiStatements).map((statement, i) => (
+                <Text key={i} style={styles.paragraph}>
+                  {i + 1}. {statement}
+                </Text>
               ))}
             </View>
           )}
 
-          {data.ikigai.whatYouLove.length > 0 && (
+          {toTextArray(data.ikigai.whatYouLove).length > 0 && (
             <>
               <Text style={styles.sectionSubtitle}>Ce Îți Place</Text>
-              {data.ikigai.whatYouLove.map((item, i) => (
+              {toTextArray(data.ikigai.whatYouLove).map((item, i) => (
                 <BulletPoint key={i}>{item}</BulletPoint>
               ))}
             </>
           )}
 
-          {data.ikigai.whatYoureGoodAt.length > 0 && (
+          {toTextArray(data.ikigai.whatYoureGoodAt).length > 0 && (
             <>
               <Text style={styles.sectionSubtitle}>La Ce Ești Bun/ă</Text>
-              {data.ikigai.whatYoureGoodAt.map((item, i) => (
+              {toTextArray(data.ikigai.whatYoureGoodAt).map((item, i) => (
                 <BulletPoint key={i}>{item}</BulletPoint>
               ))}
             </>
           )}
 
-          {data.ikigai.whatWorldNeeds.length > 0 && (
+          {toTextArray(data.ikigai.whatWorldNeeds).length > 0 && (
             <>
               <Text style={styles.sectionSubtitle}>Ce Are Nevoie Lumea</Text>
-              {data.ikigai.whatWorldNeeds.map((item, i) => (
+              {toTextArray(data.ikigai.whatWorldNeeds).map((item, i) => (
                 <BulletPoint key={i}>{item}</BulletPoint>
               ))}
             </>
           )}
 
-          {data.ikigai.whatYouCanBePaidFor.length > 0 && (
+          {toTextArray(data.ikigai.whatYouCanBePaidFor).length > 0 && (
             <>
               <Text style={styles.sectionSubtitle}>Pentru Ce Poți Fi Plătit/ă</Text>
-              {data.ikigai.whatYouCanBePaidFor.map((item, i) => (
+              {toTextArray(data.ikigai.whatYouCanBePaidFor).map((item, i) => (
                 <BulletPoint key={i}>{item}</BulletPoint>
               ))}
             </>
           )}
 
-          {data.ikigai.serviceAngles.length > 0 && (
+          {toTextArray(data.ikigai.serviceAngles).length > 0 && (
             <>
               <Text style={styles.sectionSubtitle}>Unghiuri de Servicii</Text>
-              {data.ikigai.serviceAngles.map((angle, i) => (
+              {toTextArray(data.ikigai.serviceAngles).map((angle, i) => (
                 <BulletPoint key={i}>{angle}</BulletPoint>
               ))}
             </>
@@ -350,17 +380,17 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Oferta de Servicii</Text>
 
-          {data.offer.smv && (
+          {toText(data.offer.smv) && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Propunere Unică de Valoare (USP)</Text>
-              <Text style={styles.cardText}>{data.offer.smv}</Text>
+              <Text style={styles.cardText}>{toText(data.offer.smv)}</Text>
             </View>
           )}
 
-          {data.offer.targetMarket && (
+          {toText(data.offer.targetMarket) && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Piața Țintă</Text>
-              <Text style={styles.cardText}>{data.offer.targetMarket}</Text>
+              <Text style={styles.cardText}>{toText(data.offer.targetMarket)}</Text>
             </View>
           )}
 
@@ -370,17 +400,17 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
           {data.offer.starterPackage && (
             <View style={styles.packageCard}>
               <Text style={styles.packageTitle}>
-                {data.offer.starterPackage.name || 'Pachet Starter'}
+                {toText(data.offer.starterPackage.name) || 'Pachet Starter'}
               </Text>
-              {data.offer.starterPackage.price && (
-                <Text style={styles.packagePrice}>{data.offer.starterPackage.price}</Text>
+              {data.offer.starterPackage.price !== undefined && data.offer.starterPackage.price !== null && (
+                <Text style={styles.packagePrice}>{toText(data.offer.starterPackage.price)}</Text>
               )}
-              {data.offer.starterPackage.description && (
-                <Text style={styles.cardText}>{data.offer.starterPackage.description}</Text>
+              {toText(data.offer.starterPackage.description) && (
+                <Text style={styles.cardText}>{toText(data.offer.starterPackage.description)}</Text>
               )}
-              {data.offer.starterPackage.deliverables && (
+              {toTextArray(data.offer.starterPackage.deliverables).length > 0 && (
                 <View style={{ marginTop: 6 }}>
-                  {(data.offer.starterPackage.deliverables as string[]).map((d: string, i: number) => (
+                  {toTextArray(data.offer.starterPackage.deliverables).map((d, i) => (
                     <BulletPoint key={i}>{d}</BulletPoint>
                   ))}
                 </View>
@@ -391,17 +421,17 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
           {data.offer.standardPackage && (
             <View style={styles.packageCard}>
               <Text style={styles.packageTitle}>
-                {data.offer.standardPackage.name || 'Pachet Standard'}
+                {toText(data.offer.standardPackage.name) || 'Pachet Standard'}
               </Text>
-              {data.offer.standardPackage.price && (
-                <Text style={styles.packagePrice}>{data.offer.standardPackage.price}</Text>
+              {data.offer.standardPackage.price !== undefined && data.offer.standardPackage.price !== null && (
+                <Text style={styles.packagePrice}>{toText(data.offer.standardPackage.price)}</Text>
               )}
-              {data.offer.standardPackage.description && (
-                <Text style={styles.cardText}>{data.offer.standardPackage.description}</Text>
+              {toText(data.offer.standardPackage.description) && (
+                <Text style={styles.cardText}>{toText(data.offer.standardPackage.description)}</Text>
               )}
-              {data.offer.standardPackage.deliverables && (
+              {toTextArray(data.offer.standardPackage.deliverables).length > 0 && (
                 <View style={{ marginTop: 6 }}>
-                  {(data.offer.standardPackage.deliverables as string[]).map((d: string, i: number) => (
+                  {toTextArray(data.offer.standardPackage.deliverables).map((d, i) => (
                     <BulletPoint key={i}>{d}</BulletPoint>
                   ))}
                 </View>
@@ -412,17 +442,17 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
           {data.offer.premiumPackage && (
             <View style={styles.packageCard}>
               <Text style={styles.packageTitle}>
-                {data.offer.premiumPackage.name || 'Pachet Premium'}
+                {toText(data.offer.premiumPackage.name) || 'Pachet Premium'}
               </Text>
-              {data.offer.premiumPackage.price && (
-                <Text style={styles.packagePrice}>{data.offer.premiumPackage.price}</Text>
+              {data.offer.premiumPackage.price !== undefined && data.offer.premiumPackage.price !== null && (
+                <Text style={styles.packagePrice}>{toText(data.offer.premiumPackage.price)}</Text>
               )}
-              {data.offer.premiumPackage.description && (
-                <Text style={styles.cardText}>{data.offer.premiumPackage.description}</Text>
+              {toText(data.offer.premiumPackage.description) && (
+                <Text style={styles.cardText}>{toText(data.offer.premiumPackage.description)}</Text>
               )}
-              {data.offer.premiumPackage.deliverables && (
+              {toTextArray(data.offer.premiumPackage.deliverables).length > 0 && (
                 <View style={{ marginTop: 6 }}>
-                  {(data.offer.premiumPackage.deliverables as string[]).map((d: string, i: number) => (
+                  {toTextArray(data.offer.premiumPackage.deliverables).map((d, i) => (
                     <BulletPoint key={i}>{d}</BulletPoint>
                   ))}
                 </View>
@@ -430,10 +460,10 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
             </View>
           )}
 
-          {data.offer.pricingJustification && (
+          {toText(data.offer.pricingJustification) && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Justificare Prețuri</Text>
-              <Text style={styles.cardText}>{data.offer.pricingJustification}</Text>
+              <Text style={styles.cardText}>{toText(data.offer.pricingJustification)}</Text>
             </View>
           )}
         </View>
@@ -448,41 +478,48 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Profiluri Social Media</Text>
 
-          {data.socialProfiles.map((profile, i) => (
-            <View key={i} style={styles.card}>
-              <Text style={styles.cardTitle}>
-                {profile.platform.charAt(0).toUpperCase() + profile.platform.slice(1)}
-              </Text>
-              
-              {profile.headline && (
-                <View style={{ marginBottom: 6 }}>
-                  <Text style={{ ...styles.label, marginBottom: 2 }}>Headline:</Text>
-                  <Text style={styles.cardText}>{profile.headline}</Text>
-                </View>
-              )}
-              
-              {profile.bio && (
-                <View style={{ marginBottom: 6 }}>
-                  <Text style={{ ...styles.label, marginBottom: 2 }}>Bio:</Text>
-                  <Text style={styles.cardText}>{profile.bio}</Text>
-                </View>
-              )}
-              
-              {profile.cta && (
-                <View style={{ marginBottom: 6 }}>
-                  <Text style={{ ...styles.label, marginBottom: 2 }}>CTA:</Text>
-                  <Text style={styles.cardText}>{profile.cta}</Text>
-                </View>
-              )}
+          {data.socialProfiles.map((profile, i) => {
+            const platform = toText(profile.platform);
+            const platformLabel = platform
+              ? platform.charAt(0).toUpperCase() + platform.slice(1)
+              : 'Platformă';
 
-              {profile.hashtags.length > 0 && (
-                <View style={{ marginBottom: 6 }}>
-                  <Text style={{ ...styles.label, marginBottom: 2 }}>Hashtags:</Text>
-                  <Text style={styles.cardText}>{profile.hashtags.join(' ')}</Text>
-                </View>
-              )}
-            </View>
-          ))}
+            const hashtags = toTextArray((profile as any).hashtags);
+
+            return (
+              <View key={i} style={styles.card}>
+                <Text style={styles.cardTitle}>{platformLabel}</Text>
+
+                {toText(profile.headline) && (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ ...styles.label, marginBottom: 2 }}>Headline:</Text>
+                    <Text style={styles.cardText}>{toText(profile.headline)}</Text>
+                  </View>
+                )}
+
+                {toText(profile.bio) && (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ ...styles.label, marginBottom: 2 }}>Bio:</Text>
+                    <Text style={styles.cardText}>{toText(profile.bio)}</Text>
+                  </View>
+                )}
+
+                {toText(profile.cta) && (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ ...styles.label, marginBottom: 2 }}>CTA:</Text>
+                    <Text style={styles.cardText}>{toText(profile.cta)}</Text>
+                  </View>
+                )}
+
+                {hashtags.length > 0 && (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ ...styles.label, marginBottom: 2 }}>Hashtags:</Text>
+                    <Text style={styles.cardText}>{hashtags.join(' ')}</Text>
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </View>
 
         <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} fixed />
@@ -495,22 +532,29 @@ export const FreedomPlanPDF: React.FC<Props> = ({ data }) => (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Template-uri Outreach</Text>
 
-          {data.outreachTemplates.slice(0, 4).map((template, i) => (
-            <View key={i} style={styles.card}>
-              <Text style={styles.cardTitle}>
-                {template.platform.charAt(0).toUpperCase() + template.platform.slice(1)} - {template.type}
-              </Text>
-              
-              {template.subject && (
-                <View style={{ marginBottom: 6 }}>
-                  <Text style={{ ...styles.label, marginBottom: 2 }}>Subiect:</Text>
-                  <Text style={styles.cardText}>{template.subject}</Text>
-                </View>
-              )}
-              
-              <Text style={styles.cardText}>{template.content}</Text>
-            </View>
-          ))}
+          {data.outreachTemplates.slice(0, 4).map((template, i) => {
+            const platform = toText(template.platform);
+            const platformLabel = platform
+              ? platform.charAt(0).toUpperCase() + platform.slice(1)
+              : 'Platformă';
+
+            return (
+              <View key={i} style={styles.card}>
+                <Text style={styles.cardTitle}>
+                  {platformLabel} - {toText(template.type)}
+                </Text>
+
+                {toText(template.subject) && (
+                  <View style={{ marginBottom: 6 }}>
+                    <Text style={{ ...styles.label, marginBottom: 2 }}>Subiect:</Text>
+                    <Text style={styles.cardText}>{toText(template.subject)}</Text>
+                  </View>
+                )}
+
+                <Text style={styles.cardText}>{toText(template.content)}</Text>
+              </View>
+            );
+          })}
         </View>
 
         <View style={styles.footer}>

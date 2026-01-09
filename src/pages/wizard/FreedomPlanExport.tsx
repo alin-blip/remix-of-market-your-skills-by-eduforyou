@@ -37,7 +37,7 @@ export default function FreedomPlanExport() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [planData, setPlanData] = useState<FreedomPlanData | null>(null);
   const [moduleStatuses, setModuleStatuses] = useState<ModuleStatus[]>([
@@ -48,6 +48,88 @@ export default function FreedomPlanExport() {
     { name: 'Outreach Generator', icon: MessageSquare, completed: false, route: '/wizard/outreach', data: null },
   ]);
 
+  const safeText = (val: unknown): string => {
+    if (val === null || val === undefined) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+    if (typeof val === 'object') {
+      const anyVal = val as any;
+      if (typeof anyVal.statement === 'string') return anyVal.statement;
+      if (typeof anyVal.title === 'string') return anyVal.title;
+      try {
+        return JSON.stringify(val);
+      } catch {
+        return String(val);
+      }
+    }
+    return String(val);
+  };
+
+  const safeTextArray = (val: unknown): string[] => {
+    if (!Array.isArray(val)) return [];
+    return val
+      .map((v) => safeText(v).trim())
+      .filter(Boolean);
+  };
+
+  const formatIkigaiStatements = (val: unknown): string[] => {
+    if (!Array.isArray(val)) return [];
+    return val
+      .map((v) => {
+        if (typeof v === 'string') return v;
+        if (v && typeof v === 'object') {
+          const anyV = v as any;
+          const stmt = safeText(anyV.statement || v);
+          const expl = typeof anyV.explanation === 'string' ? anyV.explanation : '';
+          return expl ? `${stmt} — ${expl}` : stmt;
+        }
+        return safeText(v);
+      })
+      .map((s) => s.trim())
+      .filter(Boolean);
+  };
+
+  const formatServiceAngles = (val: unknown): string[] => {
+    if (!Array.isArray(val)) return [];
+    return val
+      .map((v) => {
+        if (typeof v === 'string') return v;
+        if (v && typeof v === 'object') {
+          const anyV = v as any;
+          const title = safeText(anyV.title);
+          const desc = safeText(anyV.description);
+          const aud = safeText(anyV.target_audience);
+          const uv = safeText(anyV.unique_value);
+
+          const core = [title, desc].filter(Boolean).join(': ');
+          const meta = [
+            aud ? `Audiență: ${aud}` : '',
+            uv ? `Valoare unică: ${uv}` : '',
+          ]
+            .filter(Boolean)
+            .join(' • ');
+
+          return meta ? `${core} (${meta})` : core;
+        }
+        return safeText(v);
+      })
+      .map((s) => s.trim())
+      .filter(Boolean);
+  };
+
+  const sanitizePackage = (pkg: any) => {
+    if (!pkg || typeof pkg !== 'object') return pkg;
+    return {
+      ...pkg,
+      name: safeText(pkg.name),
+      tagline: safeText(pkg.tagline),
+      currency: safeText(pkg.currency),
+      delivery_time: safeText(pkg.delivery_time),
+      ideal_for: safeText(pkg.ideal_for),
+      deliverables: safeTextArray(pkg.deliverables),
+    };
+  };
+
   useEffect(() => {
     if (user) {
       loadAllData();
@@ -57,116 +139,138 @@ export default function FreedomPlanExport() {
   const loadAllData = async () => {
     setIsLoading(true);
     try {
+      const userId = user?.id;
+      if (!userId) return;
+
       // Load profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
-        .single();
+        .eq('id', userId)
+        .maybeSingle();
 
       // Load skills
       const { data: skills } = await supabase
         .from('skill_entries')
         .select('*')
-        .eq('user_id', user?.id);
+        .eq('user_id', userId);
 
       // Load ikigai
       const { data: ikigai } = await supabase
         .from('ikigai_results')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', userId)
         .maybeSingle();
 
       // Load offer
       const { data: offer } = await supabase
         .from('offers')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', userId)
         .maybeSingle();
 
       // Load social profiles
       const { data: socialProfiles } = await supabase
         .from('social_profiles')
         .select('*')
-        .eq('user_id', user?.id);
+        .eq('user_id', userId);
 
       // Load outreach templates
       const { data: outreachTemplates } = await supabase
         .from('outreach_templates')
         .select('*')
-        .eq('user_id', user?.id);
+        .eq('user_id', userId);
 
-      // Update module statuses
-      const updatedStatuses = [...moduleStatuses];
-      
-      updatedStatuses[0].completed = skills && skills.length > 0;
-      updatedStatuses[0].data = skills || [];
-      
-      updatedStatuses[1].completed = !!ikigai;
-      updatedStatuses[1].data = ikigai;
-      
-      updatedStatuses[2].completed = !!offer;
-      updatedStatuses[2].data = offer;
-      
-      updatedStatuses[3].completed = socialProfiles && socialProfiles.length > 0;
-      updatedStatuses[3].data = socialProfiles || [];
-      
-      updatedStatuses[4].completed = outreachTemplates && outreachTemplates.length > 0;
-      updatedStatuses[4].data = outreachTemplates || [];
+      setModuleStatuses((prev) => {
+        const updated = [...prev];
 
-      setModuleStatuses(updatedStatuses);
+        updated[0] = {
+          ...updated[0],
+          completed: !!(skills && skills.length > 0),
+          data: skills || [],
+        };
 
-      // Prepare plan data
+        updated[1] = {
+          ...updated[1],
+          completed: !!ikigai,
+          data: ikigai,
+        };
+
+        updated[2] = {
+          ...updated[2],
+          completed: !!offer,
+          data: offer,
+        };
+
+        updated[3] = {
+          ...updated[3],
+          completed: !!(socialProfiles && socialProfiles.length > 0),
+          data: socialProfiles || [],
+        };
+
+        updated[4] = {
+          ...updated[4],
+          completed: !!(outreachTemplates && outreachTemplates.length > 0),
+          data: outreachTemplates || [],
+        };
+
+        return updated;
+      });
+
       const freedomPlanData: FreedomPlanData = {
         profile: {
-          fullName: profile?.full_name || 'Freelancer',
-          email: profile?.email || '',
-          studyField: profile?.study_field || '',
-          goals: Array.isArray(profile?.goals) ? profile.goals as string[] : [],
-          values: Array.isArray(profile?.values) ? profile.values as string[] : [],
-          interests: Array.isArray(profile?.interests) ? profile.interests as string[] : [],
+          fullName: safeText(profile?.full_name) || 'Freelancer',
+          email: safeText(profile?.email),
+          studyField: safeText(profile?.study_field),
+          goals: safeTextArray(profile?.goals),
+          values: safeTextArray(profile?.values),
+          interests: safeTextArray(profile?.interests),
         },
         skills: (skills || []).map((s: any) => ({
-          skill: s.skill,
-          category: s.category,
-          confidence: s.confidence,
-          description: s.description,
+          skill: safeText(s.skill),
+          category: safeText(s.category),
+          confidence: typeof s.confidence === 'number' ? s.confidence : 0,
+          description: safeText(s.description) || undefined,
         })),
-        ikigai: ikigai ? {
-          whatYouLove: Array.isArray(ikigai.what_you_love) ? ikigai.what_you_love as string[] : [],
-          whatYoureGoodAt: Array.isArray(ikigai.what_youre_good_at) ? ikigai.what_youre_good_at as string[] : [],
-          whatWorldNeeds: Array.isArray(ikigai.what_world_needs) ? ikigai.what_world_needs as string[] : [],
-          whatYouCanBePaidFor: Array.isArray(ikigai.what_you_can_be_paid_for) ? ikigai.what_you_can_be_paid_for as string[] : [],
-          ikigaiStatements: Array.isArray(ikigai.ikigai_statements) ? ikigai.ikigai_statements as string[] : [],
-          serviceAngles: Array.isArray(ikigai.service_angles) ? ikigai.service_angles as string[] : [],
-        } : null,
-        offer: offer ? {
-          smv: offer.smv || '',
-          targetMarket: offer.target_market || '',
-          starterPackage: offer.starter_package as any,
-          standardPackage: offer.standard_package as any,
-          premiumPackage: offer.premium_package as any,
-          pricingJustification: offer.pricing_justification || '',
-        } : null,
+        ikigai: ikigai
+          ? {
+              whatYouLove: safeTextArray(ikigai.what_you_love),
+              whatYoureGoodAt: safeTextArray(ikigai.what_youre_good_at),
+              whatWorldNeeds: safeTextArray(ikigai.what_world_needs),
+              whatYouCanBePaidFor: safeTextArray(ikigai.what_you_can_be_paid_for),
+              ikigaiStatements: formatIkigaiStatements(ikigai.ikigai_statements),
+              serviceAngles: formatServiceAngles(ikigai.service_angles),
+            }
+          : null,
+        offer: offer
+          ? {
+              smv: safeText(offer.smv),
+              targetMarket: safeText(offer.target_market),
+              starterPackage: sanitizePackage(offer.starter_package),
+              standardPackage: sanitizePackage(offer.standard_package),
+              premiumPackage: sanitizePackage(offer.premium_package),
+              pricingJustification: safeText(offer.pricing_justification),
+            }
+          : null,
         socialProfiles: (socialProfiles || []).map((sp: any) => ({
-          platform: sp.platform,
-          bio: sp.bio || '',
-          headline: sp.headline || '',
-          about: sp.about || '',
-          hashtags: Array.isArray(sp.hashtags) ? sp.hashtags as string[] : [],
-          contentPillars: Array.isArray(sp.content_pillars) ? sp.content_pillars as string[] : [],
-          cta: sp.cta || '',
+          platform: safeText(sp.platform),
+          bio: safeText(sp.bio),
+          headline: safeText(sp.headline),
+          about: safeText(sp.about),
+          hashtags: safeTextArray(sp.hashtags),
+          contentPillars: safeTextArray(sp.content_pillars),
+          cta: safeText(sp.cta),
         })),
         outreachTemplates: (outreachTemplates || []).map((ot: any) => ({
-          platform: ot.platform,
-          type: ot.template_type,
-          subject: ot.subject || '',
-          content: ot.content,
+          platform: safeText(ot.platform),
+          type: safeText(ot.template_type),
+          subject: safeText(ot.subject),
+          content: safeText(ot.content),
         })),
         generatedAt: new Date().toLocaleDateString('ro-RO', {
           year: 'numeric',
           month: 'long',
-          day: 'numeric'
+          day: 'numeric',
         }),
       };
 
@@ -174,9 +278,9 @@ export default function FreedomPlanExport() {
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca datele.",
-        variant: "destructive"
+        title: 'Eroare',
+        description: 'Nu am putut încărca datele.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
