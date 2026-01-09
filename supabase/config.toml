@@ -1,1 +1,4 @@
 project_id = "fdjzjqkiuxygiemqyfim"
+
+[functions.skill-scanner]
+verify_jwt = false
