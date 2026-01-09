@@ -12,11 +12,15 @@ import OnboardingStep2 from '@/components/onboarding/OnboardingStep2';
 import OnboardingStep3 from '@/components/onboarding/OnboardingStep3';
 import OnboardingStep4 from '@/components/onboarding/OnboardingStep4';
 import OnboardingStep5 from '@/components/onboarding/OnboardingStep5';
+import OnboardingStep6Skills from '@/components/onboarding/OnboardingStep6Skills';
+import OnboardingStep7Ikigai from '@/components/onboarding/OnboardingStep7Ikigai';
+import OnboardingStep8Offer from '@/components/onboarding/OnboardingStep8Offer';
 
 interface OnboardingData {
   full_name: string;
   date_of_birth: string;
   study_field: string;
+  other_course?: string;
   interests: string[];
   projects_experience: string;
   goals: string[];
@@ -29,6 +33,9 @@ const steps = [
   { title: 'Experiență', description: 'Proiecte și realizări' },
   { title: 'Obiective', description: 'Unde vrei să ajungi' },
   { title: 'Valori', description: 'Ce contează pentru tine' },
+  { title: 'Skill Scanner', description: 'Descoperă-ți competențele' },
+  { title: 'Ikigai', description: 'Găsește-ți direcția' },
+  { title: 'Ofertă', description: 'Creează-ți pachetele' },
 ];
 
 export default function Onboarding() {
@@ -36,10 +43,14 @@ export default function Onboarding() {
   const { user, refreshProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSkills, setHasSkills] = useState(false);
+  const [hasIkigai, setHasIkigai] = useState(false);
+  const [hasOffer, setHasOffer] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     full_name: '',
     date_of_birth: '',
     study_field: '',
+    other_course: '',
     interests: [],
     projects_experience: '',
     goals: [],
@@ -50,10 +61,34 @@ export default function Onboarding() {
     setData(prev => ({ ...prev, ...updates }));
   };
 
+  const saveProfileData = async () => {
+    if (!user) return;
+    
+    const studyField = data.study_field === 'Alt curs din UK' && data.other_course 
+      ? data.other_course 
+      : data.study_field;
+
+    await supabase
+      .from('profiles')
+      .update({
+        full_name: data.full_name,
+        date_of_birth: data.date_of_birth || null,
+        study_field: studyField,
+        interests: data.interests,
+        projects_experience: data.projects_experience,
+        goals: data.goals,
+        values: data.values,
+      })
+      .eq('id', user.id);
+  };
+
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return data.full_name.trim() !== '' && data.study_field.trim() !== '';
+        const hasValidCourse = data.study_field === 'Alt curs din UK' 
+          ? (data.other_course?.trim() ?? '') !== ''
+          : data.study_field.trim() !== '';
+        return data.full_name.trim() !== '' && hasValidCourse;
       case 1:
         return data.interests.length > 0;
       case 2:
@@ -62,12 +97,23 @@ export default function Onboarding() {
         return data.goals.length > 0;
       case 4:
         return data.values.length > 0;
+      case 5:
+        return hasSkills;
+      case 6:
+        return hasIkigai;
+      case 7:
+        return hasOffer;
       default:
         return false;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Save profile data after step 5 (before AI steps)
+    if (currentStep === 4) {
+      await saveProfileData();
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
@@ -84,12 +130,16 @@ export default function Onboarding() {
     
     setIsSubmitting(true);
     try {
+      const studyField = data.study_field === 'Alt curs din UK' && data.other_course 
+        ? data.other_course 
+        : data.study_field;
+
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: data.full_name,
           date_of_birth: data.date_of_birth || null,
-          study_field: data.study_field,
+          study_field: studyField,
           interests: data.interests,
           projects_experience: data.projects_experience,
           goals: data.goals,
@@ -101,7 +151,7 @@ export default function Onboarding() {
       if (error) throw error;
 
       await refreshProfile();
-      toast.success('Profilul tău a fost salvat cu succes!');
+      toast.success('Felicitări! Ai finalizat onboarding-ul!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -123,6 +173,12 @@ export default function Onboarding() {
         return <OnboardingStep4 data={data} updateData={updateData} />;
       case 4:
         return <OnboardingStep5 data={data} updateData={updateData} />;
+      case 5:
+        return <OnboardingStep6Skills data={data} onSkillsGenerated={setHasSkills} />;
+      case 6:
+        return <OnboardingStep7Ikigai data={data} onIkigaiGenerated={setHasIkigai} />;
+      case 7:
+        return <OnboardingStep8Offer onOfferGenerated={setHasOffer} />;
       default:
         return null;
     }
@@ -138,11 +194,11 @@ export default function Onboarding() {
       <div className="relative z-10 container max-w-3xl mx-auto px-4 py-8">
         {/* Progress bar */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 overflow-x-auto pb-2">
             {steps.map((step, index) => (
-              <div key={index} className="flex items-center">
+              <div key={index} className="flex items-center flex-shrink-0">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
                     index < currentStep
                       ? 'bg-primary text-primary-foreground'
                       : index === currentStep
@@ -150,11 +206,11 @@ export default function Onboarding() {
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  {index < currentStep ? <Check className="w-5 h-5" /> : index + 1}
+                  {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`hidden sm:block w-16 lg:w-24 h-1 mx-2 rounded-full transition-all duration-300 ${
+                    className={`hidden sm:block w-8 lg:w-12 h-1 mx-1 rounded-full transition-all duration-300 ${
                       index < currentStep ? 'bg-primary' : 'bg-muted'
                     }`}
                   />
