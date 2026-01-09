@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  FileDown, 
-  Loader2, 
-  Check, 
+import {
+  FileDown,
+  Loader2,
+  Check,
   Sparkles,
   Target,
   Package,
@@ -12,7 +12,8 @@ import {
   MessageSquare,
   AlertCircle,
   ArrowLeft,
-  Download
+  Download,
+  FileText,
 } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -24,6 +25,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { FreedomPlanPDF, type FreedomPlanData } from '@/components/pdf/FreedomPlanPDF';
+import { PdfHealthCheck } from '@/components/pdf/PdfHealthCheck';
+import { generateFreedomPlanDocx } from '@/components/pdf/FreedomPlanDocx';
 
 interface ModuleStatus {
   name: string;
@@ -369,14 +372,17 @@ export default function FreedomPlanExport() {
           </CardContent>
         </Card>
 
+        {/* Health Check */}
+        <PdfHealthCheck data={planData} />
+
         {/* Export Section */}
         <Card className={!allCompleted ? 'opacity-60' : ''}>
           <CardHeader>
             <CardTitle>Exportă Freedom Plan</CardTitle>
             <CardDescription>
               {allCompleted
-                ? "Descarcă documentul PDF cu planul tău complet de freelancing."
-                : "Completează toate modulele pentru a putea exporta planul."}
+                ? 'Descarcă documentul în formatul preferat.'
+                : 'Completează toate modulele pentru a putea exporta planul.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -393,29 +399,41 @@ export default function FreedomPlanExport() {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Planul tău este gata!</h3>
                   <p className="text-sm text-muted-foreground max-w-md">
-                    Documentul include toate informațiile din cele 5 module: competențe, Ikigai, 
+                    Documentul include toate informațiile din cele 5 module: competențe, Ikigai,
                     oferte de servicii, profiluri sociale și template-uri de outreach.
                   </p>
-                  <PDFDownloadLink
-                    document={<FreedomPlanPDF data={planData} />}
-                    fileName={`freedom-plan-${planData.profile.fullName.replace(/\s+/g, '-').toLowerCase()}.pdf`}
-                  >
-                    {({ loading }) => (
-                      <Button size="lg" disabled={loading} className="gap-2">
-                        {loading ? (
-                          <>
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            Se generează PDF-ul...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="h-5 w-5" />
-                            Descarcă Freedom Plan (PDF)
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <PDFDownloadLink
+                      document={<FreedomPlanPDF data={planData} />}
+                      fileName={`freedom-plan-${planData.profile.fullName.replace(/\s+/g, '-').toLowerCase()}.pdf`}
+                    >
+                      {({ loading }) => (
+                        <Button size="lg" disabled={loading} className="gap-2">
+                          {loading ? (
+                            <>
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                              Se generează PDF-ul...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="h-5 w-5" />
+                              Descarcă PDF
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </PDFDownloadLink>
+
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => generateFreedomPlanDocx(planData)}
+                    >
+                      <FileText className="h-5 w-5" />
+                      Descarcă DOCX
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">

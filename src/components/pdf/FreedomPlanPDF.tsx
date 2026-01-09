@@ -1,14 +1,26 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// Note: @react-pdf/renderer already supports standard fonts like Helvetica.
-// Registering fonts with src="Helvetica" can crash in some environments.
+// Register Roboto font with Romanian diacritics support
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    {
+      src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
+      fontWeight: 'bold',
+    },
+  ],
+});
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 11,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Roboto',
     backgroundColor: '#ffffff',
   },
   header: {
