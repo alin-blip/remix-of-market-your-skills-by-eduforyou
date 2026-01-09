@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -19,7 +19,10 @@ import {
   Star,
   TrendingUp,
   CheckCircle2,
-  Lightbulb
+  Lightbulb,
+  RefreshCw,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 
 interface Skill {
@@ -28,6 +31,14 @@ interface Skill {
   confidence: number;
   description: string;
   monetization_potential: 'low' | 'medium' | 'high';
+}
+
+interface SavedSkill {
+  id: string;
+  skill: string;
+  category: string;
+  confidence: number;
+  description: string | null;
 }
 
 interface ScanResult {
@@ -40,11 +51,39 @@ export default function SkillScanner() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   
-  const [step, setStep] = useState<'input' | 'scanning' | 'results'>('input');
+  const [step, setStep] = useState<'loading' | 'saved' | 'input' | 'scanning' | 'results'>('loading');
   const [experiences, setExperiences] = useState('');
   const [scanProgress, setScanProgress] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [savedSkills, setSavedSkills] = useState<SavedSkill[]>([]);
+
+  useEffect(() => {
+    loadSavedSkills();
+  }, [user]);
+
+  const loadSavedSkills = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('skill_entries')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading skills:', error);
+      setStep('input');
+      return;
+    }
+
+    if (data && data.length > 0) {
+      setSavedSkills(data);
+      setStep('saved');
+    } else {
+      setStep('input');
+    }
+  };
 
   const handleScan = async () => {
     if (!experiences.trim()) {
@@ -142,11 +181,49 @@ export default function SkillScanner() {
       if (profileError) throw profileError;
 
       toast.success('Competențele au fost salvate!');
-      navigate('/dashboard');
+      // Reload saved skills instead of navigating away
+      await loadSavedSkills();
     } catch (error: any) {
       console.error('Save error:', error);
       const errorMessage = error?.message || error?.details || 'Eroare la salvarea competențelor';
       toast.error(errorMessage);
+    }
+  };
+
+  const handleDeleteSkill = async (skillId: string) => {
+    try {
+      const { error } = await supabase
+        .from('skill_entries')
+        .delete()
+        .eq('id', skillId);
+
+      if (error) throw error;
+
+      toast.success('Competența a fost ștearsă');
+      await loadSavedSkills();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Eroare la ștergere');
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('skill_entries')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Toate competențele au fost șterse');
+      setSavedSkills([]);
+      setStep('input');
+    } catch (error) {
+      console.error('Delete all error:', error);
+      toast.error('Eroare la ștergere');
     }
   };
 
@@ -168,6 +245,15 @@ export default function SkillScanner() {
     }
   };
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'technical': return 'bg-blue-500/20 text-blue-400';
+      case 'soft': return 'bg-purple-500/20 text-purple-400';
+      case 'hidden': return 'bg-amber-500/20 text-amber-400';
+      default: return 'bg-muted';
+    }
+  };
+
   const getPotentialColor = (potential: string) => {
     switch (potential) {
       case 'high': return 'bg-accent text-accent-foreground';
@@ -181,6 +267,127 @@ export default function SkillScanner() {
     <MainLayout>
       <div className="max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
+          {/* Loading State */}
+          {step === 'loading' && (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-16"
+            >
+              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+            </motion.div>
+          )}
+
+          {/* Saved Skills View */}
+          {step === 'saved' && savedSkills.length > 0 && (
+            <motion.div
+              key="saved"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/20 mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-accent" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                  Competențele tale salvate
+                </h1>
+                <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                  Ai <span className="text-primary font-semibold">{savedSkills.length} competențe</span> în profilul tău. Poți adăuga mai multe sau edita.
+                </p>
+              </div>
+
+              {/* Saved Skills Grid */}
+              <div className="grid gap-3">
+                {savedSkills.map((skill, index) => (
+                  <motion.div
+                    key={skill.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="glass border-white/10 p-4">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getCategoryColor(skill.category)}`}>
+                          {getCategoryIcon(skill.category)}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-foreground">{skill.skill}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {getCategoryLabel(skill.category)}
+                            </Badge>
+                          </div>
+                          {skill.description && (
+                            <p className="text-sm text-muted-foreground">{skill.description}</p>
+                          )}
+                          <div className="flex items-center gap-1 mt-2">
+                            {[1, 2, 3, 4, 5].map(level => (
+                              <Star
+                                key={level}
+                                className={`w-3 h-3 ${
+                                  level <= skill.confidence ? 'text-primary fill-primary' : 'text-muted'
+                                }`}
+                              />
+                            ))}
+                            <span className="text-xs text-muted-foreground ml-1">
+                              Încredere {skill.confidence}/5
+                            </span>
+                          </div>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteSkill(skill.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setStep('input')}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Scanează din nou
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="gap-2 text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={handleDeleteAll}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Șterge tot
+                  </Button>
+                </div>
+                <Button
+                  onClick={() => navigate('/wizard/ikigai')}
+                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  size="lg"
+                >
+                  Continuă la Ikigai
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
           {/* Input Step */}
           {step === 'input' && (
             <motion.div
@@ -202,6 +409,21 @@ export default function SkillScanner() {
                 </p>
               </div>
 
+              {savedSkills.length > 0 && (
+                <Card className="glass border-primary/20 p-4 bg-primary/5">
+                  <p className="text-sm text-muted-foreground">
+                    Ai deja {savedSkills.length} competențe salvate. Noile competențe vor fi adăugate la cele existente.
+                  </p>
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-primary"
+                    onClick={() => setStep('saved')}
+                  >
+                    Vezi competențele salvate →
+                  </Button>
+                </Card>
+              )}
+
               <Card className="glass border-white/10 p-6">
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Experiențe, proiecte și realizări
@@ -217,17 +439,27 @@ export default function SkillScanner() {
                 </p>
               </Card>
 
-              <div className="flex justify-end">
-                <Button 
-                  onClick={handleScan}
-                  disabled={!experiences.trim()}
-                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  size="lg"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Analizează competențele
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
+              <div className="flex justify-between">
+                {savedSkills.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep('saved')}
+                  >
+                    Înapoi la competențe
+                  </Button>
+                )}
+                <div className={savedSkills.length === 0 ? 'ml-auto' : ''}>
+                  <Button 
+                    onClick={handleScan}
+                    disabled={!experiences.trim()}
+                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    size="lg"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Analizează competențele
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}

@@ -22,7 +22,8 @@ import {
   Zap,
   Crown,
   Target,
-  TrendingUp
+  TrendingUp,
+  RefreshCw
 } from 'lucide-react';
 
 interface PackageData {
@@ -63,12 +64,13 @@ export default function OfferBuilder() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   
-  const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
+  const [step, setStep] = useState<'loading' | 'missing-data' | 'ready' | 'generating' | 'results'>('loading');
   const [skills, setSkills] = useState<Skill[]>([]);
   const [ikigaiData, setIkigaiData] = useState<IkigaiData | null>(null);
   const [generateProgress, setGenerateProgress] = useState(0);
   const [result, setResult] = useState<OfferResult | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'standard' | 'premium'>('standard');
+  const [hasSavedResult, setHasSavedResult] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -77,10 +79,11 @@ export default function OfferBuilder() {
   const loadData = async () => {
     if (!user) return;
 
-    // Load skills and ikigai in parallel
-    const [skillsResponse, ikigaiResponse] = await Promise.all([
+    // Load skills, ikigai, and existing offer in parallel
+    const [skillsResponse, ikigaiResponse, offerResponse] = await Promise.all([
       supabase.from('skill_entries').select('*').eq('user_id', user.id),
-      supabase.from('ikigai_results').select('*').eq('user_id', user.id).maybeSingle()
+      supabase.from('ikigai_results').select('*').eq('user_id', user.id).maybeSingle(),
+      supabase.from('offers').select('*').eq('user_id', user.id).maybeSingle()
     ]);
 
     if (skillsResponse.error) {
@@ -102,11 +105,23 @@ export default function OfferBuilder() {
       });
     }
 
-    // Check if we have enough data
-    if (loadedSkills.length > 0 && ikigaiResponse.data) {
+    // Check if we have a saved offer
+    if (offerResponse.data) {
+      const savedOffer: OfferResult = {
+        smv: offerResponse.data.smv || '',
+        target_market: offerResponse.data.target_market || '',
+        pricing_justification: offerResponse.data.pricing_justification || '',
+        starter_package: (offerResponse.data.starter_package as unknown as PackageData) || {} as PackageData,
+        standard_package: (offerResponse.data.standard_package as unknown as PackageData) || {} as PackageData,
+        premium_package: (offerResponse.data.premium_package as unknown as PackageData) || {} as PackageData,
+      };
+      setResult(savedOffer);
+      setHasSavedResult(true);
+      setStep('results');
+    } else if (loadedSkills.length > 0 && ikigaiResponse.data) {
       setStep('ready');
     } else {
-      setStep('loading');
+      setStep('missing-data');
     }
   };
 
@@ -164,6 +179,7 @@ export default function OfferBuilder() {
       
       setTimeout(() => {
         setResult(data);
+        setHasSavedResult(false);
         setStep('results');
       }, 500);
     } catch (error) {
@@ -225,7 +241,7 @@ export default function OfferBuilder() {
       if (profileError) throw profileError;
 
       toast.success('Oferta salvată cu succes!');
-      navigate('/dashboard');
+      setHasSavedResult(true);
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Eroare la salvare');
@@ -252,10 +268,24 @@ export default function OfferBuilder() {
     <MainLayout>
       <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
-          {/* Loading/Missing Data State */}
+          {/* Loading State */}
           {step === 'loading' && (
             <motion.div
               key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-16"
+            >
+              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+            </motion.div>
+          )}
+
+          {/* Missing Data State */}
+          {step === 'missing-data' && (
+            <motion.div
+              key="missing-data"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -425,7 +455,7 @@ export default function OfferBuilder() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Oferta ta
+                  {hasSavedResult ? 'Oferta ta salvată' : 'Oferta ta'}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                   {result.smv}
@@ -454,7 +484,7 @@ export default function OfferBuilder() {
               <div className="grid gap-6 md:grid-cols-3">
                 {packageConfig.map((pkg, index) => {
                   const data = getPackageData(pkg.key);
-                  if (!data) return null;
+                  if (!data || !data.name) return null;
 
                   const isSelected = selectedPackage === pkg.key;
                   const isPopular = pkg.popular;
@@ -474,44 +504,43 @@ export default function OfferBuilder() {
                           : 'border-white/10 hover:border-white/20'
                       }`}>
                         {isPopular && (
-                          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-accent">
-                            Popular
-                          </Badge>
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0">
+                              Popular
+                            </Badge>
+                          </div>
                         )}
 
                         <div className="text-center mb-4">
                           <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${pkg.color} mb-3`}>
                             <pkg.icon className="w-6 h-6 text-white" />
                           </div>
-                          <h3 className="font-bold text-xl text-foreground">{data.name}</h3>
+                          <h3 className="font-bold text-lg text-foreground">{data.name}</h3>
                           <p className="text-sm text-muted-foreground">{data.tagline}</p>
                         </div>
 
                         <div className="text-center mb-4">
-                          <span className="text-4xl font-bold text-foreground">{data.price}</span>
+                          <span className="text-3xl font-bold text-foreground">{data.price}</span>
                           <span className="text-muted-foreground ml-1">{data.currency}</span>
                         </div>
 
-                        <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
+                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
                           <Clock className="w-4 h-4" />
                           {data.delivery_time}
                         </div>
 
                         <ul className="space-y-2 mb-4">
-                          {data.deliverables.map((item, i) => (
+                          {data.deliverables?.map((item, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm">
-                              <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                               <span className="text-muted-foreground">{item}</span>
                             </li>
                           ))}
                         </ul>
 
-                        <div className="pt-4 border-t border-white/10">
-                          <p className="text-xs text-muted-foreground">
-                            <span className="text-foreground font-medium">Ideal pentru:</span>{' '}
-                            {data.ideal_for}
-                          </p>
-                        </div>
+                        <p className="text-xs text-center text-muted-foreground border-t border-white/10 pt-3">
+                          Ideal pentru: {data.ideal_for}
+                        </p>
                       </Card>
                     </motion.div>
                   );
@@ -519,23 +548,39 @@ export default function OfferBuilder() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-center gap-4">
-                <Button 
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+                <Button
                   variant="outline"
-                  onClick={handleGenerate}
                   className="gap-2"
+                  onClick={() => {
+                    setStep('ready');
+                    setResult(null);
+                    setHasSavedResult(false);
+                  }}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  Regenerează
+                  <RefreshCw className="w-4 h-4" />
+                  Generează din nou
                 </Button>
-                <Button 
-                  onClick={handleSave}
-                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  Salvează Oferta
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
+                <div className="flex gap-3">
+                  {!hasSavedResult && (
+                    <Button
+                      onClick={handleSave}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Salvează Oferta
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => navigate('/wizard/outreach')}
+                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    size="lg"
+                  >
+                    Continuă la Outreach
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}

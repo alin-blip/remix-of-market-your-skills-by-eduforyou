@@ -21,7 +21,8 @@ import {
   Sparkles,
   CheckCircle2,
   AlertCircle,
-  Quote
+  Quote,
+  RefreshCw
 } from 'lucide-react';
 
 interface ServiceAngle {
@@ -57,32 +58,52 @@ export default function IkigaiBuilder() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   
-  const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
+  const [step, setStep] = useState<'loading' | 'no-skills' | 'ready' | 'generating' | 'results'>('loading');
   const [skills, setSkills] = useState<Skill[]>([]);
   const [generateProgress, setGenerateProgress] = useState(0);
   const [result, setResult] = useState<IkigaiResult | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<number>(0);
+  const [hasSavedResult, setHasSavedResult] = useState(false);
 
   useEffect(() => {
-    loadSkills();
+    loadData();
   }, [user]);
 
-  const loadSkills = async () => {
+  const loadData = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('skill_entries')
-      .select('*')
-      .eq('user_id', user.id);
+    // Load skills and existing ikigai result in parallel
+    const [skillsResponse, ikigaiResponse] = await Promise.all([
+      supabase.from('skill_entries').select('*').eq('user_id', user.id),
+      supabase.from('ikigai_results').select('*').eq('user_id', user.id).maybeSingle()
+    ]);
 
-    if (error) {
-      console.error('Error loading skills:', error);
-      toast.error('Eroare la încărcarea competențelor');
-      return;
+    if (skillsResponse.error) {
+      console.error('Error loading skills:', skillsResponse.error);
     }
 
-    setSkills(data || []);
-    setStep(data && data.length > 0 ? 'ready' : 'loading');
+    const loadedSkills = skillsResponse.data || [];
+    setSkills(loadedSkills);
+
+    // Check if we have a saved ikigai result
+    if (ikigaiResponse.data) {
+      const savedResult: IkigaiResult = {
+        what_you_love: (ikigaiResponse.data.what_you_love as unknown as string[]) || [],
+        what_youre_good_at: (ikigaiResponse.data.what_youre_good_at as unknown as string[]) || [],
+        what_world_needs: (ikigaiResponse.data.what_world_needs as unknown as string[]) || [],
+        what_you_can_be_paid_for: (ikigaiResponse.data.what_you_can_be_paid_for as unknown as string[]) || [],
+        ikigai_statements: (ikigaiResponse.data.ikigai_statements as unknown as IkigaiStatement[]) || [],
+        service_angles: (ikigaiResponse.data.service_angles as unknown as ServiceAngle[]) || [],
+        core_positioning: (ikigaiResponse.data.ikigai_statements as unknown as any)?.[0]?.statement || '',
+      };
+      setResult(savedResult);
+      setHasSavedResult(true);
+      setStep('results');
+    } else if (loadedSkills.length > 0) {
+      setStep('ready');
+    } else {
+      setStep('no-skills');
+    }
   };
 
   const handleGenerate = async () => {
@@ -115,8 +136,8 @@ export default function IkigaiBuilder() {
           body: JSON.stringify({
             skills,
             studyField: profile?.study_field || '',
-            goals: profile?.interests || [],
-            values: [],
+            goals: (profile as any)?.goals || [],
+            values: (profile as any)?.values || [],
           }),
         }
       );
@@ -133,6 +154,7 @@ export default function IkigaiBuilder() {
       
       setTimeout(() => {
         setResult(data);
+        setHasSavedResult(false);
         setStep('results');
       }, 500);
     } catch (error) {
@@ -196,7 +218,7 @@ export default function IkigaiBuilder() {
       if (profileError) throw profileError;
 
       toast.success('Ikigai salvat cu succes!');
-      navigate('/dashboard');
+      setHasSavedResult(true);
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Eroare la salvare');
@@ -214,8 +236,22 @@ export default function IkigaiBuilder() {
     <MainLayout>
       <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
-          {/* Loading/No Skills State */}
-          {step === 'loading' && skills.length === 0 && (
+          {/* Loading State */}
+          {step === 'loading' && (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-16"
+            >
+              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+            </motion.div>
+          )}
+
+          {/* No Skills State */}
+          {step === 'no-skills' && (
             <motion.div
               key="no-skills"
               initial={{ opacity: 0, y: 20 }}
@@ -358,10 +394,10 @@ export default function IkigaiBuilder() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Ikigai-ul tău
+                  {hasSavedResult ? 'Ikigai-ul tău salvat' : 'Ikigai-ul tău'}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  {result.core_positioning}
+                  {result.core_positioning || result.ikigai_statements?.[0]?.statement || ''}
                 </p>
               </div>
 
@@ -396,7 +432,7 @@ export default function IkigaiBuilder() {
                         <h3 className="font-semibold text-foreground">{q.label}</h3>
                       </div>
                       <ul className="space-y-2">
-                        {(result[q.key as keyof IkigaiResult] as string[]).map((item, i) => (
+                        {(result[q.key as keyof IkigaiResult] as string[])?.map((item, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                             <span className={`mt-1.5 w-1.5 h-1.5 rounded-full ${q.bg.replace('/20', '')}`} />
                             {item}
@@ -409,76 +445,94 @@ export default function IkigaiBuilder() {
               </div>
 
               {/* Ikigai Statements */}
-              <Card className="glass border-primary/20 p-6">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Quote className="w-5 h-5 text-primary" />
-                  Declarații de poziționare
-                </h3>
-                <div className="space-y-3">
-                  {result.ikigai_statements.map((stmt, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedStatement(index)}
-                      className={`p-4 rounded-xl cursor-pointer transition-all ${
-                        selectedStatement === index
-                          ? 'bg-primary/10 border border-primary/30'
-                          : 'bg-background/50 border border-transparent hover:border-white/10'
-                      }`}
-                    >
-                      <p className="font-medium text-foreground mb-1">"{stmt.statement}"</p>
-                      <p className="text-sm text-muted-foreground">{stmt.explanation}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+              {result.ikigai_statements && result.ikigai_statements.length > 0 && (
+                <Card className="glass border-primary/20 p-6">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Quote className="w-5 h-5 text-primary" />
+                    Declarații de poziționare
+                  </h3>
+                  <div className="space-y-3">
+                    {result.ikigai_statements.map((stmt, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedStatement(index)}
+                        className={`p-4 rounded-xl cursor-pointer transition-all ${
+                          selectedStatement === index
+                            ? 'bg-primary/10 border border-primary/30'
+                            : 'bg-background/50 border border-transparent hover:border-white/10'
+                        }`}
+                      >
+                        <p className="font-medium text-foreground mb-1">"{stmt.statement}"</p>
+                        <p className="text-sm text-muted-foreground">{stmt.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
 
               {/* Service Angles */}
-              <div>
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-accent" />
-                  Unghiuri de servicii
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {result.service_angles.map((angle, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                    >
-                      <Card className="glass border-white/10 p-5 h-full hover-lift">
-                        <h4 className="font-semibold text-foreground mb-2">{angle.title}</h4>
-                        <p className="text-sm text-muted-foreground mb-3">{angle.description}</p>
-                        <div className="space-y-1 text-xs">
-                          <p><span className="text-primary">Audiență:</span> <span className="text-muted-foreground">{angle.target_audience}</span></p>
-                          <p><span className="text-accent">Valoare unică:</span> <span className="text-muted-foreground">{angle.unique_value}</span></p>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
+              {result.service_angles && result.service_angles.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-accent" />
+                    Unghiuri de servicii
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {result.service_angles.map((angle, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                      >
+                        <Card className="glass border-white/10 p-5 h-full hover-lift">
+                          <h4 className="font-semibold text-foreground mb-2">{angle.title}</h4>
+                          <p className="text-sm text-muted-foreground mb-3">{angle.description}</p>
+                          <div className="space-y-1 text-xs">
+                            <p><span className="text-primary">Audiență:</span> <span className="text-muted-foreground">{angle.target_audience}</span></p>
+                            <p><span className="text-accent">Valoare unică:</span> <span className="text-muted-foreground">{angle.unique_value}</span></p>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Actions */}
-              <div className="flex justify-between items-center pt-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
                 <Button
                   variant="outline"
+                  className="gap-2"
                   onClick={() => {
                     setStep('ready');
                     setResult(null);
-                    setGenerateProgress(0);
+                    setHasSavedResult(false);
                   }}
                 >
-                  Regenerează
+                  <RefreshCw className="w-4 h-4" />
+                  Generează din nou
                 </Button>
-                <Button
-                  onClick={handleSave}
-                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  size="lg"
-                >
-                  Salvează și continuă
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
+                <div className="flex gap-3">
+                  {!hasSavedResult && (
+                    <Button
+                      onClick={handleSave}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Salvează Ikigai
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => navigate('/wizard/offer')}
+                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    size="lg"
+                  >
+                    Continuă la Offer Builder
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
