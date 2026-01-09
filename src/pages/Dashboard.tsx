@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Sparkles, 
   Target, 
@@ -12,7 +15,9 @@ import {
   CheckCircle2,
   Circle,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  Lock,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -25,15 +30,61 @@ interface PathStep {
   route: string;
   completed: boolean;
   current: boolean;
+  locked: boolean;
+  dataCount?: number;
+}
+
+interface ProgressData {
+  skillsCount: number;
+  hasIkigai: boolean;
+  hasOffer: boolean;
+  outreachCount: number;
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
+  const [progressData, setProgressData] = useState<ProgressData>({
+    skillsCount: 0,
+    hasIkigai: false,
+    hasOffer: false,
+    outreachCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadProgressData();
+    }
+  }, [user]);
+
+  const loadProgressData = async () => {
+    if (!user) return;
+
+    try {
+      const [skillsRes, ikigaiRes, offerRes, outreachRes] = await Promise.all([
+        supabase.from('skill_entries').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('ikigai_results').select('id').eq('user_id', user.id).maybeSingle(),
+        supabase.from('offers').select('id').eq('user_id', user.id).maybeSingle(),
+        supabase.from('outreach_templates').select('id', { count: 'exact' }).eq('user_id', user.id),
+      ]);
+
+      setProgressData({
+        skillsCount: skillsRes.count || 0,
+        hasIkigai: !!ikigaiRes.data,
+        hasOffer: !!offerRes.data,
+        outreachCount: outreachRes.count || 0,
+      });
+    } catch (error) {
+      console.error('Error loading progress:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calculate freedom score based on completed steps
   const freedomScore = profile?.freedom_score ?? 0;
 
-  // Define the Freedom Path steps
+  // Define the Freedom Path steps with correct routes
   const pathSteps: PathStep[] = [
     {
       id: 'skills',
@@ -41,8 +92,10 @@ export default function Dashboard() {
       description: 'Descoperă-ți competențele monetizabile',
       icon: <Sparkles className="w-6 h-6" />,
       route: '/wizard/skill-scanner',
-      completed: freedomScore >= 20,
-      current: freedomScore < 20,
+      completed: progressData.skillsCount > 0,
+      current: progressData.skillsCount === 0,
+      locked: false,
+      dataCount: progressData.skillsCount,
     },
     {
       id: 'ikigai',
@@ -50,35 +103,40 @@ export default function Dashboard() {
       description: 'Găsește-ți poziționarea unică',
       icon: <Target className="w-6 h-6" />,
       route: '/wizard/ikigai',
-      completed: freedomScore >= 40,
-      current: freedomScore >= 20 && freedomScore < 40,
+      completed: progressData.hasIkigai,
+      current: progressData.skillsCount > 0 && !progressData.hasIkigai,
+      locked: progressData.skillsCount === 0,
     },
     {
       id: 'offer',
       title: 'Offer Builder',
       description: 'Creează-ți pachetele de servicii',
       icon: <Package className="w-6 h-6" />,
-      route: '/offer-builder',
-      completed: freedomScore >= 60,
-      current: freedomScore >= 40 && freedomScore < 60,
+      route: '/wizard/offer',
+      completed: progressData.hasOffer,
+      current: progressData.hasIkigai && !progressData.hasOffer,
+      locked: !progressData.hasIkigai,
     },
     {
       id: 'outreach',
       title: 'Outreach Generator',
       description: 'Generează mesaje de prospectare',
       icon: <MessageSquare className="w-6 h-6" />,
-      route: '/outreach',
-      completed: freedomScore >= 80,
-      current: freedomScore >= 60 && freedomScore < 80,
+      route: '/wizard/outreach',
+      completed: progressData.outreachCount > 0,
+      current: progressData.hasOffer && progressData.outreachCount === 0,
+      locked: !progressData.hasOffer,
+      dataCount: progressData.outreachCount,
     },
     {
       id: 'export',
       title: 'Freedom Plan',
       description: 'Exportă-ți planul complet',
       icon: <FileText className="w-6 h-6" />,
-      route: '/export',
+      route: '/wizard/export',
       completed: freedomScore >= 100,
-      current: freedomScore >= 80 && freedomScore < 100,
+      current: progressData.outreachCount > 0 && freedomScore < 100,
+      locked: progressData.outreachCount === 0,
     },
   ];
 
@@ -183,60 +241,109 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <h2 className="text-2xl font-bold text-foreground mb-6">Freedom Path</h2>
-          <div className="space-y-4">
-            {pathSteps.map((step, index) => (
-              <Card
-                key={step.id}
-                className={`glass border-white/10 p-4 transition-all ${
-                  step.current 
-                    ? 'border-primary/50 bg-primary/5' 
-                    : step.completed 
-                    ? 'opacity-75' 
-                    : 'opacity-50'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Step number/status */}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                    step.completed 
-                      ? 'bg-accent text-accent-foreground' 
-                      : step.current 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {step.completed ? <CheckCircle2 className="w-5 h-5" /> : index + 1}
-                  </div>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {pathSteps.map((step, index) => (
+                <motion.div
+                  key={step.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card
+                    className={`glass border-white/10 p-4 transition-all hover-lift ${
+                      step.current 
+                        ? 'border-primary/50 bg-primary/5 shadow-lg shadow-primary/10' 
+                        : step.completed 
+                        ? 'border-accent/30' 
+                        : step.locked
+                        ? 'opacity-40'
+                        : 'opacity-60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Step number/status */}
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-semibold transition-all ${
+                        step.completed 
+                          ? 'bg-accent text-accent-foreground' 
+                          : step.current 
+                          ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground' 
+                          : step.locked
+                          ? 'bg-muted/50 text-muted-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {step.completed ? (
+                          <CheckCircle2 className="w-6 h-6" />
+                        ) : step.locked ? (
+                          <Lock className="w-5 h-5" />
+                        ) : (
+                          step.icon
+                        )}
+                      </div>
 
-                  {/* Step info */}
-                  <div className="flex-1">
-                    <h3 className={`font-semibold ${step.current || step.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
-                  </div>
+                      {/* Step info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h3 className={`font-semibold ${step.current || step.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {step.title}
+                          </h3>
+                          {step.completed && step.dataCount !== undefined && step.dataCount > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              {step.dataCount} {step.dataCount === 1 ? 'item' : 'items'}
+                            </Badge>
+                          )}
+                          {step.completed && !step.dataCount && (
+                            <Badge className="bg-accent/20 text-accent text-xs">Completat</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{step.description}</p>
+                      </div>
 
-                  {/* Action */}
-                  {(step.current || step.completed) && (
-                    <Button
-                      variant={step.current ? 'default' : 'outline'}
-                      size="sm"
-                      asChild
-                      className={step.current ? 'bg-gradient-to-r from-primary to-accent' : ''}
-                    >
-                      <Link to={step.route}>
-                        {step.completed ? 'Revizuiește' : 'Start'}
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </Link>
-                    </Button>
-                  )}
+                      {/* Action */}
+                      {step.completed && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="shrink-0 gap-1"
+                        >
+                          <Link to={step.route}>
+                            Revizuiește
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      )}
 
-                  {!step.current && !step.completed && (
-                    <Circle className="w-5 h-5 text-muted-foreground" />
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
+                      {step.current && (
+                        <Button
+                          size="sm"
+                          asChild
+                          className="shrink-0 gap-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                        >
+                          <Link to={step.route}>
+                            Start
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      )}
+
+                      {step.locked && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Lock className="w-3 h-3" />
+                          Blocat
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </MainLayout>
