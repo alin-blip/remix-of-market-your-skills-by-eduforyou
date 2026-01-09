@@ -1,14 +1,8 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
-// Register fonts (using standard fonts for compatibility)
-Font.register({
-  family: 'Helvetica',
-  fonts: [
-    { src: 'Helvetica' },
-    { src: 'Helvetica-Bold', fontWeight: 'bold' },
-  ],
-});
+// Note: @react-pdf/renderer already supports standard fonts like Helvetica.
+// Registering fonts with src="Helvetica" can crash in some environments.
 
 const styles = StyleSheet.create({
   page: {
@@ -19,7 +13,8 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 30,
-    borderBottom: '2px solid #6366f1',
+    borderBottomWidth: 2,
+    borderBottomColor: '#6366f1',
     paddingBottom: 20,
   },
   title: {
@@ -46,7 +41,8 @@ const styles = StyleSheet.create({
     color: '#1e1b4b',
     marginBottom: 12,
     paddingBottom: 6,
-    borderBottom: '1px solid #e2e8f0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
   },
   sectionSubtitle: {
     fontSize: 12,
@@ -77,7 +73,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 12,
     marginBottom: 10,
-    border: '1px solid #e2e8f0',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   cardTitle: {
     fontSize: 12,
@@ -108,12 +105,12 @@ const styles = StyleSheet.create({
   skillGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
   },
   skillBadge: {
     backgroundColor: '#eef2ff',
     borderRadius: 4,
-    padding: '4 8',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     marginRight: 6,
     marginBottom: 6,
   },
@@ -126,7 +123,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 12,
     marginBottom: 10,
-    border: '1px solid #e2e8f0',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   packageTitle: {
     fontSize: 13,
@@ -148,7 +146,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 9,
     color: '#94a3b8',
-    borderTop: '1px solid #e2e8f0',
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
     paddingTop: 10,
   },
   pageNumber: {
