@@ -4,8 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Login() {
@@ -34,74 +33,94 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="h-10 w-10 rounded-lg gradient-accent flex items-center justify-center">
-            <Sparkles className="h-6 w-6 text-accent-foreground" />
-          </div>
-          <span className="font-display font-bold text-xl">Student Freedom</span>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="fixed inset-0 gradient-mesh pointer-events-none" />
+      <div className="fixed inset-0 gradient-glow pointer-events-none" />
+      
+      <div className="w-full max-w-md relative z-10">
+        {/* Back link */}
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Înapoi
         </Link>
 
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="font-display text-2xl">Autentificare</CardTitle>
-            <CardDescription>
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 mb-8 group">
+          <div className="h-12 w-12 rounded-xl gradient-accent flex items-center justify-center shadow-lg glow-accent group-hover:scale-110 transition-transform">
+            <Sparkles className="h-6 w-6 text-accent-foreground" />
+          </div>
+          <span className="font-display font-bold text-2xl tracking-tight">
+            Student<span className="text-accent">Freedom</span>
+          </span>
+        </Link>
+
+        {/* Form Card */}
+        <div className="p-8 rounded-2xl glass animate-slide-up">
+          <div className="mb-8">
+            <h1 className="font-display text-3xl font-bold mb-2">Bine ai revenit</h1>
+            <p className="text-muted-foreground">
               Intră în contul tău pentru a continua
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@exemplu.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Parolă</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <Button 
-                type="submit" 
-                className="w-full gradient-primary text-primary-foreground"
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="tu@exemplu.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Se autentifică...
-                  </>
-                ) : (
-                  'Autentificare'
-                )}
-              </Button>
-              <p className="text-sm text-muted-foreground text-center">
-                Nu ai cont?{' '}
-                <Link to="/auth/register" className="text-primary hover:underline font-medium">
-                  Înregistrează-te
-                </Link>
-              </p>
-            </CardFooter>
+                className="h-12 bg-secondary border-border focus:border-primary"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">Parolă</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="h-12 bg-secondary border-border focus:border-primary"
+              />
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-12 gradient-primary text-primary-foreground font-semibold text-base glow-primary hover:scale-[1.02] transition-transform"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Se autentifică...
+                </>
+              ) : (
+                'Autentificare'
+              )}
+            </Button>
           </form>
-        </Card>
+
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <p className="text-muted-foreground">
+              Nu ai cont?{' '}
+              <Link to="/auth/register" className="text-accent hover:underline font-semibold">
+                Înregistrează-te gratuit
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
