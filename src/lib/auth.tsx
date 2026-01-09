@@ -8,6 +8,7 @@ interface Profile {
   full_name: string | null;
   role: 'student' | 'admin' | 'mentor';
   study_field: string | null;
+  interests: string[] | null;
   onboarding_completed: boolean;
   verified: boolean;
   freedom_score: number;
