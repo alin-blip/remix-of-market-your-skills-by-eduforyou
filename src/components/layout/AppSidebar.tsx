@@ -5,6 +5,7 @@ import {
   Sparkles,
   Target,
   Package,
+  User,
   MessageSquare,
   ChevronDown,
   Compass,
@@ -35,6 +36,7 @@ const pathItems = [
   { title: 'Skill Scanner', url: '/wizard/skill-scanner', icon: Sparkles },
   { title: 'Ikigai Builder', url: '/wizard/ikigai', icon: Target },
   { title: 'Offer Builder', url: '/wizard/offer', icon: Package },
+  { title: 'Profile Builder', url: '/wizard/profile', icon: User },
   { title: 'Outreach Generator', url: '/wizard/outreach', icon: MessageSquare },
 ];
 
@@ -43,7 +45,7 @@ interface AppSidebarProps {
   totalSteps?: number;
 }
 
-export function AppSidebar({ completedSteps = 0, totalSteps = 4 }: AppSidebarProps) {
+export function AppSidebar({ completedSteps = 0, totalSteps = 5 }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
