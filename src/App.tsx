@@ -12,6 +12,7 @@ import Register from "./pages/auth/Register";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SkillScanner from "./pages/wizard/SkillScanner";
+import IkigaiBuilder from "./pages/wizard/IkigaiBuilder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SkillScanner />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/wizard/ikigai" 
+              element={
+                <ProtectedRoute>
+                  <IkigaiBuilder />
                 </ProtectedRoute>
               } 
             />

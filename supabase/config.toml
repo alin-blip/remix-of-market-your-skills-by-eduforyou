@@ -2,3 +2,6 @@ project_id = "fdjzjqkiuxygiemqyfim"
 
 [functions.skill-scanner]
 verify_jwt = false
+
+[functions.ikigai-builder]
+verify_jwt = false
