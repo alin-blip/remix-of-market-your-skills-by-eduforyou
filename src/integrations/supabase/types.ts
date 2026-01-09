@@ -245,6 +245,51 @@ export type Database = {
         }
         Relationships: []
       }
+      social_profiles: {
+        Row: {
+          about: string | null
+          bio: string | null
+          content_pillars: Json | null
+          created_at: string
+          cta: string | null
+          hashtags: Json | null
+          headline: string | null
+          id: string
+          platform: string
+          updated_at: string
+          user_id: string
+          username_suggestions: Json | null
+        }
+        Insert: {
+          about?: string | null
+          bio?: string | null
+          content_pillars?: Json | null
+          created_at?: string
+          cta?: string | null
+          hashtags?: Json | null
+          headline?: string | null
+          id?: string
+          platform: string
+          updated_at?: string
+          user_id: string
+          username_suggestions?: Json | null
+        }
+        Update: {
+          about?: string | null
+          bio?: string | null
+          content_pillars?: Json | null
+          created_at?: string
+          cta?: string | null
+          hashtags?: Json | null
+          headline?: string | null
+          id?: string
+          platform?: string
+          updated_at?: string
+          user_id?: string
+          username_suggestions?: Json | null
+        }
+        Relationships: []
+      }
       verifications: {
         Row: {
           admin_id: string | null

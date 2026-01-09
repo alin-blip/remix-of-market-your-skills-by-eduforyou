@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.outreach-generator]
 verify_jwt = false
+
+[functions.profile-builder]
+verify_jwt = false
