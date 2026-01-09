@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.ikigai-builder]
 verify_jwt = false
+
+[functions.offer-builder]
+verify_jwt = false

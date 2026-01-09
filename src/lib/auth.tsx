@@ -12,6 +12,7 @@ interface Profile {
   onboarding_completed: boolean;
   verified: boolean;
   freedom_score: number;
+  locale: string | null;
 }
 
 interface AuthContextType {
