@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  Settings,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -107,6 +108,22 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   {!collapsed && <span>{t.sidebar.dashboard}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/settings'}
+                tooltip={t.sidebar?.settings || "Settings"}
+              >
+                <NavLink
+                  to="/settings"
+                  className="flex items-center gap-3"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <Settings className="h-4 w-4" />
+                  {!collapsed && <span>{t.sidebar?.settings || "Settings"}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
