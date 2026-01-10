@@ -309,6 +309,7 @@ export const ro = {
     saveError: 'Eroare la salvare',
     generateError: 'Eroare la generare',
     generateErrorDescription: 'A apărut o eroare la generarea profilului.',
+    regenerate: 'Regenerează',
     backToOffers: 'Înapoi la Offers',
     continueToOutreach: 'Continuă la Outreach',
     platforms: {
