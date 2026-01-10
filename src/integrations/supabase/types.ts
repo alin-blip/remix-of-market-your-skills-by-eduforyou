@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      gigs_jobs: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          currency: string | null
+          description: string
+          id: string
+          is_published: boolean | null
+          location: string | null
+          location_type: string | null
+          price_max: number | null
+          price_min: number | null
+          price_type: string | null
+          published_at: string | null
+          skills: Json | null
+          source_package: string | null
+          swipehire_id: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description: string
+          id?: string
+          is_published?: boolean | null
+          location?: string | null
+          location_type?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          price_type?: string | null
+          published_at?: string | null
+          skills?: Json | null
+          source_package?: string | null
+          swipehire_id?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string
+          id?: string
+          is_published?: boolean | null
+          location?: string | null
+          location_type?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          price_type?: string | null
+          published_at?: string | null
+          skills?: Json | null
+          source_package?: string | null
+          swipehire_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ikigai_results: {
         Row: {
           created_at: string | null
