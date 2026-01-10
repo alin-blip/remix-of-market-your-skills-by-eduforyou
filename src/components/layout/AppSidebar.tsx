@@ -32,15 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-
-const pathItems = [
-  { title: 'Skill Scanner', url: '/wizard/skill-scanner', icon: Sparkles },
-  { title: 'Ikigai Builder', url: '/wizard/ikigai', icon: Target },
-  { title: 'Offer Builder', url: '/wizard/offer', icon: Package },
-  { title: 'Profile Builder', url: '/wizard/profile', icon: User },
-  { title: 'Outreach Generator', url: '/wizard/outreach', icon: MessageSquare },
-  { title: 'Freedom Plan Export', url: '/wizard/export', icon: FileDown },
-];
+import { useI18n } from '@/lib/i18n';
 
 interface AppSidebarProps {
   completedSteps?: number;
@@ -49,9 +41,19 @@ interface AppSidebarProps {
 
 export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarProps) {
   const { state } = useSidebar();
+  const { t } = useI18n();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const pathItems = [
+    { title: t.sidebar.skillScanner, url: '/wizard/skill-scanner', icon: Sparkles },
+    { title: t.sidebar.ikigaiBuilder, url: '/wizard/ikigai', icon: Target },
+    { title: t.sidebar.offerBuilder, url: '/wizard/offer', icon: Package },
+    { title: t.sidebar.profileBuilder, url: '/wizard/profile', icon: User },
+    { title: t.sidebar.outreachGenerator, url: '/wizard/outreach', icon: MessageSquare },
+    { title: t.sidebar.freedomPlanExport, url: '/wizard/export', icon: FileDown },
+  ];
 
   // Check if any path item is active
   const isPathActive = pathItems.some((item) => currentPath.startsWith(item.url));
@@ -83,7 +85,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/dashboard'}
-                tooltip="Dashboard"
+                tooltip={t.sidebar.dashboard}
               >
                 <NavLink
                   to="/dashboard"
@@ -91,7 +93,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  {!collapsed && <span>Dashboard</span>}
+                  {!collapsed && <span>{t.sidebar.dashboard}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -110,7 +112,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               >
                 <div className="flex items-center gap-2">
                   <Compass className="h-4 w-4" />
-                  {!collapsed && <span>Define Your Path</span>}
+                  {!collapsed && <span>{t.sidebar.defineYourPath}</span>}
                 </div>
                 {!collapsed && (
                   <ChevronDown
@@ -162,7 +164,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         <SidebarFooter className="p-4 border-t border-sidebar-border">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-sidebar-foreground/70">
-              <span>Progres Freedom Path</span>
+              <span>{t.sidebar.progressLabel}</span>
               <span className="font-medium">{completedSteps}/{totalSteps}</span>
             </div>
             <Progress value={progressPercentage} className="h-2" />

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { Target, Loader2, Check, RefreshCw, Heart, Briefcase, Globe, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -35,6 +36,7 @@ interface Props {
 
 export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [step, setStep] = useState<'idle' | 'generating' | 'results'>('idle');
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<IkigaiResult | null>(null);
@@ -85,7 +87,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
       const skills = await loadSkills();
       
       if (skills.length === 0) {
-        throw new Error('Nu ai competențe salvate. Revino la pasul anterior.');
+        throw new Error(t.onboardingStep7.noSkillsError);
       }
 
       const response = await supabase.functions.invoke('ikigai-builder', {
@@ -113,7 +115,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
     } catch (error: any) {
       clearInterval(progressInterval);
       console.error('Ikigai error:', error);
-      toast.error(error.message || 'A apărut o eroare');
+      toast.error(error.message || t.onboardingStep7.generateError);
       setStep('idle');
     }
   };
@@ -143,22 +145,22 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
         .update({ freedom_score: 40 })
         .eq('id', user.id);
 
-      toast.success('Ikigai salvat!');
+      toast.success(t.onboardingStep7.ikigaiSaved);
       setHasExistingIkigai(true);
       onIkigaiGenerated(true);
     } catch (error: any) {
       console.error('Save error:', error);
-      toast.error(error.message || 'Eroare la salvare');
+      toast.error(error.message || t.onboardingStep7.saveError);
     } finally {
       setIsSaving(false);
     }
   };
 
   const quadrantConfig = [
-    { key: 'what_you_love', label: 'Ce îți place', icon: Heart, color: 'text-pink-400 bg-pink-500/10' },
-    { key: 'what_youre_good_at', label: 'La ce ești bun/ă', icon: Target, color: 'text-blue-400 bg-blue-500/10' },
-    { key: 'what_world_needs', label: 'Ce are nevoie lumea', icon: Globe, color: 'text-green-400 bg-green-500/10' },
-    { key: 'what_you_can_be_paid_for', label: 'Pentru ce poți fi plătit/ă', icon: DollarSign, color: 'text-yellow-400 bg-yellow-500/10' },
+    { key: 'what_you_love', label: t.onboardingStep7.whatYouLove, icon: Heart, color: 'text-pink-400 bg-pink-500/10' },
+    { key: 'what_youre_good_at', label: t.onboardingStep7.whatYoureGoodAt, icon: Target, color: 'text-blue-400 bg-blue-500/10' },
+    { key: 'what_world_needs', label: t.onboardingStep7.whatWorldNeeds, icon: Globe, color: 'text-green-400 bg-green-500/10' },
+    { key: 'what_you_can_be_paid_for', label: t.onboardingStep7.whatYouCanBePaidFor, icon: DollarSign, color: 'text-yellow-400 bg-yellow-500/10' },
   ];
 
   if (hasExistingIkigai && step === 'idle') {
@@ -168,9 +170,9 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center">
             <Check className="w-8 h-8 text-green-500" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Ikigai generat!</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep7.ikigaiGeneratedTitle}</h3>
           <p className="text-muted-foreground">
-            Ai deja profilul Ikigai salvat. Poți continua sau regenera.
+            {t.onboardingStep7.ikigaiGeneratedDescription}
           </p>
         </div>
         <div className="flex justify-center">
@@ -183,7 +185,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
             className="gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            Regenerează Ikigai
+            {t.onboardingStep7.regenerateIkigai}
           </Button>
         </div>
       </div>
@@ -201,17 +203,17 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
           >
             <Target className="w-8 h-8 text-primary" />
           </motion.div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Construim Ikigai-ul tău...</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep7.buildingTitle}</h3>
           <p className="text-muted-foreground">
-            Analizăm competențele și valorile tale
+            {t.onboardingStep7.buildingDescription}
           </p>
         </div>
         <Progress value={progress} className="h-2" />
         <p className="text-center text-sm text-muted-foreground">
-          {progress < 30 && 'Se analizează competențele...'}
-          {progress >= 30 && progress < 60 && 'Se identifică intersecțiile...'}
-          {progress >= 60 && progress < 90 && 'Se generează direcțiile de servicii...'}
-          {progress >= 90 && 'Finalizare...'}
+          {progress < 30 && t.onboardingStep7.analyzingSkills}
+          {progress >= 30 && progress < 60 && t.onboardingStep7.identifyingIntersections}
+          {progress >= 60 && progress < 90 && t.onboardingStep7.generatingDirections}
+          {progress >= 90 && t.onboardingStep7.finalizing}
         </p>
       </div>
     );
@@ -224,7 +226,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <Target className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground">Ikigai-ul tău</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t.onboardingStep7.yourIkigai}</h3>
         </div>
 
         {/* Quadrants Preview */}
@@ -245,7 +247,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
                 ))}
                 {(result[key as keyof IkigaiResult] as string[]).length > 2 && (
                   <li className="text-xs text-primary">
-                    +{(result[key as keyof IkigaiResult] as string[]).length - 2} mai multe
+                    {t.onboardingStep7.moreItems.replace('{count}', String((result[key as keyof IkigaiResult] as string[]).length - 2))}
                   </li>
                 )}
               </ul>
@@ -267,7 +269,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
           <div className="p-3 rounded-lg bg-accent/5 border border-accent/20">
             <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
               <Briefcase className="w-4 h-4" />
-              Direcții de servicii identificate:
+              {t.onboardingStep7.serviceDirections}
             </h4>
             <div className="space-y-1">
               {result.service_angles.slice(0, 2).map((angle, i) => (
@@ -288,12 +290,12 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Se salvează...
+                {t.onboardingStep7.savingIkigai}
               </>
             ) : (
               <>
                 <Check className="w-4 h-4" />
-                Salvează și continuă
+                {t.onboardingStep7.saveAndContinue}
               </>
             )}
           </Button>
@@ -309,9 +311,9 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
           <Target className="w-8 h-8 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">Ikigai Builder</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep7.builderTitle}</h3>
         <p className="text-muted-foreground">
-          Descoperă intersecția perfectă dintre pasiune, talent, nevoile lumii și oportunități de monetizare.
+          {t.onboardingStep7.builderDescription}
         </p>
       </div>
 
@@ -329,7 +331,7 @@ export default function OnboardingStep7Ikigai({ data, onIkigaiGenerated }: Props
       <div className="flex justify-center pt-4">
         <Button onClick={handleGenerate} size="lg" className="gap-2">
           <Target className="w-5 h-5" />
-          Generează Ikigai
+          {t.onboardingStep7.generateButton}
         </Button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -21,6 +22,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { profile, signOut, user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [completedSteps, setCompletedSteps] = useState(0);
 
@@ -81,7 +83,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/admin" className="flex items-center gap-2">
                     <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">Verificări</span>
+                    <span className="hidden sm:inline">{t.layout.verifications}</span>
                   </Link>
                 </Button>
               )}
@@ -105,13 +107,13 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      Profil
+                      {t.layout.profile}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Deconectare
+                    {t.layout.logout}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

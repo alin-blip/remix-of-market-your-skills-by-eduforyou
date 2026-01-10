@@ -2,37 +2,18 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, Plus, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 
 interface Props {
   data: { interests: string[] };
   updateData: (updates: { interests: string[] }) => void;
 }
 
-const suggestedInterests = [
-  'Programare',
-  'Design grafic',
-  'Scriere creativă',
-  'Video editing',
-  'Social media',
-  'Marketing digital',
-  'Fotografie',
-  'Muzică',
-  'Gaming',
-  'Blogging',
-  'Podcasting',
-  'Ilustrație',
-  'Animație',
-  'Web development',
-  'Copywriting',
-  'SEO',
-  'Data analysis',
-  'Traduceri',
-  'Tutoring',
-  'Public speaking',
-];
-
 export default function OnboardingStep2({ data, updateData }: Props) {
+  const { t } = useI18n();
   const [customInterest, setCustomInterest] = useState('');
+
+  const suggestedInterests = t.onboardingStep2.suggestedInterests;
 
   const toggleInterest = (interest: string) => {
     const newInterests = data.interests.includes(interest)
@@ -63,14 +44,14 @@ export default function OnboardingStep2({ data, updateData }: Props) {
           <Heart className="w-8 h-8 text-accent" />
         </div>
         <p className="text-muted-foreground">
-          Selectează sau adaugă activitățile care îți plac. Cu cât ești mai specific, cu atât mai bine!
+          {t.onboardingStep2.description}
         </p>
       </div>
 
       {/* Selected interests */}
       {data.interests.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Selectate ({data.interests.length}):</p>
+          <p className="text-sm text-muted-foreground">{t.onboardingStep2.selected} ({data.interests.length}):</p>
           <div className="flex flex-wrap gap-2">
             {data.interests.map((interest) => (
               <Badge
@@ -90,7 +71,7 @@ export default function OnboardingStep2({ data, updateData }: Props) {
       {/* Custom interest input */}
       <div className="flex gap-2">
         <Input
-          placeholder="Adaugă alt interes..."
+          placeholder={t.onboardingStep2.addPlaceholder}
           value={customInterest}
           onChange={(e) => setCustomInterest(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -107,7 +88,7 @@ export default function OnboardingStep2({ data, updateData }: Props) {
 
       {/* Suggested interests */}
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Sugestii populare:</p>
+        <p className="text-sm text-muted-foreground">{t.onboardingStep2.suggestions}</p>
         <div className="flex flex-wrap gap-2">
           {suggestedInterests.map((interest) => (
             <Badge

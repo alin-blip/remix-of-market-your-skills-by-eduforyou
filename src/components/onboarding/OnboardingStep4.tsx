@@ -2,29 +2,18 @@ import { Badge } from '@/components/ui/badge';
 import { Target, Plus, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 
 interface Props {
   data: { goals: string[] };
   updateData: (updates: { goals: string[] }) => void;
 }
 
-const suggestedGoals = [
-  'Venit extra în timpul facultății',
-  'Experiență practică pentru CV',
-  'Construirea unui portofoliu',
-  'Libertate financiară',
-  'Lucru remote de oriunde',
-  'Dezvoltare personală',
-  'Networking profesional',
-  'Lansarea unei afaceri',
-  'Independență față de părinți',
-  'Plata unei chirie proprii',
-  'Economii pentru călătorii',
-  'Achiziții personale',
-];
-
 export default function OnboardingStep4({ data, updateData }: Props) {
+  const { t } = useI18n();
   const [customGoal, setCustomGoal] = useState('');
+
+  const suggestedGoals = t.onboardingStep4.suggestedGoals;
 
   const toggleGoal = (goal: string) => {
     const newGoals = data.goals.includes(goal)
@@ -55,14 +44,14 @@ export default function OnboardingStep4({ data, updateData }: Props) {
           <Target className="w-8 h-8 text-accent" />
         </div>
         <p className="text-muted-foreground">
-          Ce vrei să obții? Selectează sau adaugă obiectivele tale.
+          {t.onboardingStep4.description}
         </p>
       </div>
 
       {/* Selected goals */}
       {data.goals.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Obiectivele tale ({data.goals.length}):</p>
+          <p className="text-sm text-muted-foreground">{t.onboardingStep4.yourGoals} ({data.goals.length}):</p>
           <div className="flex flex-wrap gap-2">
             {data.goals.map((goal) => (
               <Badge
@@ -82,7 +71,7 @@ export default function OnboardingStep4({ data, updateData }: Props) {
       {/* Custom goal input */}
       <div className="flex gap-2">
         <Input
-          placeholder="Adaugă alt obiectiv..."
+          placeholder={t.onboardingStep4.addPlaceholder}
           value={customGoal}
           onChange={(e) => setCustomGoal(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -99,7 +88,7 @@ export default function OnboardingStep4({ data, updateData }: Props) {
 
       {/* Suggested goals */}
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Obiective comune:</p>
+        <p className="text-sm text-muted-foreground">{t.onboardingStep4.commonGoals}</p>
         <div className="flex flex-wrap gap-2">
           {suggestedGoals.map((goal) => (
             <Badge

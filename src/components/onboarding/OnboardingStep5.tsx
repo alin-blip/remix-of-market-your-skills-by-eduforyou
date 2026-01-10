@@ -2,33 +2,18 @@ import { Badge } from '@/components/ui/badge';
 import { Gem, Plus, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 
 interface Props {
   data: { values: string[] };
   updateData: (updates: { values: string[] }) => void;
 }
 
-const suggestedValues = [
-  'Autenticitate',
-  'Creativitate',
-  'Integritate',
-  'Libertate',
-  'Flexibilitate',
-  'Învățare continuă',
-  'Impact social',
-  'Echilibru viață-muncă',
-  'Excelență',
-  'Colaborare',
-  'Inovație',
-  'Responsabilitate',
-  'Empatie',
-  'Curaj',
-  'Perseverență',
-  'Transparență',
-];
-
 export default function OnboardingStep5({ data, updateData }: Props) {
+  const { t } = useI18n();
   const [customValue, setCustomValue] = useState('');
+
+  const suggestedValues = t.onboardingStep5.suggestedValues;
 
   const toggleValue = (value: string) => {
     const newValues = data.values.includes(value)
@@ -59,14 +44,14 @@ export default function OnboardingStep5({ data, updateData }: Props) {
           <Gem className="w-8 h-8 text-primary" />
         </div>
         <p className="text-muted-foreground">
-          Ce valori sunt importante pentru tine? Acestea te vor ajuta să găsești clienți potriviți.
+          {t.onboardingStep5.description}
         </p>
       </div>
 
       {/* Selected values */}
       {data.values.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Valorile tale ({data.values.length}):</p>
+          <p className="text-sm text-muted-foreground">{t.onboardingStep5.yourValues} ({data.values.length}):</p>
           <div className="flex flex-wrap gap-2">
             {data.values.map((value) => (
               <Badge
@@ -86,7 +71,7 @@ export default function OnboardingStep5({ data, updateData }: Props) {
       {/* Custom value input */}
       <div className="flex gap-2">
         <Input
-          placeholder="Adaugă altă valoare..."
+          placeholder={t.onboardingStep5.addPlaceholder}
           value={customValue}
           onChange={(e) => setCustomValue(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -103,7 +88,7 @@ export default function OnboardingStep5({ data, updateData }: Props) {
 
       {/* Suggested values */}
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Valori populare:</p>
+        <p className="text-sm text-muted-foreground">{t.onboardingStep5.popularValues}</p>
         <div className="flex flex-wrap gap-2">
           {suggestedValues.map((value) => (
             <Badge
