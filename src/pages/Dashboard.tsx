@@ -145,12 +145,13 @@ export default function Dashboard() {
     },
   ];
 
-  const currentStep = pathSteps.find(step => step.current) || pathSteps[pathSteps.length - 1];
+  const currentStep = pathSteps.find(step => step.current);
   const completedSteps = pathSteps.filter(step => step.completed).length;
   const progressPercentage = (completedSteps / pathSteps.length) * 100;
   
   // Calculate freedom score dynamically based on completed steps
   const freedomScore = Math.round((completedSteps / pathSteps.length) * 100);
+  const allStepsCompleted = completedSteps === pathSteps.length;
 
   return (
     <MainLayout>
@@ -214,32 +215,55 @@ export default function Dashboard() {
           </Card>
         </motion.div>
 
-        {/* Next Action Card */}
+        {/* Next Action Card - show congratulations when all complete */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-                  {currentStep.icon}
+          {allStepsCompleted ? (
+            <Card className="glass border-accent/30 p-6 bg-gradient-to-r from-accent/10 to-primary/10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center text-accent">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-accent font-medium mb-1">🎉 {t.common.completed}</p>
+                    <h3 className="text-xl font-bold text-foreground">{t.export.allCompletedDescription}</h3>
+                    <p className="text-muted-foreground">{t.export.planReadyDescription}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-primary font-medium mb-1">{t.dashboard.nextStep}</p>
-                  <h3 className="text-xl font-bold text-foreground">{currentStep.title}</h3>
-                  <p className="text-muted-foreground">{currentStep.description}</p>
-                </div>
+                <Button asChild className="gap-2 bg-gradient-to-r from-accent to-primary hover:opacity-90">
+                  <Link to="/wizard/export">
+                    {t.export.downloadPdf}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
               </div>
-              <Button asChild className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                <Link to={currentStep.route}>
-                  {t.dashboard.startNow}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </Card>
+            </Card>
+          ) : currentStep ? (
+            <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                    {currentStep.icon}
+                  </div>
+                  <div>
+                    <p className="text-sm text-primary font-medium mb-1">{t.dashboard.nextStep}</p>
+                    <h3 className="text-xl font-bold text-foreground">{currentStep.title}</h3>
+                    <p className="text-muted-foreground">{currentStep.description}</p>
+                  </div>
+                </div>
+                <Button asChild className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                  <Link to={currentStep.route}>
+                    {t.dashboard.startNow}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ) : null}
         </motion.div>
 
         {/* Freedom Path */}
