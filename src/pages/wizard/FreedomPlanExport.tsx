@@ -27,6 +27,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { FreedomPlanPDF, type FreedomPlanData } from '@/components/pdf/FreedomPlanPDF';
 import { PdfHealthCheck } from '@/components/pdf/PdfHealthCheck';
 import { generateFreedomPlanDocx } from '@/components/pdf/FreedomPlanDocx';
+import { useI18n } from '@/lib/i18n';
 
 interface ModuleStatus {
   name: string;
@@ -40,15 +41,16 @@ export default function FreedomPlanExport() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [isLoading, setIsLoading] = useState(true);
   const [planData, setPlanData] = useState<FreedomPlanData | null>(null);
   const [moduleStatuses, setModuleStatuses] = useState<ModuleStatus[]>([
-    { name: 'Skill Scanner', icon: Sparkles, completed: false, route: '/wizard/skill-scanner', data: null },
-    { name: 'Ikigai Builder', icon: Target, completed: false, route: '/wizard/ikigai', data: null },
-    { name: 'Offer Builder', icon: Package, completed: false, route: '/wizard/offer', data: null },
-    { name: 'Profile Builder', icon: User, completed: false, route: '/wizard/profile', data: null },
-    { name: 'Outreach Generator', icon: MessageSquare, completed: false, route: '/wizard/outreach', data: null },
+    { name: t.wizard.skillScanner, icon: Sparkles, completed: false, route: '/wizard/skill-scanner', data: null },
+    { name: t.wizard.ikigaiBuilder, icon: Target, completed: false, route: '/wizard/ikigai', data: null },
+    { name: t.wizard.offerBuilder, icon: Package, completed: false, route: '/wizard/offer', data: null },
+    { name: t.wizard.profileBuilder, icon: User, completed: false, route: '/wizard/profile', data: null },
+    { name: t.wizard.outreachGenerator, icon: MessageSquare, completed: false, route: '/wizard/outreach', data: null },
   ]);
 
   const safeText = (val: unknown): string => {
@@ -70,9 +72,7 @@ export default function FreedomPlanExport() {
 
   const safeTextArray = (val: unknown): string[] => {
     if (!Array.isArray(val)) return [];
-    return val
-      .map((v) => safeText(v).trim())
-      .filter(Boolean);
+    return val.map((v) => safeText(v).trim()).filter(Boolean);
   };
 
   const formatIkigaiStatements = (val: unknown): string[] => {
@@ -103,15 +103,8 @@ export default function FreedomPlanExport() {
           const desc = safeText(anyV.description);
           const aud = safeText(anyV.target_audience);
           const uv = safeText(anyV.unique_value);
-
           const core = [title, desc].filter(Boolean).join(': ');
-          const meta = [
-            aud ? `Audiență: ${aud}` : '',
-            uv ? `Valoare unică: ${uv}` : '',
-          ]
-            .filter(Boolean)
-            .join(' • ');
-
+          const meta = [aud ? `Audiență: ${aud}` : '', uv ? `Valoare unică: ${uv}` : ''].filter(Boolean).join(' • ');
           return meta ? `${core} (${meta})` : core;
         }
         return safeText(v);
@@ -145,78 +138,20 @@ export default function FreedomPlanExport() {
       const userId = user?.id;
       if (!userId) return;
 
-      // Load profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      // Load skills
-      const { data: skills } = await supabase
-        .from('skill_entries')
-        .select('*')
-        .eq('user_id', userId);
-
-      // Load ikigai
-      const { data: ikigai } = await supabase
-        .from('ikigai_results')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      // Load offer
-      const { data: offer } = await supabase
-        .from('offers')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      // Load social profiles
-      const { data: socialProfiles } = await supabase
-        .from('social_profiles')
-        .select('*')
-        .eq('user_id', userId);
-
-      // Load outreach templates
-      const { data: outreachTemplates } = await supabase
-        .from('outreach_templates')
-        .select('*')
-        .eq('user_id', userId);
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+      const { data: skills } = await supabase.from('skill_entries').select('*').eq('user_id', userId);
+      const { data: ikigai } = await supabase.from('ikigai_results').select('*').eq('user_id', userId).maybeSingle();
+      const { data: offer } = await supabase.from('offers').select('*').eq('user_id', userId).maybeSingle();
+      const { data: socialProfiles } = await supabase.from('social_profiles').select('*').eq('user_id', userId);
+      const { data: outreachTemplates } = await supabase.from('outreach_templates').select('*').eq('user_id', userId);
 
       setModuleStatuses((prev) => {
         const updated = [...prev];
-
-        updated[0] = {
-          ...updated[0],
-          completed: !!(skills && skills.length > 0),
-          data: skills || [],
-        };
-
-        updated[1] = {
-          ...updated[1],
-          completed: !!ikigai,
-          data: ikigai,
-        };
-
-        updated[2] = {
-          ...updated[2],
-          completed: !!offer,
-          data: offer,
-        };
-
-        updated[3] = {
-          ...updated[3],
-          completed: !!(socialProfiles && socialProfiles.length > 0),
-          data: socialProfiles || [],
-        };
-
-        updated[4] = {
-          ...updated[4],
-          completed: !!(outreachTemplates && outreachTemplates.length > 0),
-          data: outreachTemplates || [],
-        };
-
+        updated[0] = { ...updated[0], completed: !!(skills && skills.length > 0), data: skills || [] };
+        updated[1] = { ...updated[1], completed: !!ikigai, data: ikigai };
+        updated[2] = { ...updated[2], completed: !!offer, data: offer };
+        updated[3] = { ...updated[3], completed: !!(socialProfiles && socialProfiles.length > 0), data: socialProfiles || [] };
+        updated[4] = { ...updated[4], completed: !!(outreachTemplates && outreachTemplates.length > 0), data: outreachTemplates || [] };
         return updated;
       });
 
@@ -270,27 +205,19 @@ export default function FreedomPlanExport() {
           subject: safeText(ot.subject),
           content: safeText(ot.content),
         })),
-        generatedAt: new Date().toLocaleDateString('ro-RO', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
+        generatedAt: new Date().toLocaleDateString('ro-RO', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
 
       setPlanData(freedomPlanData);
     } catch (error) {
       console.error('Error loading data:', error);
-      toast({
-        title: 'Eroare',
-        description: 'Nu am putut încărca datele.',
-        variant: 'destructive',
-      });
+      toast({ title: t.common.error, description: t.common.error, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const completedCount = moduleStatuses.filter(m => m.completed).length;
+  const completedCount = moduleStatuses.filter((m) => m.completed).length;
   const allCompleted = completedCount === moduleStatuses.length;
   const progressPercentage = (completedCount / moduleStatuses.length) * 100;
 
@@ -307,48 +234,32 @@ export default function FreedomPlanExport() {
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <FileDown className="h-8 w-8 text-primary" />
-            <h1 className="font-display text-3xl font-bold">Freedom Plan Export</h1>
+            <h1 className="font-display text-3xl font-bold">{t.export.title}</h1>
           </div>
-          <p className="text-muted-foreground">
-            Exportă planul tău complet de freelancing într-un document PDF profesional
-          </p>
+          <p className="text-muted-foreground">{t.export.subtitle}</p>
         </div>
 
-        {/* Progress Overview */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Progres General</span>
-              <Badge variant={allCompleted ? "default" : "secondary"}>
-                {completedCount}/{moduleStatuses.length} module completate
+              <span>{t.export.progressTitle}</span>
+              <Badge variant={allCompleted ? 'default' : 'secondary'}>
+                {completedCount}/{moduleStatuses.length} {t.export.modulesCompleted}
               </Badge>
             </CardTitle>
-            <CardDescription>
-              {allCompleted 
-                ? "Felicitări! Ai completat toate modulele și poți exporta planul tău."
-                : "Completează toate modulele pentru a genera planul complet."}
-            </CardDescription>
+            <CardDescription>{allCompleted ? t.export.allCompletedDescription : t.export.incompleteDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <Progress value={progressPercentage} className="h-3 mb-6" />
-            
             <div className="grid gap-3">
               {moduleStatuses.map((module, index) => (
-                <motion.div
-                  key={module.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div 
+                <motion.div key={module.name} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
+                  <div
                     className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-                      module.completed 
-                        ? 'bg-primary/5 border-primary/20' 
-                        : 'bg-muted/30 border-border hover:bg-muted/50 cursor-pointer'
+                      module.completed ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-border hover:bg-muted/50 cursor-pointer'
                     }`}
                     onClick={() => !module.completed && navigate(module.route)}
                   >
@@ -356,15 +267,9 @@ export default function FreedomPlanExport() {
                       <div className={`p-2 rounded-lg ${module.completed ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                         <module.icon className="h-4 w-4" />
                       </div>
-                      <span className={module.completed ? 'font-medium' : 'text-muted-foreground'}>
-                        {module.name}
-                      </span>
+                      <span className={module.completed ? 'font-medium' : 'text-muted-foreground'}>{module.name}</span>
                     </div>
-                    {module.completed ? (
-                      <Check className="h-5 w-5 text-primary" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-muted-foreground" />
-                    )}
+                    {module.completed ? <Check className="h-5 w-5 text-primary" /> : <AlertCircle className="h-5 w-5 text-muted-foreground" />}
                   </div>
                 </motion.div>
               ))}
@@ -372,27 +277,20 @@ export default function FreedomPlanExport() {
           </CardContent>
         </Card>
 
-        {/* Health Check */}
         <PdfHealthCheck data={planData} />
 
-        {/* PDF Preview */}
         {allCompleted && planData && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Preview PDF
+                {t.export.previewTitle}
               </CardTitle>
-              <CardDescription>
-                Vizualizează planul tău înainte de a-l descărca
-              </CardDescription>
+              <CardDescription>{t.export.previewDescription}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg overflow-hidden bg-muted/30">
-                <PDFViewer
-                  style={{ width: '100%', height: '600px', border: 'none' }}
-                  showToolbar={true}
-                >
+                <PDFViewer style={{ width: '100%', height: '600px', border: 'none' }} showToolbar={true}>
                   <FreedomPlanPDF data={planData} />
                 </PDFViewer>
               </div>
@@ -400,15 +298,10 @@ export default function FreedomPlanExport() {
           </Card>
         )}
 
-        {/* Export Section */}
         <Card className={!allCompleted ? 'opacity-60' : ''}>
           <CardHeader>
-            <CardTitle>Exportă Freedom Plan</CardTitle>
-            <CardDescription>
-              {allCompleted
-                ? 'Descarcă documentul în formatul preferat.'
-                : 'Completează toate modulele pentru a putea exporta planul.'}
-            </CardDescription>
+            <CardTitle>{t.export.exportTitle}</CardTitle>
+            <CardDescription>{allCompleted ? t.export.exportReadyDescription : t.export.exportNotReadyDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center text-center space-y-6 py-6">
@@ -422,11 +315,8 @@ export default function FreedomPlanExport() {
 
               {allCompleted && planData ? (
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Planul tău este gata!</h3>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    Documentul include toate informațiile din cele 5 module: competențe, Ikigai,
-                    oferte de servicii, profiluri sociale și template-uri de outreach.
-                  </p>
+                  <h3 className="font-semibold text-lg">{t.export.planReady}</h3>
+                  <p className="text-sm text-muted-foreground max-w-md">{t.export.planReadyDescription}</p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <PDFDownloadLink
                       document={<FreedomPlanPDF data={planData} />}
@@ -437,58 +327,42 @@ export default function FreedomPlanExport() {
                           {loading ? (
                             <>
                               <Loader2 className="h-5 w-5 animate-spin" />
-                              Se generează PDF-ul...
+                              {t.export.generatingPdf}
                             </>
                           ) : (
                             <>
                               <Download className="h-5 w-5" />
-                              Descarcă PDF
+                              {t.export.downloadPdf}
                             </>
                           )}
                         </Button>
                       )}
                     </PDFDownloadLink>
-
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => generateFreedomPlanDocx(planData)}
-                    >
+                    <Button size="lg" variant="outline" className="gap-2" onClick={() => generateFreedomPlanDocx(planData)}>
                       <FileText className="h-5 w-5" />
-                      Descarcă DOCX
+                      {t.export.downloadDocx}
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg text-muted-foreground">
-                    Mai ai {moduleStatuses.length - completedCount} module de completat
+                    {t.export.modulesRemaining.replace('{count}', String(moduleStatuses.length - completedCount))}
                   </h3>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    Apasă pe modulele necompletate de mai sus pentru a le finaliza.
-                  </p>
+                  <p className="text-sm text-muted-foreground max-w-md">{t.export.clickModulesToComplete}</p>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex items-center justify-between pt-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/wizard/outreach')}
-          >
+          <Button variant="outline" onClick={() => navigate('/wizard/outreach')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Înapoi la Outreach
+            {t.export.backToOutreach}
           </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => navigate('/dashboard')}
-          >
-            Înapoi la Dashboard
+          <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            {t.export.backToDashboard}
           </Button>
         </div>
       </div>

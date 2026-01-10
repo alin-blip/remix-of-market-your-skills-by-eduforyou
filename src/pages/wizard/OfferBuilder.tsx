@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useI18n } from '@/lib/i18n';
 import { 
   Package, 
   ArrowRight, 
@@ -63,6 +64,7 @@ interface IkigaiData {
 export default function OfferBuilder() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const [step, setStep] = useState<'loading' | 'missing-data' | 'ready' | 'generating' | 'results'>('loading');
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -79,7 +81,6 @@ export default function OfferBuilder() {
   const loadData = async () => {
     if (!user) return;
 
-    // Load skills, ikigai, and existing offer in parallel
     const [skillsResponse, ikigaiResponse, offerResponse] = await Promise.all([
       supabase.from('skill_entries').select('*').eq('user_id', user.id),
       supabase.from('ikigai_results').select('*').eq('user_id', user.id).maybeSingle(),
@@ -105,7 +106,6 @@ export default function OfferBuilder() {
       });
     }
 
-    // Check if we have a saved offer
     if (offerResponse.data) {
       const savedOffer: OfferResult = {
         smv: offerResponse.data.smv || '',
@@ -127,13 +127,13 @@ export default function OfferBuilder() {
 
   const handleGenerate = async () => {
     if (skills.length === 0) {
-      toast.error('Trebuie să ai competențe scanate înainte');
+      toast.error(t.offerBuilder.needSkillsFirst);
       navigate('/wizard/skill-scanner');
       return;
     }
 
     if (!ikigaiData) {
-      toast.error('Trebuie să ai Ikigai-ul generat înainte');
+      toast.error(t.offerBuilder.needIkigaiFirst);
       navigate('/wizard/ikigai');
       return;
     }
@@ -146,7 +146,6 @@ export default function OfferBuilder() {
     }, 500);
 
     try {
-      // Get the user's session token for authenticated requests
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
 
@@ -171,7 +170,7 @@ export default function OfferBuilder() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Eroare la generare');
+        throw new Error(errorData.error || t.offerBuilder.generateError);
       }
 
       const data: OfferResult = await response.json();
@@ -185,7 +184,7 @@ export default function OfferBuilder() {
     } catch (error) {
       clearInterval(progressInterval);
       console.error('Generate error:', error);
-      toast.error(error instanceof Error ? error.message : 'Eroare la generare');
+      toast.error(error instanceof Error ? error.message : t.offerBuilder.generateError);
       setStep('ready');
     }
   };
@@ -194,7 +193,6 @@ export default function OfferBuilder() {
     if (!result || !user) return;
 
     try {
-      // Check if user already has an offer
       const { data: existing } = await supabase
         .from('offers')
         .select('id')
@@ -232,7 +230,6 @@ export default function OfferBuilder() {
         if (error) throw error;
       }
 
-      // Update freedom score
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ freedom_score: 60 })
@@ -240,18 +237,18 @@ export default function OfferBuilder() {
 
       if (profileError) throw profileError;
 
-      toast.success('Oferta salvată cu succes!');
+      toast.success(t.offerBuilder.offerSaved);
       setHasSavedResult(true);
     } catch (error) {
       console.error('Save error:', error);
-      toast.error('Eroare la salvare');
+      toast.error(t.offerBuilder.saveError);
     }
   };
 
   const packageConfig = [
-    { key: 'starter', icon: Zap, label: 'Starter', color: 'from-blue-500 to-cyan-500' },
-    { key: 'standard', icon: Star, label: 'Standard', color: 'from-primary to-accent', popular: true },
-    { key: 'premium', icon: Crown, label: 'Premium', color: 'from-amber-500 to-orange-500' },
+    { key: 'starter', icon: Zap, label: t.offerBuilder.starter, color: 'from-blue-500 to-cyan-500' },
+    { key: 'standard', icon: Star, label: t.offerBuilder.standard, color: 'from-primary to-accent', popular: true },
+    { key: 'premium', icon: Crown, label: t.offerBuilder.premium, color: 'from-amber-500 to-orange-500' },
   ];
 
   const getPackageData = (key: string): PackageData | null => {
@@ -278,7 +275,7 @@ export default function OfferBuilder() {
               className="text-center py-16"
             >
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
-              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+              <p className="text-muted-foreground mt-4">{t.common.loading}</p>
             </motion.div>
           )}
 
@@ -295,10 +292,10 @@ export default function OfferBuilder() {
                 <AlertCircle className="w-8 h-8 text-destructive" />
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
-                Date lipsă
+                {t.offerBuilder.missingDataTitle}
               </h1>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Trebuie să completezi Skill Scanner și Ikigai Builder înainte de a crea oferta ta.
+                {t.offerBuilder.missingDataDescription}
               </p>
               <div className="flex gap-3 justify-center">
                 {skills.length === 0 && (
@@ -308,7 +305,7 @@ export default function OfferBuilder() {
                     variant="outline"
                   >
                     <Sparkles className="w-5 h-5" />
-                    Skill Scanner
+                    {t.wizard.skillScanner}
                   </Button>
                 )}
                 {skills.length > 0 && !ikigaiData && (
@@ -317,7 +314,7 @@ export default function OfferBuilder() {
                     className="gap-2 bg-gradient-to-r from-primary to-accent"
                   >
                     <Target className="w-5 h-5" />
-                    Ikigai Builder
+                    {t.wizard.ikigaiBuilder}
                   </Button>
                 )}
               </div>
@@ -338,10 +335,10 @@ export default function OfferBuilder() {
                   <Package className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Offer Builder AI
+                  {t.offerBuilder.title}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  Generează pachete de servicii cu prețuri strategice bazate pe competențele și Ikigai-ul tău
+                  {t.offerBuilder.subtitle}
                 </p>
               </div>
 
@@ -350,7 +347,7 @@ export default function OfferBuilder() {
                 <Card className="glass border-white/10 p-5">
                   <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    Competențe ({skills.length})
+                    {t.offerBuilder.skills} ({skills.length})
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {skills.slice(0, 6).map(skill => (
@@ -363,7 +360,7 @@ export default function OfferBuilder() {
                       </Badge>
                     ))}
                     {skills.length > 6 && (
-                      <Badge variant="secondary">+{skills.length - 6} more</Badge>
+                      <Badge variant="secondary">{t.offerBuilder.more.replace('{count}', String(skills.length - 6))}</Badge>
                     )}
                   </div>
                 </Card>
@@ -371,22 +368,22 @@ export default function OfferBuilder() {
                 <Card className="glass border-white/10 p-5">
                   <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <Target className="w-4 h-4 text-accent" />
-                    Poziționare Ikigai
+                    {t.offerBuilder.ikigaiPosition}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-3">
-                    {ikigaiData?.core_positioning || 'Poziționare generată'}
+                    {ikigaiData?.core_positioning || t.offerBuilder.positionGenerated}
                   </p>
                 </Card>
               </div>
 
               {/* What we'll generate */}
               <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
-                <h3 className="font-semibold text-foreground mb-3">Ce vei primi</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t.offerBuilder.whatYouGet}</h3>
                 <div className="grid gap-3 md:grid-cols-3">
                   {[
-                    { icon: Package, label: '3 Pachete de servicii', desc: 'Starter, Standard, Premium' },
-                    { icon: TrendingUp, label: 'Prețuri strategice', desc: 'Adaptate pentru piața ta' },
-                    { icon: Users, label: 'Piață țintă', desc: 'Client ideal identificat' },
+                    { icon: Package, label: t.offerBuilder.servicePackages, desc: t.offerBuilder.servicePackagesDesc },
+                    { icon: TrendingUp, label: t.offerBuilder.strategicPricing, desc: t.offerBuilder.strategicPricingDesc },
+                    { icon: Users, label: t.offerBuilder.targetMarketTitle, desc: t.offerBuilder.targetMarketDesc },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
@@ -408,7 +405,7 @@ export default function OfferBuilder() {
                   size="lg"
                 >
                   <Package className="w-5 h-5" />
-                  Generează Oferta mea
+                  {t.offerBuilder.generateButton}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -428,10 +425,10 @@ export default function OfferBuilder() {
                 <Loader2 className="w-10 h-10 text-accent animate-spin" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-4">
-                Construiesc oferta ta...
+                {t.offerBuilder.generating}
               </h2>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                AI-ul analizează competențele și Ikigai-ul pentru a crea pachete de servicii personalizate.
+                {t.offerBuilder.generatingDescription}
               </p>
               <div className="max-w-md mx-auto">
                 <Progress value={generateProgress} className="h-2" />
@@ -455,7 +452,7 @@ export default function OfferBuilder() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  {hasSavedResult ? 'Oferta ta salvată' : 'Oferta ta'}
+                  {hasSavedResult ? t.offerBuilder.resultsSavedTitle : t.offerBuilder.resultsTitle}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                   {result.smv}
@@ -467,14 +464,14 @@ export default function OfferBuilder() {
                 <Card className="glass border-white/10 p-5">
                   <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <Users className="w-4 h-4 text-primary" />
-                    Piața țintă
+                    {t.offerBuilder.targetMarket}
                   </h3>
                   <p className="text-sm text-muted-foreground">{result.target_market}</p>
                 </Card>
                 <Card className="glass border-white/10 p-5">
                   <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-accent" />
-                    Justificare prețuri
+                    {t.offerBuilder.pricingJustification}
                   </h3>
                   <p className="text-sm text-muted-foreground">{result.pricing_justification}</p>
                 </Card>
@@ -482,65 +479,70 @@ export default function OfferBuilder() {
 
               {/* Package Cards */}
               <div className="grid gap-6 md:grid-cols-3">
-                {packageConfig.map((pkg, index) => {
-                  const data = getPackageData(pkg.key);
-                  if (!data || !data.name) return null;
-
-                  const isSelected = selectedPackage === pkg.key;
-                  const isPopular = pkg.popular;
-
+                {packageConfig.map((config, index) => {
+                  const pkg = getPackageData(config.key);
+                  if (!pkg) return null;
+                  
+                  const isSelected = selectedPackage === config.key;
+                  
                   return (
                     <motion.div
-                      key={pkg.key}
+                      key={config.key}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      onClick={() => setSelectedPackage(pkg.key as any)}
-                      className="cursor-pointer"
                     >
-                      <Card className={`relative glass border-2 p-6 h-full transition-all hover-lift ${
-                        isSelected 
-                          ? 'border-primary shadow-lg shadow-primary/20' 
-                          : 'border-white/10 hover:border-white/20'
-                      }`}>
-                        {isPopular && (
-                          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                            <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0">
-                              Popular
+                      <Card
+                        className={`glass relative overflow-hidden cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-primary/50 ring-2 ring-primary/20'
+                            : 'border-white/10 hover:border-white/20'
+                        }`}
+                        onClick={() => setSelectedPackage(config.key as any)}
+                      >
+                        {config.popular && (
+                          <div className="absolute top-0 right-0">
+                            <Badge className="rounded-none rounded-bl-lg bg-primary">
+                              {t.offerBuilder.popular}
                             </Badge>
                           </div>
                         )}
-
-                        <div className="text-center mb-4">
-                          <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${pkg.color} mb-3`}>
-                            <pkg.icon className="w-6 h-6 text-white" />
+                        
+                        <div className="p-6">
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${config.color} flex items-center justify-center mb-4`}>
+                            <config.icon className="w-6 h-6 text-white" />
                           </div>
-                          <h3 className="font-bold text-lg text-foreground">{data.name}</h3>
-                          <p className="text-sm text-muted-foreground">{data.tagline}</p>
+                          
+                          <h3 className="text-xl font-bold text-foreground mb-1">{pkg.name || config.label}</h3>
+                          <p className="text-sm text-muted-foreground mb-4">{pkg.tagline}</p>
+                          
+                          <div className="mb-6">
+                            <span className="text-3xl font-bold text-foreground">{pkg.currency || '£'}{pkg.price}</span>
+                          </div>
+                          
+                          <div className="space-y-3 mb-6">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="w-4 h-4" />
+                              <span>{t.offerBuilder.deliveryTime}: {pkg.delivery_time}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Users className="w-4 h-4" />
+                              <span>{t.offerBuilder.idealFor}: {pkg.ideal_for}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-foreground">{t.offerBuilder.deliverables}:</p>
+                            <ul className="space-y-1">
+                              {pkg.deliverables?.map((item, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-
-                        <div className="text-center mb-4">
-                          <span className="text-3xl font-bold text-foreground">{data.price}</span>
-                          <span className="text-muted-foreground ml-1">{data.currency}</span>
-                        </div>
-
-                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
-                          <Clock className="w-4 h-4" />
-                          {data.delivery_time}
-                        </div>
-
-                        <ul className="space-y-2 mb-4">
-                          {data.deliverables?.map((item, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm">
-                              <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                              <span className="text-muted-foreground">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        <p className="text-xs text-center text-muted-foreground border-t border-white/10 pt-3">
-                          Ideal pentru: {data.ideal_for}
-                        </p>
                       </Card>
                     </motion.div>
                   );
@@ -549,38 +551,36 @@ export default function OfferBuilder() {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => {
-                    setStep('ready');
-                    setResult(null);
-                    setHasSavedResult(false);
-                  }}
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Generează din nou
-                </Button>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      setStep('ready');
+                      setHasSavedResult(false);
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    {t.offerBuilder.regenerate}
+                  </Button>
                   {!hasSavedResult && (
                     <Button
-                      onClick={handleSave}
                       variant="outline"
+                      onClick={handleSave}
                       className="gap-2"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      Salvează Oferta
+                      {t.offerBuilder.saveButton}
                     </Button>
                   )}
-                  <Button
-                    onClick={() => navigate('/wizard/outreach')}
-                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                    size="lg"
-                  >
-                    Continuă la Outreach
-                    <ArrowRight className="w-5 h-5" />
-                  </Button>
                 </div>
+                <Button
+                  onClick={() => navigate('/wizard/profile')}
+                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  size="lg"
+                >
+                  {t.offerBuilder.continueToProfile}
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
               </div>
             </motion.div>
           )}

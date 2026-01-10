@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useI18n } from '@/lib/i18n';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -21,7 +22,6 @@ import {
   CheckCircle2,
   Lightbulb,
   RefreshCw,
-  Edit3,
   Trash2
 } from 'lucide-react';
 
@@ -50,6 +50,7 @@ interface ScanResult {
 export default function SkillScanner() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const [step, setStep] = useState<'loading' | 'saved' | 'input' | 'scanning' | 'results'>('loading');
   const [experiences, setExperiences] = useState('');
@@ -87,20 +88,18 @@ export default function SkillScanner() {
 
   const handleScan = async () => {
     if (!experiences.trim()) {
-      toast.error('Adaugă cel puțin o experiență sau proiect');
+      toast.error(t.skillScanner.addExperience);
       return;
     }
 
     setStep('scanning');
     setScanProgress(0);
 
-    // Simulate progress while waiting for AI
     const progressInterval = setInterval(() => {
       setScanProgress(prev => Math.min(prev + Math.random() * 15, 90));
     }, 500);
 
     try {
-      // Get the user's session token for authenticated requests
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
 
@@ -124,7 +123,7 @@ export default function SkillScanner() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Eroare la scanare');
+        throw new Error(errorData.error || t.skillScanner.scanError);
       }
 
       const data: ScanResult = await response.json();
@@ -138,7 +137,7 @@ export default function SkillScanner() {
     } catch (error) {
       clearInterval(progressInterval);
       console.error('Scan error:', error);
-      toast.error(error instanceof Error ? error.message : 'Eroare la scanare');
+      toast.error(error instanceof Error ? error.message : t.skillScanner.scanError);
       setStep('input');
     }
   };
@@ -157,7 +156,6 @@ export default function SkillScanner() {
     const skillsToSave = result.skills.filter(s => selectedSkills.includes(s.name));
     
     try {
-      // Save skills to database
       const { error: skillsError } = await supabase
         .from('skill_entries')
         .insert(
@@ -172,7 +170,6 @@ export default function SkillScanner() {
 
       if (skillsError) throw skillsError;
 
-      // Update freedom score
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ freedom_score: 20 })
@@ -180,12 +177,11 @@ export default function SkillScanner() {
 
       if (profileError) throw profileError;
 
-      toast.success('Competențele au fost salvate!');
-      // Reload saved skills instead of navigating away
+      toast.success(t.skillScanner.skillsSaved);
       await loadSavedSkills();
     } catch (error: any) {
       console.error('Save error:', error);
-      const errorMessage = error?.message || error?.details || 'Eroare la salvarea competențelor';
+      const errorMessage = error?.message || error?.details || t.skillScanner.saveError;
       toast.error(errorMessage);
     }
   };
@@ -199,11 +195,11 @@ export default function SkillScanner() {
 
       if (error) throw error;
 
-      toast.success('Competența a fost ștearsă');
+      toast.success(t.skillScanner.skillDeleted);
       await loadSavedSkills();
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Eroare la ștergere');
+      toast.error(t.skillScanner.deleteError);
     }
   };
 
@@ -218,12 +214,12 @@ export default function SkillScanner() {
 
       if (error) throw error;
 
-      toast.success('Toate competențele au fost șterse');
+      toast.success(t.skillScanner.allSkillsDeleted);
       setSavedSkills([]);
       setStep('input');
     } catch (error) {
       console.error('Delete all error:', error);
-      toast.error('Eroare la ștergere');
+      toast.error(t.skillScanner.deleteError);
     }
   };
 
@@ -238,9 +234,9 @@ export default function SkillScanner() {
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
-      case 'technical': return 'Tehnică';
-      case 'soft': return 'Soft Skill';
-      case 'hidden': return 'Potențial ascuns';
+      case 'technical': return t.skillScanner.categories.technical;
+      case 'soft': return t.skillScanner.categories.soft;
+      case 'hidden': return t.skillScanner.categories.hidden;
       default: return category;
     }
   };
@@ -263,6 +259,15 @@ export default function SkillScanner() {
     }
   };
 
+  const getPotentialLabel = (potential: string) => {
+    switch (potential) {
+      case 'high': return `🔥 ${t.skillScanner.potential.high}`;
+      case 'medium': return t.skillScanner.potential.medium;
+      case 'low': return t.skillScanner.potential.low;
+      default: return potential;
+    }
+  };
+
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto">
@@ -277,7 +282,7 @@ export default function SkillScanner() {
               className="text-center py-16"
             >
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
-              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+              <p className="text-muted-foreground mt-4">{t.common.loading}</p>
             </motion.div>
           )}
 
@@ -295,10 +300,10 @@ export default function SkillScanner() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Competențele tale salvate
+                  {t.skillScanner.savedSkillsTitle}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  Ai <span className="text-primary font-semibold">{savedSkills.length} competențe</span> în profilul tău. Poți adăuga mai multe sau edita.
+                  {t.skillScanner.savedSkillsSubtitle.replace('{count}', String(savedSkills.length))}
                 </p>
               </div>
 
@@ -337,7 +342,7 @@ export default function SkillScanner() {
                               />
                             ))}
                             <span className="text-xs text-muted-foreground ml-1">
-                              Încredere {skill.confidence}/5
+                              {t.skillScanner.confidence} {skill.confidence}/5
                             </span>
                           </div>
                         </div>
@@ -365,7 +370,7 @@ export default function SkillScanner() {
                     onClick={() => setStep('input')}
                   >
                     <RefreshCw className="w-4 h-4" />
-                    Scanează din nou
+                    {t.skillScanner.scanAgain}
                   </Button>
                   <Button
                     variant="outline"
@@ -373,7 +378,7 @@ export default function SkillScanner() {
                     onClick={handleDeleteAll}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Șterge tot
+                    {t.skillScanner.deleteAll}
                   </Button>
                 </div>
                 <Button
@@ -381,7 +386,7 @@ export default function SkillScanner() {
                   className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   size="lg"
                 >
-                  Continuă la Ikigai
+                  {t.skillScanner.continueToIkigai}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -402,40 +407,40 @@ export default function SkillScanner() {
                   <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Skill Scanner AI
+                  {t.skillScanner.title}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  Descoperă-ți competențele monetizabile folosind inteligența artificială
+                  {t.skillScanner.subtitle}
                 </p>
               </div>
 
               {savedSkills.length > 0 && (
                 <Card className="glass border-primary/20 p-4 bg-primary/5">
                   <p className="text-sm text-muted-foreground">
-                    Ai deja {savedSkills.length} competențe salvate. Noile competențe vor fi adăugate la cele existente.
+                    {t.skillScanner.alreadySavedInfo.replace('{count}', String(savedSkills.length))}
                   </p>
                   <Button
                     variant="link"
                     className="p-0 h-auto text-primary"
                     onClick={() => setStep('saved')}
                   >
-                    Vezi competențele salvate →
+                    {t.skillScanner.viewSavedSkills}
                   </Button>
                 </Card>
               )}
 
               <Card className="glass border-white/10 p-6">
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Experiențe, proiecte și realizări
+                  {t.skillScanner.experiencesLabel}
                 </label>
                 <Textarea
                   value={experiences}
                   onChange={(e) => setExperiences(e.target.value)}
-                  placeholder="Descrie experiențele tale:&#10;- Proiecte personale sau de facultate&#10;- Activități extracurriculare&#10;- Joburi, internship-uri&#10;- Hobby-uri și pasiuni&#10;- Orice ai realizat și te mândrești"
+                  placeholder={t.skillScanner.experiencesPlaceholder}
                   className="min-h-[200px] bg-background/50 border-white/10 resize-none"
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Cu cât oferi mai multe detalii, cu atât analiza va fi mai precisă.
+                  {t.skillScanner.experiencesHint}
                 </p>
               </Card>
 
@@ -445,7 +450,7 @@ export default function SkillScanner() {
                     variant="outline"
                     onClick={() => setStep('saved')}
                   >
-                    Înapoi la competențe
+                    {t.skillScanner.backToSkills}
                   </Button>
                 )}
                 <div className={savedSkills.length === 0 ? 'ml-auto' : ''}>
@@ -456,7 +461,7 @@ export default function SkillScanner() {
                     size="lg"
                   >
                     <Sparkles className="w-5 h-5" />
-                    Analizează competențele
+                    {t.skillScanner.analyzeButton}
                     <ArrowRight className="w-5 h-5" />
                   </Button>
                 </div>
@@ -477,10 +482,10 @@ export default function SkillScanner() {
                 <Loader2 className="w-10 h-10 text-primary animate-spin" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-4">
-                Analizez competențele tale...
+                {t.skillScanner.scanning}
               </h2>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                AI-ul nostru identifică abilități tehnice, soft skills și potențial ascuns din experiențele tale.
+                {t.skillScanner.scanningDescription}
               </p>
               <div className="max-w-md mx-auto">
                 <Progress value={scanProgress} className="h-2" />
@@ -503,22 +508,22 @@ export default function SkillScanner() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Scanare completă!
+                  {t.skillScanner.resultsTitle}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  Am identificat <span className="text-primary font-semibold">{result.skills.length} competențe</span> din profilul tău.
+                  {t.skillScanner.resultsSubtitle}
                 </p>
               </div>
 
               {/* Summary Card */}
               <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
-                <h3 className="font-semibold text-foreground mb-2">Rezumat</h3>
+                <h3 className="font-semibold text-foreground mb-2">{t.skillScanner.summary}</h3>
                 <p className="text-muted-foreground">{result.summary}</p>
                 <div className="mt-4 p-4 rounded-lg bg-accent/10 border border-accent/20">
                   <div className="flex items-start gap-3">
                     <TrendingUp className="w-5 h-5 text-accent mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Recomandare principală</p>
+                      <p className="font-medium text-foreground">{t.skillScanner.topRecommendation}</p>
                       <p className="text-sm text-muted-foreground">{result.top_recommendation}</p>
                     </div>
                   </div>
@@ -527,13 +532,6 @@ export default function SkillScanner() {
 
               {/* Skills Grid */}
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-foreground">
-                  Competențe identificate
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Selectează competențele pe care vrei să le salvezi în profilul tău.
-                </p>
-                
                 <div className="grid gap-3">
                   {result.skills.map((skill, index) => (
                     <motion.div
@@ -566,8 +564,7 @@ export default function SkillScanner() {
                                 {getCategoryLabel(skill.category)}
                               </Badge>
                               <Badge className={`text-xs ${getPotentialColor(skill.monetization_potential)}`}>
-                                {skill.monetization_potential === 'high' ? '🔥 Înalt' : 
-                                 skill.monetization_potential === 'medium' ? 'Mediu' : 'Scăzut'}
+                                {getPotentialLabel(skill.monetization_potential)}
                               </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">{skill.description}</p>
@@ -581,7 +578,7 @@ export default function SkillScanner() {
                                 />
                               ))}
                               <span className="text-xs text-muted-foreground ml-1">
-                                Încredere {skill.confidence}/5
+                                {t.skillScanner.confidence} {skill.confidence}/5
                               </span>
                             </div>
                           </div>
@@ -612,7 +609,7 @@ export default function SkillScanner() {
                     setScanProgress(0);
                   }}
                 >
-                  Scanează din nou
+                  {t.skillScanner.scanAgain}
                 </Button>
                 <Button
                   onClick={handleSave}
@@ -620,7 +617,7 @@ export default function SkillScanner() {
                   className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   size="lg"
                 >
-                  Salvează {selectedSkills.length} competențe
+                  {t.skillScanner.saveSelected.replace('{count}', String(selectedSkills.length))}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
