@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/i18n';
 import { 
   Sparkles, 
   Target, 
@@ -11,40 +12,48 @@ import {
   Play,
 } from 'lucide-react';
 
-const features = [
-  {
-    icon: Sparkles,
-    title: 'Skill Scanner AI',
-    description: 'Descoperă competențele tale monetizabile folosind inteligența artificială.',
-    color: 'from-primary to-purple-500',
-  },
-  {
-    icon: Target,
-    title: 'Ikigai Builder',
-    description: 'Găsește-ți direcția perfectă la intersecția pasiunii cu piața.',
-    color: 'from-accent to-lime-400',
-  },
-  {
-    icon: Package,
-    title: 'Offer Builder',
-    description: 'Creează pachete de servicii profesionale cu prețuri optimizate.',
-    color: 'from-blue-500 to-cyan-400',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Outreach Generator',
-    description: 'Generează mesaje personalizate pentru primii tăi clienți.',
-    color: 'from-pink-500 to-rose-400',
-  },
-];
-
-const stats = [
-  { value: '500+', label: 'Studenți activi' },
-  { value: '€12K', label: 'Venit generat' },
-  { value: '89%', label: 'Rată de succes' },
-];
-
 export default function Landing() {
+  const { t } = useI18n();
+
+  const features = [
+    {
+      icon: Sparkles,
+      title: t.landing.features.skillScanner.title,
+      description: t.landing.features.skillScanner.description,
+      color: 'from-primary to-purple-500',
+    },
+    {
+      icon: Target,
+      title: t.landing.features.ikigaiBuilder.title,
+      description: t.landing.features.ikigaiBuilder.description,
+      color: 'from-accent to-lime-400',
+    },
+    {
+      icon: Package,
+      title: t.landing.features.offerBuilder.title,
+      description: t.landing.features.offerBuilder.description,
+      color: 'from-blue-500 to-cyan-400',
+    },
+    {
+      icon: MessageSquare,
+      title: t.landing.features.outreachGenerator.title,
+      description: t.landing.features.outreachGenerator.description,
+      color: 'from-pink-500 to-rose-400',
+    },
+  ];
+
+  const stats = [
+    { value: '500+', label: t.landing.stats.activeStudents },
+    { value: '€12K', label: t.landing.stats.revenueGenerated },
+    { value: '89%', label: t.landing.stats.successRate },
+  ];
+
+  const steps = [
+    { step: '01', title: t.landing.steps.step1.title, desc: t.landing.steps.step1.desc },
+    { step: '02', title: t.landing.steps.step2.title, desc: t.landing.steps.step2.desc },
+    { step: '03', title: t.landing.steps.step3.title, desc: t.landing.steps.step3.desc },
+  ];
+
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Gradient background effects */}
@@ -65,11 +74,11 @@ export default function Landing() {
           
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-              <Link to="/auth/login">Autentificare</Link>
+              <Link to="/auth/login">{t.landing.login}</Link>
             </Button>
             <Button asChild className="gradient-accent text-accent-foreground font-semibold px-6 glow-accent hover:scale-105 transition-transform">
               <Link to="/auth/register">
-                Începe gratuit
+                {t.landing.startFree}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -84,34 +93,34 @@ export default function Landing() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm mb-8 animate-fade-in">
               <Zap className="h-4 w-4 text-accent" />
-              <span className="text-muted-foreground">Platformă AI pentru studenți freelanceri</span>
+              <span className="text-muted-foreground">{t.landing.badge}</span>
               <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
             </div>
             
             {/* Headline */}
             <h1 className="font-display text-5xl md:text-7xl font-extrabold mb-8 leading-[1.1] tracking-tight animate-slide-up">
-              Transformă-ți cunoștințele în{' '}
-              <span className="text-gradient">venit real</span>
+              {t.landing.headline}{' '}
+              <span className="text-gradient">{t.landing.headlineHighlight}</span>
             </h1>
             
             {/* Subheadline */}
             <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-slide-up delay-100">
-              De la „nu știu ce pot vinde" la primul tău client plătit. 
-              <span className="text-foreground font-medium"> Student Freedom OS </span>
-              te ghidează pas cu pas folosind AI.
+              {t.landing.subheadline}
+              <span className="text-foreground font-medium"> {t.landing.subheadlineBold} </span>
+              {t.landing.subheadlineEnd}
             </p>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up delay-200">
               <Button size="lg" asChild className="gradient-accent text-accent-foreground font-semibold text-lg px-8 h-14 glow-accent hover:scale-105 transition-transform">
                 <Link to="/auth/register">
-                  Începe gratuit acum
+                  {t.landing.ctaStart}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-border hover:bg-secondary group">
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                Vezi cum funcționează
+                {t.landing.ctaDemo}
               </Button>
             </div>
             
@@ -135,10 +144,10 @@ export default function Landing() {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-              Tot ce ai nevoie pentru <span className="text-gradient">primul client</span>
+              {t.landing.featuresTitle} <span className="text-gradient">{t.landing.featuresTitleHighlight}</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Patru unelte AI puternice care te duc de la idee la primele mesaje de outreach.
+              {t.landing.featuresSubtitle}
             </p>
           </div>
           
@@ -167,16 +176,12 @@ export default function Landing() {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-              Trei pași către <span className="text-accent">libertate</span>
+              {t.landing.stepsTitle} <span className="text-accent">{t.landing.stepsTitleHighlight}</span>
             </h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              { step: '01', title: 'Completează onboarding', desc: '5 minute de întrebări despre tine, studii și obiective financiare.' },
-              { step: '02', title: 'AI-ul creează planul', desc: 'Skill Scanner, Ikigai și Offer Builder îți generează strategia.' },
-              { step: '03', title: 'Trimite primul mesaj', desc: 'Folosește template-urile generate pentru a contacta clienții.' },
-            ].map((item, i) => (
+            {steps.map((item, i) => (
               <div key={i} className="relative text-center group">
                 {/* Connector line */}
                 {i < 2 && (
@@ -204,18 +209,11 @@ export default function Landing() {
               
               <div className="relative">
                 <h2 className="font-display text-3xl md:text-4xl font-bold mb-8 text-center">
-                  Ce primești <span className="text-accent">gratuit</span>
+                  {t.landing.benefitsTitle} <span className="text-accent">{t.landing.benefitsTitleHighlight}</span>
                 </h2>
                 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    'Descoperă ce poți vinde ca student',
-                    'Plan personalizat generat de AI',
-                    'Ofertă cu 3 pachete de servicii',
-                    'Template-uri de outreach ready-to-send',
-                    'Export PDF al planului tău',
-                    'Acces la comunitatea de studenți',
-                  ].map((benefit, i) => (
+                  {t.landing.benefits.map((benefit, i) => (
                     <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-secondary/50">
                       <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0" />
                       <span className="font-medium">{benefit}</span>
@@ -226,7 +224,7 @@ export default function Landing() {
                 <div className="mt-10 text-center">
                   <Button size="lg" asChild className="gradient-accent text-accent-foreground font-semibold text-lg px-10 h-14 glow-accent hover:scale-105 transition-transform">
                     <Link to="/auth/register">
-                      Creează cont gratuit
+                      {t.landing.ctaFinal}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -247,7 +245,7 @@ export default function Landing() {
             <span className="font-display font-semibold">Student Freedom OS</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Eduforyou. Toate drepturile rezervate.
+            © {new Date().getFullYear()} Eduforyou. {t.landing.footer}
           </p>
         </div>
       </footer>
