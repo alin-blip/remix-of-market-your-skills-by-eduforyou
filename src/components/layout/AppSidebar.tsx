@@ -14,6 +14,7 @@ import {
   Globe,
   Sun,
   Moon,
+  Monitor,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -212,8 +213,10 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               >
                 {theme === 'light' ? (
                   <Sun className="h-4 w-4" />
-                ) : (
+                ) : theme === 'dark' ? (
                   <Moon className="h-4 w-4" />
+                ) : (
+                  <Monitor className="h-4 w-4" />
                 )}
               </Button>
             </DropdownMenuTrigger>
@@ -231,6 +234,13 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               >
                 <Moon className="h-4 w-4 mr-2" />
                 Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setTheme('system')}
+                className={cn(theme === 'system' && 'bg-accent')}
+              >
+                <Monitor className="h-4 w-4 mr-2" />
+                System
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
