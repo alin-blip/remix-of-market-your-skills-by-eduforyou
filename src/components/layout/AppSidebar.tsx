@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import {
   LayoutDashboard,
   Sparkles,
@@ -11,6 +12,8 @@ import {
   ChevronDown,
   Compass,
   Globe,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -50,6 +53,7 @@ interface AppSidebarProps {
 export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { t, locale, setLocale } = useI18n();
+  const { theme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const currentPath = location.pathname;
@@ -167,40 +171,70 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with Progress and Language Selector */}
+      {/* Footer with Progress and Language/Theme Selectors */}
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-3">
-        {/* Language Selector */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size={collapsed ? "icon" : "sm"} 
-              className={cn(
-                "w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground",
-                collapsed && "justify-center"
-              )}
-            >
-              <Globe className="h-4 w-4" />
-              {!collapsed && (
-                <span className="text-xs uppercase font-medium">{locale}</span>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align={collapsed ? "center" : "start"} side="top">
-            <DropdownMenuItem 
-              onClick={() => setLocale('ro')}
-              className={cn(locale === 'ro' && 'bg-accent')}
-            >
-              🇷🇴 Română
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setLocale('en')}
-              className={cn(locale === 'en' && 'bg-accent')}
-            >
-              🇬🇧 English
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Language and Theme Selectors */}
+        <div className={cn("flex gap-2", collapsed ? "flex-col items-center" : "flex-row")}>
+          {/* Language Selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+              >
+                <Globe className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={collapsed ? "center" : "start"} side="top">
+              <DropdownMenuItem 
+                onClick={() => setLocale('ro')}
+                className={cn(locale === 'ro' && 'bg-accent')}
+              >
+                🇷🇴 Română
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocale('en')}
+                className={cn(locale === 'en' && 'bg-accent')}
+              >
+                🇬🇧 English
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Theme Toggle */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+              >
+                {theme === 'light' ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align={collapsed ? "center" : "start"} side="top">
+              <DropdownMenuItem 
+                onClick={() => setTheme('light')}
+                className={cn(theme === 'light' && 'bg-accent')}
+              >
+                <Sun className="h-4 w-4 mr-2" />
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setTheme('dark')}
+                className={cn(theme === 'dark' && 'bg-accent')}
+              >
+                <Moon className="h-4 w-4 mr-2" />
+                Dark
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Progress */}
         {!collapsed && (
