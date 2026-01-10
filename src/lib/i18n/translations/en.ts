@@ -648,6 +648,7 @@ export const en = {
     profileBuilder: 'Profile Builder',
     outreachGenerator: 'Outreach Generator',
     freedomPlanExport: 'Freedom Plan Export',
+    gigJobBuilder: 'Gig & Job Builder',
     progressLabel: 'Freedom Path Progress',
     settings: 'Settings',
   },

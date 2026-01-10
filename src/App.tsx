@@ -18,6 +18,7 @@ import OfferBuilder from "./pages/wizard/OfferBuilder";
 import ProfileBuilder from "./pages/wizard/ProfileBuilder";
 import OutreachGenerator from "./pages/wizard/OutreachGenerator";
 import FreedomPlanExport from "./pages/wizard/FreedomPlanExport";
+import GigJobBuilderPage from "./pages/wizard/GigJobBuilderPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -105,6 +106,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <FreedomPlanExport />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/wizard/gig-job-builder" 
+                element={
+                  <ProtectedRoute>
+                    <GigJobBuilderPage />
                   </ProtectedRoute>
                 } 
               />
