@@ -279,58 +279,6 @@ export default function FreedomPlanExport() {
 
         <PdfHealthCheck data={planData} />
 
-        {allCompleted && planData && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                {t.export.previewTitle}
-              </CardTitle>
-              <CardDescription>{t.export.previewDescription}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-lg overflow-hidden bg-muted/30 p-8 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 rounded-full bg-primary/10">
-                    <FileText className="h-12 w-12 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">{t.export.planReady}</h3>
-                    <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                      {t.export.planReadyDescription}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-3 justify-center mt-4">
-                    <PDFDownloadLink
-                      document={<FreedomPlanPDF data={planData} labels={t.pdfExport as PdfLabels} />}
-                      fileName={`freedom-plan-${planData.profile.fullName.replace(/\s+/g, '-').toLowerCase()}.pdf`}
-                    >
-                      {({ loading }) => (
-                        <Button size="lg" disabled={loading} className="gap-2">
-                          {loading ? (
-                            <>
-                              <Loader2 className="h-5 w-5 animate-spin" />
-                              {t.export.generatingPdf}
-                            </>
-                          ) : (
-                            <>
-                              <Download className="h-5 w-5" />
-                              {t.export.downloadPdf}
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </PDFDownloadLink>
-                    <Button size="lg" variant="outline" className="gap-2" onClick={() => generateFreedomPlanDocx(planData, t.pdfExport as PdfLabels)}>
-                      <FileText className="h-5 w-5" />
-                      {t.export.downloadDocx}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         <Card className={!allCompleted ? 'opacity-60' : ''}>
           <CardHeader>
