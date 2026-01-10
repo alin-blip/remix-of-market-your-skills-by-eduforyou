@@ -13,6 +13,7 @@ interface Profile {
   verified: boolean;
   freedom_score: number;
   locale: string | null;
+  swipehire_user_id?: string | null;
 }
 
 interface AuthContextType {
@@ -27,6 +28,41 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Register user with SwipeHire via edge function
+async function registerWithSwipeHire(session: Session, fullName: string) {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/swipehire-sync`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'register-user',
+          user_id: session.user.id,
+          email: session.user.email,
+          full_name: fullName,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('SwipeHire registration failed:', data.error);
+      return null;
+    }
+
+    console.log('SwipeHire registration success:', data);
+    return data.swipehire_user_id;
+  } catch (error) {
+    console.error('SwipeHire registration error:', error);
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -96,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -106,6 +142,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
+
+    // If signup successful and we have a session, register with SwipeHire
+    if (!error && data.session) {
+      // Register with SwipeHire in background (don't block signup)
+      registerWithSwipeHire(data.session, fullName);
+    }
     
     return { error: error as Error | null };
   };

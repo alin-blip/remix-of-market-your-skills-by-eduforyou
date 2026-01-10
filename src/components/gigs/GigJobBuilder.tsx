@@ -249,8 +249,6 @@ export function GigJobBuilder() {
           value_name: v,
           priority: i + 1,
         })),
-        external_user_id: user.id,
-        external_profile_url: `${window.location.origin}/profile/${user.id}`,
       };
 
       await publishProfile(profilePayload);
@@ -308,7 +306,6 @@ export function GigJobBuilder() {
 
       const gigPayload: GigPayload = {
         external_id: gigId!,
-        external_user_id: user.id,
         title: data.title,
         description: data.description,
         category: data.category,
@@ -351,7 +348,6 @@ export function GigJobBuilder() {
     try {
       const gigPayload: GigPayload = {
         external_id: gig.id,
-        external_user_id: user.id,
         title: gig.title,
         description: gig.description,
         category: gig.category || undefined,

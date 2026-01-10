@@ -236,6 +236,7 @@ export type Database = {
           projects_experience: string | null
           role: Database["public"]["Enums"]["user_role"]
           study_field: string | null
+          swipehire_user_id: string | null
           updated_at: string | null
           values: Json | null
           verified: boolean | null
@@ -254,6 +255,7 @@ export type Database = {
           projects_experience?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           study_field?: string | null
+          swipehire_user_id?: string | null
           updated_at?: string | null
           values?: Json | null
           verified?: boolean | null
@@ -272,6 +274,7 @@ export type Database = {
           projects_experience?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           study_field?: string | null
+          swipehire_user_id?: string | null
           updated_at?: string | null
           values?: Json | null
           verified?: boolean | null

@@ -1,8 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const SWIPEHIRE_API_URL = "https://qqnazmzdzavshmmuycgq.supabase.co/functions/v1";
-const API_KEY_STORAGE_KEY = "swipehire_api_key";
 const PROFILE_SYNCED_KEY = "swipehire_profile_synced";
 const SERVICES_SYNCED_KEY = "swipehire_services_synced";
 
@@ -36,13 +35,10 @@ export interface ProfilePayload {
     value_name: string;
     priority?: number;
   }[];
-  external_user_id?: string;
-  external_profile_url?: string;
 }
 
 export interface GigPayload {
   external_id: string;
-  external_user_id: string;
   title: string;
   description: string;
   category?: string;
@@ -55,7 +51,6 @@ export interface GigPayload {
 
 export interface JobPayload {
   external_id: string;
-  external_user_id: string;
   title: string;
   description: string;
   category?: string;
@@ -70,21 +65,8 @@ export interface JobPayload {
 export const useSwipeHireIntegration = () => {
   const [isPublishing, setIsPublishing] = useState(false);
 
-  const getApiKey = useCallback((): string | null => {
-    return localStorage.getItem(API_KEY_STORAGE_KEY);
-  }, []);
-
-  const saveApiKey = useCallback((key: string) => {
-    localStorage.setItem(API_KEY_STORAGE_KEY, key);
-    toast.success("API Key saved successfully");
-  }, []);
-
-  const clearApiKey = useCallback(() => {
-    localStorage.removeItem(API_KEY_STORAGE_KEY);
-    localStorage.removeItem(PROFILE_SYNCED_KEY);
-    localStorage.removeItem(SERVICES_SYNCED_KEY);
-    toast.success("API Key removed");
-  }, []);
+  // Integration is always connected at the application level
+  const isConnected = true;
 
   const isProfileSynced = useCallback((): boolean => {
     return localStorage.getItem(PROFILE_SYNCED_KEY) === "true";
@@ -110,122 +92,95 @@ export const useSwipeHireIntegration = () => {
     localStorage.removeItem(SERVICES_SYNCED_KEY);
   }, []);
 
-  const isConnected = !!getApiKey();
+  const getAuthToken = async (): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token || null;
+  };
+
+  const callSwipeHireSync = async (action: string, payload: Record<string, unknown>) => {
+    const token = await getAuthToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/swipehire-sync`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, ...payload }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to sync with SwipeHire");
+    }
+
+    return data;
+  };
 
   const publishProfile = useCallback(async (payload: ProfilePayload) => {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      toast.error("No API key configured. Please add your SwipeHire API key first.");
-      return null;
-    }
-
     setIsPublishing(true);
     try {
-      const response = await fetch(`${SWIPEHIRE_API_URL}/sync-profile-from-external`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "x-platform-origin": "freedom_os",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to sync with SwipeHire");
-      }
-
-      return data;
+      const result = await callSwipeHireSync("sync-profile", { profile: payload });
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       throw new Error(message);
     } finally {
       setIsPublishing(false);
     }
-  }, [getApiKey]);
+  }, []);
 
   const publishGig = useCallback(async (payload: GigPayload) => {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      toast.error("No API key configured. Please add your SwipeHire API key first.");
-      return null;
-    }
-
     setIsPublishing(true);
     try {
-      // SwipeHire expects payload wrapped in a "gig" object
-      const wrappedPayload = { gig: payload };
-      
-      const response = await fetch(`${SWIPEHIRE_API_URL}/sync-gig-from-external`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "x-platform-origin": "freedom_os",
-        },
-        body: JSON.stringify(wrappedPayload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to publish gig to SwipeHire");
-      }
-
-      return data;
+      const result = await callSwipeHireSync("sync-gig", { gig: payload });
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       throw new Error(message);
     } finally {
       setIsPublishing(false);
     }
-  }, [getApiKey]);
+  }, []);
 
   const publishJob = useCallback(async (payload: JobPayload) => {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      toast.error("No API key configured. Please add your SwipeHire API key first.");
-      return null;
-    }
-
     setIsPublishing(true);
     try {
-      // SwipeHire expects payload wrapped in a "job" object
-      const wrappedPayload = { job: payload };
-      
-      const response = await fetch(`${SWIPEHIRE_API_URL}/sync-job-from-external`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "x-platform-origin": "freedom_os",
-        },
-        body: JSON.stringify(wrappedPayload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to publish job to SwipeHire");
-      }
-
-      return data;
+      // Jobs use the same sync-gig endpoint with different structure
+      const result = await callSwipeHireSync("sync-gig", { gig: payload });
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       throw new Error(message);
     } finally {
       setIsPublishing(false);
     }
-  }, [getApiKey]);
+  }, []);
+
+  const registerUser = useCallback(async (email: string, fullName: string) => {
+    setIsPublishing(true);
+    try {
+      const result = await callSwipeHireSync("register-user", { email, full_name: fullName });
+      return result;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`SwipeHire registration failed: ${message}`);
+      throw new Error(message);
+    } finally {
+      setIsPublishing(false);
+    }
+  }, []);
 
   return {
     isPublishing,
     isConnected,
-    getApiKey,
-    saveApiKey,
-    clearApiKey,
     isProfileSynced,
     markProfileSynced,
     clearProfileSynced,
@@ -235,5 +190,6 @@ export const useSwipeHireIntegration = () => {
     publishProfile,
     publishGig,
     publishJob,
+    registerUser,
   };
 };

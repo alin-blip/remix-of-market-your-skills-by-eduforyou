@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.profile-builder]
 verify_jwt = false
+
+[functions.swipehire-sync]
+verify_jwt = false
+
+[functions.gig-generator]
+verify_jwt = false

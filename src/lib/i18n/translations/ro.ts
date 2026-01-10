@@ -672,8 +672,10 @@ export const ro = {
     swipehire: {
       title: 'Integrare SwipeHire',
       description: 'Conectează-ți profilul la platforma SwipeHire',
+      autoConfigured: 'Configurat automat pentru toți utilizatorii',
       connected: 'Conectat',
       notConnected: 'Neconectat',
+      pending: 'În așteptare',
       connect: 'Conectează',
       disconnect: 'Deconectează',
       apiKeyPlaceholder: 'Introdu API key-ul SwipeHire',
@@ -685,6 +687,9 @@ export const ro = {
       profileNotSynced: 'Profilul nu a fost încă sincronizat',
       servicesSynced: 'Servicii sincronizate',
       servicesNotSynced: 'Serviciile nu au fost încă sincronizate',
+      autoEnabled: 'Integrare activată automat',
+      autoEnabledDesc: 'Profilul tău este sincronizat automat cu SwipeHire când te înregistrezi. Nu este necesară configurare.',
+      resync: 'Re-sincronizează Profilul',
     },
     autoSync: {
       title: 'Setări Auto-Sync',

@@ -672,8 +672,10 @@ export const en = {
     swipehire: {
       title: 'SwipeHire Integration',
       description: 'Connect your profile to SwipeHire job platform',
+      autoConfigured: 'Automatically configured for all users',
       connected: 'Connected',
       notConnected: 'Not Connected',
+      pending: 'Pending',
       connect: 'Connect',
       disconnect: 'Disconnect',
       apiKeyPlaceholder: 'Enter your SwipeHire API key',
@@ -685,6 +687,9 @@ export const en = {
       profileNotSynced: 'Profile not synced yet',
       servicesSynced: 'Services synced',
       servicesNotSynced: 'Services not synced yet',
+      autoEnabled: 'Integration automatically enabled',
+      autoEnabledDesc: 'Your profile is automatically synced with SwipeHire when you register. No configuration needed.',
+      resync: 'Re-sync Profile',
     },
     autoSync: {
       title: 'Auto-Sync Settings',
