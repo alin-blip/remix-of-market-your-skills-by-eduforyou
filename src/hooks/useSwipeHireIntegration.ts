@@ -97,6 +97,19 @@ export const useSwipeHireIntegration = () => {
     return session?.access_token || null;
   };
 
+  const getUserProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("swipehire_user_id, email, full_name")
+      .eq("id", user.id)
+      .single();
+    
+    return profile;
+  };
+
   const callSwipeHireSync = async (action: string, payload: Record<string, unknown>) => {
     const token = await getAuthToken();
     if (!token) {
@@ -124,9 +137,34 @@ export const useSwipeHireIntegration = () => {
     return data;
   };
 
+  // Ensure user is registered in SwipeHire before syncing
+  const ensureUserRegistered = async () => {
+    const profile = await getUserProfile();
+    if (!profile) {
+      throw new Error("User profile not found");
+    }
+
+    // If user already has swipehire_user_id, they're registered
+    if (profile.swipehire_user_id) {
+      return profile.swipehire_user_id;
+    }
+
+    // Register the user in SwipeHire
+    console.log("User not registered in SwipeHire, registering now...");
+    const result = await callSwipeHireSync("register-user", {
+      email: profile.email,
+      full_name: profile.full_name,
+    });
+
+    return result.swipehire_user_id;
+  };
+
   const publishProfile = useCallback(async (payload: ProfilePayload) => {
     setIsPublishing(true);
     try {
+      // Ensure user is registered first
+      await ensureUserRegistered();
+      
       const result = await callSwipeHireSync("sync-profile", { profile: payload });
       return result;
     } catch (error) {
@@ -140,6 +178,9 @@ export const useSwipeHireIntegration = () => {
   const publishGig = useCallback(async (payload: GigPayload) => {
     setIsPublishing(true);
     try {
+      // Ensure user is registered first
+      await ensureUserRegistered();
+      
       const result = await callSwipeHireSync("sync-gig", { gig: payload });
       return result;
     } catch (error) {
@@ -153,6 +194,9 @@ export const useSwipeHireIntegration = () => {
   const publishJob = useCallback(async (payload: JobPayload) => {
     setIsPublishing(true);
     try {
+      // Ensure user is registered first
+      await ensureUserRegistered();
+      
       // Jobs use the same sync-gig endpoint with different structure
       const result = await callSwipeHireSync("sync-gig", { gig: payload });
       return result;
