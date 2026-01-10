@@ -309,6 +309,7 @@ export const en = {
     saveError: 'Save error',
     generateError: 'Generation error',
     generateErrorDescription: 'An error occurred while generating the profile.',
+    regenerate: 'Regenerate',
     backToOffers: 'Back to Offers',
     continueToOutreach: 'Continue to Outreach',
     platforms: {

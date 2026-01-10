@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
 
 type Platform = 'facebook' | 'instagram' | 'linkedin' | 'tiktok';
 
@@ -57,41 +58,11 @@ interface IkigaiData {
   service_angles: string[];
 }
 
-const platformConfig = {
-  facebook: {
-    icon: Facebook,
-    name: 'Facebook',
-    color: 'bg-blue-600',
-    description: 'Pagină de business sau profil profesional',
-    fields: ['bio', 'about', 'cta']
-  },
-  instagram: {
-    icon: Instagram,
-    name: 'Instagram',
-    color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
-    description: 'Bio optimizat pentru conversii',
-    fields: ['bio', 'hashtags', 'content_pillars', 'cta']
-  },
-  linkedin: {
-    icon: Linkedin,
-    name: 'LinkedIn',
-    color: 'bg-blue-700',
-    description: 'Profil profesional complet',
-    fields: ['headline', 'about', 'cta']
-  },
-  tiktok: {
-    icon: Music2,
-    name: 'TikTok',
-    color: 'bg-black',
-    description: 'Bio scurt și catchy',
-    fields: ['bio', 'hashtags', 'content_pillars', 'cta']
-  }
-};
-
 export default function ProfileBuilder() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useI18n();
   
   const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -107,6 +78,37 @@ export default function ProfileBuilder() {
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const platformConfig = {
+    facebook: {
+      icon: Facebook,
+      name: t.profileBuilder.platforms.facebook.name,
+      color: 'bg-blue-600',
+      description: t.profileBuilder.platforms.facebook.description,
+      fields: ['bio', 'about', 'cta']
+    },
+    instagram: {
+      icon: Instagram,
+      name: t.profileBuilder.platforms.instagram.name,
+      color: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
+      description: t.profileBuilder.platforms.instagram.description,
+      fields: ['bio', 'hashtags', 'content_pillars', 'cta']
+    },
+    linkedin: {
+      icon: Linkedin,
+      name: t.profileBuilder.platforms.linkedin.name,
+      color: 'bg-blue-700',
+      description: t.profileBuilder.platforms.linkedin.description,
+      fields: ['headline', 'about', 'cta']
+    },
+    tiktok: {
+      icon: Music2,
+      name: t.profileBuilder.platforms.tiktok.name,
+      color: 'bg-black',
+      description: t.profileBuilder.platforms.tiktok.description,
+      fields: ['bio', 'hashtags', 'content_pillars', 'cta']
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -181,8 +183,8 @@ export default function ProfileBuilder() {
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca datele necesare.",
+        title: t.common.error,
+        description: t.profileBuilder.incompleteDataDescription,
         variant: "destructive"
       });
       setStep('ready');
@@ -216,8 +218,8 @@ export default function ProfileBuilder() {
   const handleGenerate = async (platform: Platform) => {
     if (!offer || !ikigaiData) {
       toast({
-        title: "Date incomplete",
-        description: "Trebuie să completezi Offer Builder și Ikigai Builder mai întâi.",
+        title: t.profileBuilder.incompleteDataTitle,
+        description: t.profileBuilder.incompleteDataDescription,
         variant: "destructive"
       });
       return;
@@ -271,8 +273,8 @@ export default function ProfileBuilder() {
       } catch (saveError: any) {
         console.error('Auto-save error:', saveError);
         toast({
-          title: "Atenție",
-          description: saveError?.message || "Profilul a fost generat, dar nu am reușit să îl salvez automat.",
+          title: t.common.error,
+          description: saveError?.message || t.profileBuilder.saveError,
           variant: "destructive",
         });
       }
@@ -292,8 +294,8 @@ export default function ProfileBuilder() {
       clearInterval(progressInterval);
       console.error('Generation error:', error);
       toast({
-        title: "Eroare la generare",
-        description: error.message || "A apărut o eroare la generarea profilului.",
+        title: t.profileBuilder.generateError,
+        description: error.message || t.profileBuilder.generateErrorDescription,
         variant: "destructive"
       });
       setGeneratingPlatform(null);
@@ -304,8 +306,8 @@ export default function ProfileBuilder() {
     navigator.clipboard.writeText(content);
     setCopiedId(id);
     toast({
-      title: "Copiat!",
-      description: "Textul a fost copiat în clipboard."
+      title: t.profileBuilder.copied,
+      description: t.profileBuilder.copiedToClipboard
     });
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -320,14 +322,14 @@ export default function ProfileBuilder() {
       }
 
       toast({
-        title: "Salvat cu succes!",
-        description: "Profilurile tale au fost salvate."
+        title: t.profileBuilder.saved,
+        description: t.profileBuilder.savedDescription
       });
     } catch (error: any) {
       console.error('Save error:', error);
       toast({
-        title: "Eroare la salvare",
-        description: error.message || "A apărut o eroare la salvarea profilurilor.",
+        title: t.profileBuilder.saveError,
+        description: error.message || t.profileBuilder.saveError,
         variant: "destructive"
       });
     } finally {
@@ -339,14 +341,12 @@ export default function ProfileBuilder() {
   const completedPlatforms = Object.values(profiles).filter(p => p !== null).length;
 
   const renderProfileContent = (profile: SocialProfile) => {
-    const config = platformConfig[profile.platform];
-
     return (
       <div className="space-y-6">
         {profile.headline && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm text-muted-foreground">Headline</h4>
+              <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.headline}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -362,7 +362,7 @@ export default function ProfileBuilder() {
         {profile.bio && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm text-muted-foreground">Bio</h4>
+              <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.bio}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -378,7 +378,7 @@ export default function ProfileBuilder() {
         {profile.about && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm text-muted-foreground">Despre / About</h4>
+              <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.about}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -394,7 +394,7 @@ export default function ProfileBuilder() {
         {profile.cta && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm text-muted-foreground">Call to Action</h4>
+              <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.cta}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -410,7 +410,7 @@ export default function ProfileBuilder() {
         {profile.hashtags && profile.hashtags.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm text-muted-foreground">Hashtag-uri Recomandate</h4>
+              <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.hashtags}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -429,7 +429,7 @@ export default function ProfileBuilder() {
 
         {profile.content_pillars && profile.content_pillars.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-medium text-sm text-muted-foreground">Piloni de Conținut</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.contentPillars}</h4>
             <div className="grid gap-2">
               {profile.content_pillars.map((pillar, idx) => (
                 <div key={idx} className="bg-muted/50 p-3 rounded-lg flex items-start gap-2">
@@ -443,7 +443,7 @@ export default function ProfileBuilder() {
 
         {profile.username_suggestions && profile.username_suggestions.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-medium text-sm text-muted-foreground">Sugestii Username</h4>
+            <h4 className="font-medium text-sm text-muted-foreground">{t.profileBuilder.usernameSuggestions}</h4>
             <div className="flex flex-wrap gap-2">
               {profile.username_suggestions.map((username, idx) => (
                 <Badge 
@@ -480,10 +480,10 @@ export default function ProfileBuilder() {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <User className="h-8 w-8 text-primary" />
-            <h1 className="font-display text-3xl font-bold">Profile Builder</h1>
+            <h1 className="font-display text-3xl font-bold">{t.profileBuilder.title}</h1>
           </div>
           <p className="text-muted-foreground">
-            Generează profiluri optimizate pentru fiecare platformă de social media
+            {t.profileBuilder.subtitle}
           </p>
         </div>
 
@@ -491,7 +491,7 @@ export default function ProfileBuilder() {
         <Card className="bg-muted/30">
           <CardContent className="py-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Profiluri completate</span>
+              <span className="text-sm text-muted-foreground">{t.profileBuilder.completedProfiles}</span>
               <span className="font-medium">{completedPlatforms}/4</span>
             </div>
             <Progress value={(completedPlatforms / 4) * 100} className="h-2" />
@@ -528,7 +528,7 @@ export default function ProfileBuilder() {
                             {hasProfile && (
                               <Badge variant="secondary" className="bg-primary/10 text-primary">
                                 <Check className="h-3 w-3 mr-1" />
-                                Generat
+                                {t.common.completed}
                               </Badge>
                             )}
                           </div>
@@ -545,12 +545,12 @@ export default function ProfileBuilder() {
                           {hasProfile ? (
                             <>
                               <RefreshCw className="h-4 w-4 mr-1" />
-                              Regenerează
+                              {t.profileBuilder.regenerate}
                             </>
                           ) : (
                             <>
                               <Sparkles className="h-4 w-4 mr-1" />
-                              Generează
+                              {t.profileBuilder.generateButton}
                             </>
                           )}
                         </Button>
@@ -575,9 +575,11 @@ export default function ProfileBuilder() {
                 <Sparkles className="h-12 w-12 text-primary" />
               </motion.div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Generez profilul {platformConfig[generatingPlatform].name}...</h3>
+                <h3 className="font-semibold text-lg">
+                  {t.profileBuilder.generatingFor.replace('{platform}', platformConfig[generatingPlatform].name)}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Analizez oferta și Ikigai-ul tău pentru a crea conținut personalizat
+                  {t.profileBuilder.creatingMessages}
                 </p>
               </div>
               <Progress value={progress} className="h-2" />
@@ -589,8 +591,8 @@ export default function ProfileBuilder() {
         {step === 'results' && hasAnyProfile && !generatingPlatform && (
           <Card>
             <CardHeader>
-              <CardTitle>Profilurile Tale</CardTitle>
-              <CardDescription>Vizualizează și copiază conținutul pentru fiecare platformă</CardDescription>
+              <CardTitle>{t.profileBuilder.title}</CardTitle>
+              <CardDescription>{t.profileBuilder.subtitle}</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs value={selectedPlatform || 'facebook'} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
@@ -634,17 +636,19 @@ export default function ProfileBuilder() {
                           </div>
                           <Button variant="outline" size="sm" onClick={() => handleGenerate(platform)}>
                             <RefreshCw className="h-4 w-4 mr-1" />
-                            Regenerează
+                            {t.profileBuilder.regenerate}
                           </Button>
                         </div>
                         {renderProfileContent(profiles[platform]!)}
                       </div>
                     ) : (
                       <div className="text-center py-12">
-                        <p className="text-muted-foreground mb-4">Profilul pentru {platformConfig[platform].name} nu a fost încă generat.</p>
+                        <p className="text-muted-foreground mb-4">
+                          {t.profileBuilder.generatingFor.replace('{platform}', platformConfig[platform].name)}
+                        </p>
                         <Button onClick={() => handleGenerate(platform)}>
                           <Sparkles className="h-4 w-4 mr-2" />
-                          Generează acum
+                          {t.profileBuilder.generateButton}
                         </Button>
                       </div>
                     )}
@@ -662,7 +666,7 @@ export default function ProfileBuilder() {
             onClick={() => navigate('/wizard/offer')}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Înapoi la Offer Builder
+            {t.profileBuilder.backToOffers}
           </Button>
 
           <div className="flex gap-3">
@@ -674,10 +678,10 @@ export default function ProfileBuilder() {
                   disabled={isSaving}
                 >
                   {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                  Salvează
+                  {t.common.save}
                 </Button>
                 <Button onClick={() => navigate('/wizard/outreach')}>
-                  Continuă la Outreach
+                  {t.profileBuilder.continueToOutreach}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </>

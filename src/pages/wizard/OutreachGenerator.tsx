@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/lib/i18n';
 import { 
   Linkedin, 
   Mail, 
@@ -59,6 +60,7 @@ export default function OutreachGenerator() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -71,6 +73,27 @@ export default function OutreachGenerator() {
     dm: null
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const platformConfig = {
+    linkedin: {
+      icon: Linkedin,
+      name: t.outreachGenerator.platforms.linkedin.name,
+      color: 'bg-blue-500',
+      description: t.outreachGenerator.platforms.linkedin.description
+    },
+    email: {
+      icon: Mail,
+      name: t.outreachGenerator.platforms.email.name,
+      color: 'bg-amber-500',
+      description: t.outreachGenerator.platforms.email.description
+    },
+    dm: {
+      icon: MessageCircle,
+      name: t.outreachGenerator.platforms.dm.name,
+      color: 'bg-pink-500',
+      description: t.outreachGenerator.platforms.dm.description
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -112,8 +135,8 @@ export default function OutreachGenerator() {
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca datele",
+        title: t.common.error,
+        description: t.outreachGenerator.generateError,
         variant: "destructive"
       });
     }
@@ -122,8 +145,8 @@ export default function OutreachGenerator() {
   const handleGenerate = async (platform: Platform) => {
     if (!offer) {
       toast({
-        title: "Completează Offer Builder",
-        description: "Trebuie să ai o ofertă creată înainte de a genera outreach",
+        title: t.outreachGenerator.completeOfferFirst,
+        description: t.outreachGenerator.completeOfferDescription,
         variant: "destructive"
       });
       navigate('/wizard/offer');
@@ -168,8 +191,8 @@ export default function OutreachGenerator() {
       clearInterval(progressInterval);
       console.error('Generation error:', error);
       toast({
-        title: "Eroare",
-        description: error instanceof Error ? error.message : "Nu am putut genera template-urile",
+        title: t.common.error,
+        description: error instanceof Error ? error.message : t.outreachGenerator.generateError,
         variant: "destructive"
       });
       setStep('ready');
@@ -180,8 +203,8 @@ export default function OutreachGenerator() {
     await navigator.clipboard.writeText(content);
     setCopiedId(id);
     toast({
-      title: "Copiat!",
-      description: "Template-ul a fost copiat în clipboard"
+      title: t.outreachGenerator.copied,
+      description: t.outreachGenerator.copiedDescription
     });
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -229,48 +252,27 @@ export default function OutreachGenerator() {
         .eq('id', user.id);
 
       toast({
-        title: "Template-uri salvate!",
-        description: "Poți să le accesezi oricând din dashboard"
+        title: t.outreachGenerator.templatesSaved,
+        description: t.outreachGenerator.templatesSavedDescription
       });
 
       navigate('/dashboard');
     } catch (error) {
       console.error('Save error:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut salva template-urile",
+        title: t.common.error,
+        description: t.outreachGenerator.saveError,
         variant: "destructive"
       });
     }
   };
 
-  const platformConfig = {
-    linkedin: {
-      icon: Linkedin,
-      name: 'LinkedIn',
-      color: 'bg-blue-500',
-      description: 'Mesaje de conexiune și networking profesional'
-    },
-    email: {
-      icon: Mail,
-      name: 'Email',
-      color: 'bg-amber-500',
-      description: 'Cold emails și follow-up-uri structurate'
-    },
-    dm: {
-      icon: MessageCircle,
-      name: 'DM Social',
-      color: 'bg-pink-500',
-      description: 'Mesaje directe pentru Instagram/Twitter'
-    }
-  };
-
   const getTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      connection: 'Conexiune',
-      intro: 'Introducere',
-      follow_up: 'Follow-up',
-      value_add: 'Valoare Adăugată'
+      connection: t.outreachGenerator.templateTypes.connection,
+      intro: t.outreachGenerator.templateTypes.intro,
+      follow_up: t.outreachGenerator.templateTypes.follow_up,
+      value_add: t.outreachGenerator.templateTypes.value_add
     };
     return labels[type] || type;
   };
@@ -284,12 +286,12 @@ export default function OutreachGenerator() {
             animate={{ opacity: 1, y: 0 }}
           >
             <Target className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
-            <h1 className="text-2xl font-bold mb-4">Creează mai întâi oferta</h1>
+            <h1 className="text-2xl font-bold mb-4">{t.outreachGenerator.createOfferFirst}</h1>
             <p className="text-muted-foreground mb-8">
-              Pentru a genera template-uri de outreach, ai nevoie de o ofertă definită.
+              {t.outreachGenerator.createOfferDescription}
             </p>
             <Button onClick={() => navigate('/wizard/offer')}>
-              Mergi la Offer Builder
+              {t.outreachGenerator.goToOfferBuilder}
             </Button>
           </motion.div>
         </div>
@@ -316,10 +318,9 @@ export default function OutreachGenerator() {
                     <Zap className="w-8 h-8 text-primary" />
                   </div>
                 </div>
-                <h1 className="text-3xl font-bold">Outreach Generator</h1>
+                <h1 className="text-3xl font-bold">{t.outreachGenerator.title}</h1>
                 <p className="text-muted-foreground max-w-xl mx-auto">
-                  Generează template-uri personalizate de mesaje pentru LinkedIn, email și DM 
-                  bazate pe oferta și poziționarea ta unică.
+                  {t.outreachGenerator.subtitle}
                 </p>
               </div>
 
@@ -332,10 +333,10 @@ export default function OutreachGenerator() {
                         <Sparkles className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Propunerea ta de valoare</h3>
+                        <h3 className="font-semibold mb-1">{t.outreachGenerator.yourValueProposition}</h3>
                         <p className="text-muted-foreground">{offer.smv}</p>
                         <Badge variant="outline" className="mt-2">
-                          Piață: {offer.target_market}
+                          {t.outreachGenerator.market}: {offer.target_market}
                         </Badge>
                       </div>
                     </div>
@@ -371,12 +372,12 @@ export default function OutreachGenerator() {
                           {hasResult ? (
                             <>
                               <Check className="w-4 h-4 mr-2" />
-                              Vezi template-uri
+                              {t.outreachGenerator.viewTemplates}
                             </>
                           ) : (
                             <>
                               <Sparkles className="w-4 h-4 mr-2" />
-                              Generează
+                              {t.outreachGenerator.generateButton}
                             </>
                           )}
                         </Button>
@@ -390,7 +391,7 @@ export default function OutreachGenerator() {
               {Object.values(results).some(r => r !== null) && (
                 <div className="text-center">
                   <Button variant="outline" onClick={() => setStep('results')}>
-                    Vezi toate template-urile generate
+                    {t.outreachGenerator.viewAllTemplates}
                   </Button>
                 </div>
               )}
@@ -421,18 +422,18 @@ export default function OutreachGenerator() {
               </div>
 
               <h2 className="text-xl font-bold mb-2">
-                Generez template-uri pentru {platformConfig[selectedPlatform].name}...
+                {t.outreachGenerator.generating.replace('{platform}', platformConfig[selectedPlatform].name)}
               </h2>
               <p className="text-muted-foreground mb-8">
-                Creez mesaje personalizate bazate pe oferta ta
+                {t.outreachGenerator.creatingMessages}
               </p>
 
               <Progress value={generateProgress} className="mb-4" />
               <p className="text-sm text-muted-foreground">
-                {generateProgress < 30 && "Analizez oferta și poziționarea..."}
-                {generateProgress >= 30 && generateProgress < 60 && "Creez template-uri persuasive..."}
-                {generateProgress >= 60 && generateProgress < 90 && "Optimizez pentru conversii..."}
-                {generateProgress >= 90 && "Finalizez..."}
+                {generateProgress < 30 && t.outreachGenerator.analyzing}
+                {generateProgress >= 30 && generateProgress < 60 && t.outreachGenerator.creatingPersuasive}
+                {generateProgress >= 60 && generateProgress < 90 && t.outreachGenerator.optimizing}
+                {generateProgress >= 90 && t.outreachGenerator.finalizing}
               </p>
             </motion.div>
           )}
@@ -452,7 +453,7 @@ export default function OutreachGenerator() {
                 className="mb-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Înapoi la platforme
+                {t.outreachGenerator.backToPlatforms}
               </Button>
 
               {/* Tabs for platforms */}
@@ -493,7 +494,7 @@ export default function OutreachGenerator() {
                           <div className="flex items-start gap-3">
                             <Clock className="w-5 h-5 text-primary mt-0.5" />
                             <div>
-                              <h4 className="font-medium mb-1">Secvența recomandată</h4>
+                              <h4 className="font-medium mb-1">{t.outreachGenerator.recommendedSequence}</h4>
                               <p className="text-sm text-muted-foreground">
                                 {result.sequence_suggestion}
                               </p>
@@ -527,12 +528,12 @@ export default function OutreachGenerator() {
                                   {copiedId === `${platform}-${index}` ? (
                                     <>
                                       <Check className="w-4 h-4 mr-1" />
-                                      Copiat
+                                      {t.outreachGenerator.copied}
                                     </>
                                   ) : (
                                     <>
                                       <Copy className="w-4 h-4 mr-1" />
-                                      Copiază
+                                      {t.common.save}
                                     </>
                                   )}
                                 </Button>
@@ -560,7 +561,7 @@ export default function OutreachGenerator() {
                                 <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
                                   <Lightbulb className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                   <div className="text-sm">
-                                    <span className="font-medium text-amber-800 dark:text-amber-200">Sfaturi:</span>
+                                    <span className="font-medium text-amber-800 dark:text-amber-200">{t.outreachGenerator.responseRateTips}:</span>
                                     <ul className="mt-1 space-y-1 text-amber-700 dark:text-amber-300">
                                       {template.tips.map((tip, i) => (
                                         <li key={i}>• {tip}</li>
@@ -580,7 +581,7 @@ export default function OutreachGenerator() {
                           <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
                               <Target className="w-5 h-5 text-primary" />
-                              Cum să crești rata de răspuns
+                              {t.outreachGenerator.responseRateTips}
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
@@ -603,7 +604,7 @@ export default function OutreachGenerator() {
                           onClick={() => handleGenerate(platform)}
                         >
                           <RefreshCw className="w-4 h-4 mr-2" />
-                          Regenerează pentru {platformConfig[platform].name}
+                          {t.outreachGenerator.regenerate} {platformConfig[platform].name}
                         </Button>
                       </div>
                     </TabsContent>
@@ -614,11 +615,11 @@ export default function OutreachGenerator() {
               {/* Save All Button */}
               <div className="flex justify-center gap-4 pt-6 border-t">
                 <Button variant="outline" onClick={() => setStep('ready')}>
-                  Generează pentru altă platformă
+                  {t.outreachGenerator.backToPlatforms}
                 </Button>
                 <Button onClick={handleSaveTemplates}>
                   <Save className="w-4 h-4 mr-2" />
-                  Salvează toate template-urile
+                  {t.outreachGenerator.saveTemplates}
                 </Button>
               </div>
             </motion.div>
