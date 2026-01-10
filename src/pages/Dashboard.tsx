@@ -18,8 +18,13 @@ import {
   ArrowRight,
   TrendingUp,
   Lock,
-  Loader2
+  Loader2,
+  Briefcase,
+  Settings2,
+  ExternalLink
 } from 'lucide-react';
+import { useSwipeHireIntegration } from '@/hooks/useSwipeHireIntegration';
+import { GigJobBuilder } from '@/components/gigs/GigJobBuilder';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -469,6 +474,35 @@ export default function Dashboard() {
             </div>
           )}
         </motion.div>
+
+        {/* SwipeHire Integration Section - Only show when all modules are completed */}
+        {allModulesCompleted && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">{t.gigs.title}</h2>
+                  <p className="text-muted-foreground text-sm">{t.gigs.subtitle}</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" asChild className="gap-2">
+                <Link to="/settings">
+                  <Settings2 className="w-4 h-4" />
+                  {t.settings.title}
+                </Link>
+              </Button>
+            </div>
+            
+            <GigJobBuilder />
+          </motion.div>
+        )}
       </div>
     </MainLayout>
   );
