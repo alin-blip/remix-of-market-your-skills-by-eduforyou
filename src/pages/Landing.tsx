@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
+import { useTheme } from 'next-themes';
 import { 
   Sparkles, 
   Target, 
@@ -11,6 +12,9 @@ import {
   Zap,
   Play,
   Globe,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -18,9 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 export default function Landing() {
   const { t, locale, setLocale } = useI18n();
+  const { theme, setTheme } = useTheme();
 
   const features = [
     {
@@ -79,7 +85,8 @@ export default function Landing() {
             </span>
           </Link>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
@@ -87,11 +94,31 @@ export default function Landing() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setLocale('ro')} className={locale === 'ro' ? 'bg-secondary' : ''}>
+                <DropdownMenuItem onClick={() => setLocale('ro')} className={cn(locale === 'ro' && 'bg-accent')}>
                   🇷🇴 Română
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-secondary' : ''}>
+                <DropdownMenuItem onClick={() => setLocale('en')} className={cn(locale === 'en' && 'bg-accent')}>
                   🇬🇧 English
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                  {theme === 'light' ? <Sun className="h-5 w-5" /> : theme === 'dark' ? <Moon className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme('light')} className={cn(theme === 'light' && 'bg-accent')}>
+                  <Sun className="h-4 w-4 mr-2" /> Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')} className={cn(theme === 'dark' && 'bg-accent')}>
+                  <Moon className="h-4 w-4 mr-2" /> Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')} className={cn(theme === 'system' && 'bg-accent')}>
+                  <Monitor className="h-4 w-4 mr-2" /> System
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

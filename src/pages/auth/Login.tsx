@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sparkles, Loader2, ArrowLeft, Globe, Sun, Moon } from 'lucide-react';
+import { Sparkles, Loader2, ArrowLeft, Globe, Sun, Moon, Monitor } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -86,7 +86,7 @@ export default function Login() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  {theme === 'light' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {theme === 'light' ? <Sun className="h-4 w-4" /> : theme === 'dark' ? <Moon className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -101,6 +101,12 @@ export default function Login() {
                   className={cn(theme === 'dark' && 'bg-accent')}
                 >
                   <Moon className="h-4 w-4 mr-2" /> Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('system')}
+                  className={cn(theme === 'system' && 'bg-accent')}
+                >
+                  <Monitor className="h-4 w-4 mr-2" /> System
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
