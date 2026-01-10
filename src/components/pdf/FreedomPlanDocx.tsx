@@ -8,7 +8,7 @@ import {
   BorderStyle,
 } from 'docx';
 import { saveAs } from 'file-saver';
-import type { FreedomPlanData } from './FreedomPlanPDF';
+import type { FreedomPlanData, PdfLabels } from './FreedomPlanPDF';
 
 const toText = (val: unknown): string => {
   if (val === null || val === undefined) return '';
@@ -55,7 +55,7 @@ const createSection = (title: string, items: string[]) => {
   ];
 };
 
-export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
+export const generateFreedomPlanDocx = async (data: FreedomPlanData, labels: PdfLabels) => {
   const sections: Paragraph[] = [];
 
   // Title
@@ -63,7 +63,7 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
     new Paragraph({
       children: [
         new TextRun({
-          text: 'Freedom Plan',
+          text: labels.title,
           bold: true,
           size: 56,
           color: '1e1b4b',
@@ -92,7 +92,7 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
     new Paragraph({
       children: [
         new TextRun({
-          text: `Generat pe ${toText(data.generatedAt)}`,
+          text: `${labels.generatedOn} ${toText(data.generatedAt)}`,
           size: 20,
           color: '64748b',
         }),
@@ -106,21 +106,21 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
   );
 
   // Profile section
-  sections.push(createHeading('Profil Personal', HeadingLevel.HEADING_1));
+  sections.push(createHeading(labels.personalProfile, HeadingLevel.HEADING_1));
 
   if (toText(data.profile.email)) {
-    sections.push(new Paragraph({ text: `Email: ${toText(data.profile.email)}` }));
+    sections.push(new Paragraph({ text: `${labels.email}: ${toText(data.profile.email)}` }));
   }
   if (toText(data.profile.studyField)) {
-    sections.push(new Paragraph({ text: `Domeniu: ${toText(data.profile.studyField)}` }));
+    sections.push(new Paragraph({ text: `${labels.domain}: ${toText(data.profile.studyField)}` }));
   }
 
-  sections.push(...createSection('Obiective', toTextArray(data.profile.goals)));
-  sections.push(...createSection('Valori', toTextArray(data.profile.values)));
-  sections.push(...createSection('Interese', toTextArray(data.profile.interests)));
+  sections.push(...createSection(labels.objectives, toTextArray(data.profile.goals)));
+  sections.push(...createSection(labels.values, toTextArray(data.profile.values)));
+  sections.push(...createSection(labels.interests, toTextArray(data.profile.interests)));
 
   // Skills
-  sections.push(createHeading(`Competențe (${data.skills.length})`, HeadingLevel.HEADING_1));
+  sections.push(createHeading(`${labels.skills} (${data.skills.length})`, HeadingLevel.HEADING_1));
   data.skills.forEach((skill) => {
     sections.push(
       new Paragraph({
@@ -132,33 +132,33 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
 
   // Ikigai
   if (data.ikigai) {
-    sections.push(createHeading('Analiza Ikigai', HeadingLevel.HEADING_1));
-    sections.push(...createSection('Declarații Ikigai', toTextArray(data.ikigai.ikigaiStatements)));
-    sections.push(...createSection('Ce Îți Place', toTextArray(data.ikigai.whatYouLove)));
-    sections.push(...createSection('La Ce Ești Bun/ă', toTextArray(data.ikigai.whatYoureGoodAt)));
-    sections.push(...createSection('Ce Are Nevoie Lumea', toTextArray(data.ikigai.whatWorldNeeds)));
-    sections.push(...createSection('Pentru Ce Poți Fi Plătit/ă', toTextArray(data.ikigai.whatYouCanBePaidFor)));
-    sections.push(...createSection('Unghiuri de Servicii', toTextArray(data.ikigai.serviceAngles)));
+    sections.push(createHeading(labels.ikigaiAnalysis, HeadingLevel.HEADING_1));
+    sections.push(...createSection(labels.ikigaiStatements, toTextArray(data.ikigai.ikigaiStatements)));
+    sections.push(...createSection(labels.whatYouLove, toTextArray(data.ikigai.whatYouLove)));
+    sections.push(...createSection(labels.whatYoureGoodAt, toTextArray(data.ikigai.whatYoureGoodAt)));
+    sections.push(...createSection(labels.whatWorldNeeds, toTextArray(data.ikigai.whatWorldNeeds)));
+    sections.push(...createSection(labels.whatYouCanBePaidFor, toTextArray(data.ikigai.whatYouCanBePaidFor)));
+    sections.push(...createSection(labels.serviceAngles, toTextArray(data.ikigai.serviceAngles)));
   }
 
   // Offer
   if (data.offer) {
-    sections.push(createHeading('Oferta de Servicii', HeadingLevel.HEADING_1));
+    sections.push(createHeading(labels.serviceOffer, HeadingLevel.HEADING_1));
 
     if (toText(data.offer.smv)) {
-      sections.push(createHeading('Propunere Unică de Valoare', HeadingLevel.HEADING_2));
+      sections.push(createHeading(labels.usp, HeadingLevel.HEADING_2));
       sections.push(new Paragraph({ text: toText(data.offer.smv), spacing: { after: 200 } }));
     }
 
     if (toText(data.offer.targetMarket)) {
-      sections.push(createHeading('Piața Țintă', HeadingLevel.HEADING_2));
+      sections.push(createHeading(labels.targetMarket, HeadingLevel.HEADING_2));
       sections.push(new Paragraph({ text: toText(data.offer.targetMarket), spacing: { after: 200 } }));
     }
 
     const packages = [
-      { label: 'Pachet Starter', pkg: data.offer.starterPackage },
-      { label: 'Pachet Standard', pkg: data.offer.standardPackage },
-      { label: 'Pachet Premium', pkg: data.offer.premiumPackage },
+      { label: labels.starterPackage, pkg: data.offer.starterPackage },
+      { label: labels.standardPackage, pkg: data.offer.standardPackage },
+      { label: labels.premiumPackage, pkg: data.offer.premiumPackage },
     ];
 
     packages.forEach(({ label, pkg }) => {
@@ -168,7 +168,7 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
           sections.push(
             new Paragraph({
               children: [
-                new TextRun({ text: `Preț: ${toText(pkg.price)} ${toText(pkg.currency) || ''}`, bold: true }),
+                new TextRun({ text: `${labels.price}: ${toText(pkg.price)} ${toText(pkg.currency) || ''}`, bold: true }),
               ],
             })
           );
@@ -183,47 +183,47 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
     });
 
     if (toText(data.offer.pricingJustification)) {
-      sections.push(createHeading('Justificare Prețuri', HeadingLevel.HEADING_2));
+      sections.push(createHeading(labels.pricingJustification, HeadingLevel.HEADING_2));
       sections.push(new Paragraph({ text: toText(data.offer.pricingJustification) }));
     }
   }
 
   // Social Profiles
   if (data.socialProfiles.length > 0) {
-    sections.push(createHeading('Profiluri Social Media', HeadingLevel.HEADING_1));
+    sections.push(createHeading(labels.socialMediaProfiles, HeadingLevel.HEADING_1));
 
     data.socialProfiles.forEach((profile) => {
       const platform = toText(profile.platform);
-      const label = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'Platformă';
-      sections.push(createHeading(label, HeadingLevel.HEADING_2));
+      const platformLabel = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : labels.platform;
+      sections.push(createHeading(platformLabel, HeadingLevel.HEADING_2));
 
       if (toText(profile.headline)) {
-        sections.push(new Paragraph({ text: `Headline: ${toText(profile.headline)}` }));
+        sections.push(new Paragraph({ text: `${labels.headline}: ${toText(profile.headline)}` }));
       }
       if (toText(profile.bio)) {
-        sections.push(new Paragraph({ text: `Bio: ${toText(profile.bio)}` }));
+        sections.push(new Paragraph({ text: `${labels.bio}: ${toText(profile.bio)}` }));
       }
       if (toText(profile.cta)) {
-        sections.push(new Paragraph({ text: `CTA: ${toText(profile.cta)}` }));
+        sections.push(new Paragraph({ text: `${labels.cta}: ${toText(profile.cta)}` }));
       }
       const hashtags = toTextArray((profile as any).hashtags);
       if (hashtags.length > 0) {
-        sections.push(new Paragraph({ text: `Hashtags: ${hashtags.join(' ')}` }));
+        sections.push(new Paragraph({ text: `${labels.hashtags}: ${hashtags.join(' ')}` }));
       }
     });
   }
 
   // Outreach Templates
   if (data.outreachTemplates.length > 0) {
-    sections.push(createHeading('Template-uri Outreach', HeadingLevel.HEADING_1));
+    sections.push(createHeading(labels.outreachTemplates, HeadingLevel.HEADING_1));
 
     data.outreachTemplates.slice(0, 6).forEach((template) => {
       const platform = toText(template.platform);
-      const label = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'Platformă';
-      sections.push(createHeading(`${label} - ${toText(template.type)}`, HeadingLevel.HEADING_2));
+      const platformLabel = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : labels.platform;
+      sections.push(createHeading(`${platformLabel} - ${toText(template.type)}`, HeadingLevel.HEADING_2));
 
       if (toText(template.subject)) {
-        sections.push(new Paragraph({ text: `Subiect: ${toText(template.subject)}` }));
+        sections.push(new Paragraph({ text: `${labels.subject}: ${toText(template.subject)}` }));
       }
       sections.push(new Paragraph({ text: toText(template.content), spacing: { after: 200 } }));
     });
@@ -234,7 +234,7 @@ export const generateFreedomPlanDocx = async (data: FreedomPlanData) => {
     new Paragraph({
       children: [
         new TextRun({
-          text: 'Generat cu Student Freedom • freedom-plan.ro',
+          text: labels.footer,
           size: 18,
           color: '94a3b8',
         }),
