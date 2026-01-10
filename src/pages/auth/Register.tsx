@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Sparkles, Loader2, CheckCircle2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
-
-const benefits = [
-  'Acces la toate uneltele AI',
-  'Plan personalizat de freelancing',
-  'Template-uri de outreach',
-];
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -19,14 +14,15 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password.length < 6) {
-      toast.error('Parola prea scurtă', {
-        description: 'Parola trebuie să aibă minim 6 caractere.',
+      toast.error(t.auth.passwordTooShort, {
+        description: t.auth.passwordTooShortDescription,
       });
       return;
     }
@@ -36,15 +32,15 @@ export default function Register() {
     const { error } = await signUp(email, password, fullName);
 
     if (error) {
-      toast.error('Înregistrare eșuată', {
-        description: error.message || 'A apărut o eroare. Încearcă din nou.',
+      toast.error(t.auth.registerFailed, {
+        description: error.message || t.auth.registerFailedDescription,
       });
       setLoading(false);
       return;
     }
 
-    toast.success('Cont creat cu succes!', {
-      description: 'Bine ai venit în Student Freedom OS!',
+    toast.success(t.auth.registerSuccess, {
+      description: t.auth.registerSuccessDescription,
     });
     navigate('/onboard');
   };
@@ -62,7 +58,7 @@ export default function Register() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Înapoi
+          {t.common.back}
         </Link>
 
         {/* Logo */}
@@ -78,19 +74,19 @@ export default function Register() {
         {/* Form Card */}
         <div className="p-8 rounded-2xl glass animate-slide-up">
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">Creează cont</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">{t.auth.createAccount}</h1>
             <p className="text-muted-foreground">
-              Începe-ți călătoria spre libertate financiară
+              {t.auth.createAccountDescription}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">Nume complet</Label>
+              <Label htmlFor="fullName" className="text-sm font-medium">{t.auth.fullName}</Label>
               <Input
                 id="fullName"
                 type="text"
-                placeholder="Ion Popescu"
+                placeholder="John Smith"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -100,11 +96,11 @@ export default function Register() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="tu@exemplu.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -114,11 +110,11 @@ export default function Register() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Parolă</Label>
+              <Label htmlFor="password" className="text-sm font-medium">{t.auth.password}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Minim 6 caractere"
+                placeholder={t.auth.passwordMinLength}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -130,7 +126,7 @@ export default function Register() {
 
             {/* Benefits */}
             <div className="py-4 space-y-3">
-              {benefits.map((benefit, i) => (
+              {t.authBenefits.map((benefit, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="h-5 w-5 rounded-full gradient-accent flex items-center justify-center">
                     <CheckCircle2 className="h-3 w-3 text-accent-foreground" />
@@ -148,11 +144,11 @@ export default function Register() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Se creează contul...
+                  {t.auth.creatingAccount}
                 </>
               ) : (
                 <>
-                  Creează cont gratuit
+                  {t.auth.createAccountButton}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
@@ -161,9 +157,9 @@ export default function Register() {
 
           <div className="mt-8 pt-6 border-t border-border text-center">
             <p className="text-muted-foreground">
-              Ai deja cont?{' '}
+              {t.auth.hasAccount}{' '}
               <Link to="/auth/login" className="text-primary hover:underline font-semibold">
-                Autentifică-te
+                {t.auth.loginHere}
               </Link>
             </p>
           </div>

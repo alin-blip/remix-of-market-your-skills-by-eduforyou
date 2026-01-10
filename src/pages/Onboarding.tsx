@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
@@ -27,20 +28,10 @@ interface OnboardingData {
   values: string[];
 }
 
-const steps = [
-  { title: 'Date personale', description: 'Spune-ne cine ești' },
-  { title: 'Interese', description: 'Ce îți place să faci' },
-  { title: 'Experiență', description: 'Proiecte și realizări' },
-  { title: 'Obiective', description: 'Unde vrei să ajungi' },
-  { title: 'Valori', description: 'Ce contează pentru tine' },
-  { title: 'Skill Scanner', description: 'Descoperă-ți competențele' },
-  { title: 'Ikigai', description: 'Găsește-ți direcția' },
-  { title: 'Ofertă', description: 'Creează-ți pachetele' },
-];
-
 export default function Onboarding() {
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
+  const { t } = useI18n();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSkills, setHasSkills] = useState(false);
@@ -57,6 +48,8 @@ export default function Onboarding() {
     values: [],
   });
 
+  const steps = t.onboarding.steps;
+
   const updateData = (updates: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...updates }));
   };
@@ -64,7 +57,7 @@ export default function Onboarding() {
   const saveProfileData = async () => {
     if (!user) return;
     
-    const studyField = data.study_field === 'Alt curs din UK' && data.other_course 
+    const studyField = data.study_field === t.onboardingStep1.otherCourse && data.other_course 
       ? data.other_course 
       : data.study_field;
 
@@ -85,7 +78,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        const hasValidCourse = data.study_field === 'Alt curs din UK' 
+        const hasValidCourse = data.study_field === t.onboardingStep1.otherCourse 
           ? (data.other_course?.trim() ?? '') !== ''
           : data.study_field.trim() !== '';
         return data.full_name.trim() !== '' && hasValidCourse;
@@ -130,7 +123,7 @@ export default function Onboarding() {
     
     setIsSubmitting(true);
     try {
-      const studyField = data.study_field === 'Alt curs din UK' && data.other_course 
+      const studyField = data.study_field === t.onboardingStep1.otherCourse && data.other_course 
         ? data.other_course 
         : data.study_field;
 
@@ -151,11 +144,11 @@ export default function Onboarding() {
       if (error) throw error;
 
       await refreshProfile();
-      toast.success('Felicitări! Ai finalizat onboarding-ul!');
+      toast.success(t.onboarding.completeSuccess);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving profile:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      toast.error(t.onboarding.saveError);
     } finally {
       setIsSubmitting(false);
     }
@@ -248,7 +241,7 @@ export default function Onboarding() {
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Înapoi
+            {t.common.back}
           </Button>
           
           {currentStep === steps.length - 1 ? (
@@ -260,11 +253,11 @@ export default function Onboarding() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Se salvează...
+                  {t.common.saving}
                 </>
               ) : (
                 <>
-                  Finalizează
+                  {t.common.finish}
                   <Check className="w-4 h-4" />
                 </>
               )}
@@ -275,7 +268,7 @@ export default function Onboarding() {
               disabled={!canProceed()}
               className="gap-2"
             >
-              Continuă
+              {t.common.next}
               <ArrowRight className="w-4 h-4" />
             </Button>
           )}

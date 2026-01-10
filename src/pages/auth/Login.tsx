@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,14 +23,14 @@ export default function Login() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast.error('Autentificare eșuată', {
-        description: 'Email sau parolă incorectă.',
+      toast.error(t.auth.loginFailed, {
+        description: t.auth.loginFailedDescription,
       });
       setLoading(false);
       return;
     }
 
-    toast.success('Bine ai revenit!');
+    toast.success(t.auth.welcomeBack + '!');
     navigate('/dashboard');
   };
 
@@ -45,7 +47,7 @@ export default function Login() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Înapoi
+          {t.common.back}
         </Link>
 
         {/* Logo */}
@@ -61,19 +63,19 @@ export default function Login() {
         {/* Form Card */}
         <div className="p-8 rounded-2xl glass animate-slide-up">
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">Bine ai revenit</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">{t.auth.welcomeBack}</h1>
             <p className="text-muted-foreground">
-              Intră în contul tău pentru a continua
+              {t.auth.loginDescription}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="tu@exemplu.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -83,7 +85,7 @@ export default function Login() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Parolă</Label>
+              <Label htmlFor="password" className="text-sm font-medium">{t.auth.password}</Label>
               <Input
                 id="password"
                 type="password"
@@ -104,19 +106,19 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Se autentifică...
+                  {t.auth.loggingIn}
                 </>
               ) : (
-                'Autentificare'
+                t.auth.loginButton
               )}
             </Button>
           </form>
 
           <div className="mt-8 pt-6 border-t border-border text-center">
             <p className="text-muted-foreground">
-              Nu ai cont?{' '}
+              {t.auth.noAccount}{' '}
               <Link to="/auth/register" className="text-accent hover:underline font-semibold">
-                Înregistrează-te gratuit
+                {t.auth.registerFree}
               </Link>
             </p>
           </div>
