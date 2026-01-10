@@ -10,6 +10,7 @@ import {
   FileDown,
   ChevronDown,
   Compass,
+  Globe,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -32,6 +33,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 
 interface AppSidebarProps {
@@ -41,7 +49,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarProps) {
   const { state } = useSidebar();
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const currentPath = location.pathname;
@@ -159,9 +167,43 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with Progress */}
-      {!collapsed && (
-        <SidebarFooter className="p-4 border-t border-sidebar-border">
+      {/* Footer with Progress and Language Selector */}
+      <SidebarFooter className="p-4 border-t border-sidebar-border space-y-3">
+        {/* Language Selector */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size={collapsed ? "icon" : "sm"} 
+              className={cn(
+                "w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground",
+                collapsed && "justify-center"
+              )}
+            >
+              <Globe className="h-4 w-4" />
+              {!collapsed && (
+                <span className="text-xs uppercase font-medium">{locale}</span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align={collapsed ? "center" : "start"} side="top">
+            <DropdownMenuItem 
+              onClick={() => setLocale('ro')}
+              className={cn(locale === 'ro' && 'bg-accent')}
+            >
+              🇷🇴 Română
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setLocale('en')}
+              className={cn(locale === 'en' && 'bg-accent')}
+            >
+              🇬🇧 English
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Progress */}
+        {!collapsed && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-sidebar-foreground/70">
               <span>{t.sidebar.progressLabel}</span>
@@ -169,8 +211,8 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </div>
             <Progress value={progressPercentage} className="h-2" />
           </div>
-        </SidebarFooter>
-      )}
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }
