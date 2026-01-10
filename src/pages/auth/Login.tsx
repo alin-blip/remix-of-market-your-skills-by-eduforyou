@@ -5,15 +5,22 @@ import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Loader2, ArrowLeft } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Sparkles, Loader2, ArrowLeft, Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,14 +48,39 @@ export default function Login() {
       <div className="fixed inset-0 gradient-glow pointer-events-none" />
       
       <div className="w-full max-w-md relative z-10">
-        {/* Back link */}
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {t.common.back}
-        </Link>
+        {/* Header with Back link and Language Selector */}
+        <div className="flex items-center justify-between mb-8">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t.common.back}
+          </Link>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Globe className="h-4 w-4" />
+                <span className="text-xs uppercase font-medium">{locale}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                onClick={() => setLocale('ro')}
+                className={cn(locale === 'ro' && 'bg-accent')}
+              >
+                🇷🇴 Română
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocale('en')}
+                className={cn(locale === 'en' && 'bg-accent')}
+              >
+                🇬🇧 English
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 mb-8 group">
