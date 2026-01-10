@@ -680,6 +680,8 @@ export const ro = {
       publishProfile: 'Publică Profilul',
       publishSuccess: 'Publicat în SwipeHire!',
       publishError: 'Publicare eșuată',
+      profileSynced: 'Profil sincronizat',
+      profileNotSynced: 'Profilul nu a fost încă sincronizat',
     },
     autoSync: {
       title: 'Setări Auto-Sync',
@@ -767,5 +769,7 @@ export const ro = {
     confirmDelete: 'Ești sigur că vrei să ștergi acest gig?',
     noOfferYet: 'Completează Offer Builder mai întâi pentru a crea gig-uri din pachetele tale.',
     generateDescription: 'Generează descriere profesională folosind AI',
+    profileNotSynced: 'Profilul tău nu a fost încă sincronizat cu SwipeHire. Se va sincroniza automat la prima publicare.',
+    syncNow: 'Sincronizează acum',
   },
 };

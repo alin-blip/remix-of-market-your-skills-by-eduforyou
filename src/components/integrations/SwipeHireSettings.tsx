@@ -4,14 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSwipeHireIntegration } from "@/hooks/useSwipeHireIntegration";
-import { Link2, Unlink, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Link2, Unlink, Eye, EyeOff, ExternalLink, User, Loader2, CheckCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export function SwipeHireSettings() {
   const { t } = useI18n();
-  const { isConnected, saveApiKey, clearApiKey, getApiKey } = useSwipeHireIntegration();
+  const { isConnected, saveApiKey, clearApiKey, getApiKey, isProfileSynced, markProfileSynced, publishProfile } = useSwipeHireIntegration();
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [showKey, setShowKey] = useState(false);
+  const [syncingProfile, setSyncingProfile] = useState(false);
 
   const handleSave = () => {
     if (apiKeyInput.trim()) {
@@ -49,6 +50,19 @@ export function SwipeHireSettings() {
               <Button variant="ghost" size="icon" onClick={() => setShowKey(!showKey)}>
                 {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
+            </div>
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
+              {isProfileSynced() ? (
+                <>
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span className="text-sm">{t.integrations?.swipehire?.profileSynced || "Profile synced"}</span>
+                </>
+              ) : (
+                <>
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">{t.integrations?.swipehire?.profileNotSynced || "Profile not synced yet"}</span>
+                </>
+              )}
             </div>
             <Button variant="destructive" onClick={clearApiKey} className="w-full">
               <Unlink className="mr-2 h-4 w-4" />

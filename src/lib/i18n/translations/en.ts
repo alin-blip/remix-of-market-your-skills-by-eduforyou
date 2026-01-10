@@ -680,6 +680,8 @@ export const en = {
       publishProfile: 'Publish Profile',
       publishSuccess: 'Published to SwipeHire!',
       publishError: 'Publish failed',
+      profileSynced: 'Profile synced',
+      profileNotSynced: 'Profile not synced yet',
     },
     autoSync: {
       title: 'Auto-Sync Settings',
@@ -767,5 +769,7 @@ export const en = {
     confirmDelete: 'Are you sure you want to delete this gig?',
     noOfferYet: 'Complete Offer Builder first to create gigs from your packages.',
     generateDescription: 'Generate professional description using AI',
+    profileNotSynced: 'Your profile hasn\'t been synced to SwipeHire yet. It will sync automatically on first publish.',
+    syncNow: 'Sync Now',
   },
 };

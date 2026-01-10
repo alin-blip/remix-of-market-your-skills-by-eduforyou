@@ -7,7 +7,9 @@ import { Plus, Package, Briefcase, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { useSwipeHireIntegration, GigPayload } from "@/hooks/useSwipeHireIntegration";
+import { useSwipeHireIntegration, GigPayload, ProfilePayload } from "@/hooks/useSwipeHireIntegration";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, User } from "lucide-react";
 import { GigJobCard } from "./GigJobCard";
 import { GigJobDialog, GigJobFormData } from "./GigJobDialog";
 import { toast } from "sonner";
@@ -48,7 +50,8 @@ interface GigJob {
 export function GigJobBuilder() {
   const { t } = useI18n();
   const { user } = useAuth();
-  const { isConnected, publishGig } = useSwipeHireIntegration();
+  const { isConnected, publishGig, publishProfile, isProfileSynced, markProfileSynced } = useSwipeHireIntegration();
+  const [syncingProfile, setSyncingProfile] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -175,11 +178,67 @@ export function GigJobBuilder() {
     }
   };
 
+  const ensureProfileSynced = async (): Promise<boolean> => {
+    if (isProfileSynced()) return true;
+    if (!user?.id) return false;
+
+    setSyncingProfile(true);
+    try {
+      // Fetch profile and skills data
+      const [profileRes, ikigaiRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        supabase.from("ikigai_results").select("*").eq("user_id", user.id).maybeSingle(),
+      ]);
+
+      if (!profileRes.data) {
+        toast.error("Profile not found. Please complete your profile first.");
+        return false;
+      }
+
+      const profile = profileRes.data;
+      const ikigai = ikigaiRes.data;
+
+      const profilePayload: ProfilePayload = {
+        profile: {
+          full_name: profile.full_name || undefined,
+          email: profile.email || undefined,
+          bio: ikigai?.ikigai_statements?.[0] || undefined,
+          headline: profile.study_field || undefined,
+        },
+        student_profile: {
+          skills: skills,
+          field_of_study: profile.study_field || undefined,
+        },
+        values: (profile.values as string[] || []).map((v, i) => ({
+          value_name: v,
+          priority: i + 1,
+        })),
+        external_user_id: user.id,
+        external_profile_url: `${window.location.origin}/profile/${user.id}`,
+      };
+
+      await publishProfile(profilePayload);
+      markProfileSynced();
+      toast.success("Profile synced to SwipeHire!");
+      return true;
+    } catch (error) {
+      console.error("Error syncing profile:", error);
+      toast.error("Failed to sync profile. Cannot publish gig.");
+      return false;
+    } finally {
+      setSyncingProfile(false);
+    }
+  };
+
   const handleSaveAndPublish = async (data: GigJobFormData) => {
     if (!user?.id || !isConnected) {
       toast.error("Connect to SwipeHire first");
       return;
     }
+
+    // Ensure profile is synced first
+    const profileSynced = await ensureProfileSynced();
+    if (!profileSynced) return;
 
     try {
       const payload = {
@@ -242,6 +301,14 @@ export function GigJobBuilder() {
     }
 
     setPublishingId(gig.id);
+    
+    // Ensure profile is synced first
+    const profileSynced = await ensureProfileSynced();
+    if (!profileSynced) {
+      setPublishingId(null);
+      return;
+    }
+
     try {
       const gigPayload: GigPayload = {
         external_id: gig.id,
@@ -327,6 +394,28 @@ export function GigJobBuilder() {
           <CardDescription>{t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {isConnected && !isProfileSynced() && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>{t.gigs?.profileNotSynced || "Your profile hasn't been synced to SwipeHire yet. It will sync automatically on first publish."}</span>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={ensureProfileSynced}
+                  disabled={syncingProfile}
+                >
+                  {syncingProfile ? (
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  ) : (
+                    <User className="mr-2 h-3 w-3" />
+                  )}
+                  {t.gigs?.syncNow || "Sync Now"}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {offer && (
             <div className="space-y-3">
               <h4 className="text-sm font-medium">{t.gigs?.fromOffer || "Create from your offer"}</h4>
