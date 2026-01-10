@@ -1,4 +1,61 @@
 export const ro = {
+  landing: {
+    badge: 'Platformă AI pentru studenți freelanceri',
+    headline: 'Transformă-ți cunoștințele în',
+    headlineHighlight: 'venit real',
+    subheadline: 'De la „nu știu ce pot vinde" la primul tău client plătit.',
+    subheadlineBold: 'Student Freedom OS',
+    subheadlineEnd: 'te ghidează pas cu pas folosind AI.',
+    ctaStart: 'Începe gratuit acum',
+    ctaDemo: 'Vezi cum funcționează',
+    login: 'Autentificare',
+    startFree: 'Începe gratuit',
+    stats: {
+      activeStudents: 'Studenți activi',
+      revenueGenerated: 'Venit generat',
+      successRate: 'Rată de succes',
+    },
+    featuresTitle: 'Tot ce ai nevoie pentru',
+    featuresTitleHighlight: 'primul client',
+    featuresSubtitle: 'Patru unelte AI puternice care te duc de la idee la primele mesaje de outreach.',
+    features: {
+      skillScanner: {
+        title: 'Skill Scanner AI',
+        description: 'Descoperă competențele tale monetizabile folosind inteligența artificială.',
+      },
+      ikigaiBuilder: {
+        title: 'Ikigai Builder',
+        description: 'Găsește-ți direcția perfectă la intersecția pasiunii cu piața.',
+      },
+      offerBuilder: {
+        title: 'Offer Builder',
+        description: 'Creează pachete de servicii profesionale cu prețuri optimizate.',
+      },
+      outreachGenerator: {
+        title: 'Outreach Generator',
+        description: 'Generează mesaje personalizate pentru primii tăi clienți.',
+      },
+    },
+    stepsTitle: 'Trei pași către',
+    stepsTitleHighlight: 'libertate',
+    steps: {
+      step1: { title: 'Completează onboarding', desc: '5 minute de întrebări despre tine, studii și obiective financiare.' },
+      step2: { title: 'AI-ul creează planul', desc: 'Skill Scanner, Ikigai și Offer Builder îți generează strategia.' },
+      step3: { title: 'Trimite primul mesaj', desc: 'Folosește template-urile generate pentru a contacta clienții.' },
+    },
+    benefitsTitle: 'Ce primești',
+    benefitsTitleHighlight: 'gratuit',
+    benefits: [
+      'Descoperă ce poți vinde ca student',
+      'Plan personalizat generat de AI',
+      'Ofertă cu 3 pachete de servicii',
+      'Template-uri de outreach ready-to-send',
+      'Export PDF al planului tău',
+      'Acces la comunitatea de studenți',
+    ],
+    ctaFinal: 'Creează cont gratuit',
+    footer: 'Toate drepturile rezervate.',
+  },
   // Common
   common: {
     back: 'Înapoi',
