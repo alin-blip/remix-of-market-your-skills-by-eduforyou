@@ -82,8 +82,12 @@ export default function Dashboard() {
     }
   };
 
-  // Calculate freedom score based on completed steps
-  const freedomScore = profile?.freedom_score ?? 0;
+  // Check if all 4 main modules are completed
+  const allModulesCompleted = 
+    progressData.skillsCount > 0 && 
+    progressData.hasIkigai && 
+    progressData.hasOffer && 
+    progressData.outreachCount > 0;
 
   // Define the Freedom Path steps with correct routes
   const pathSteps: PathStep[] = [
@@ -135,15 +139,18 @@ export default function Dashboard() {
       description: t.pathSteps.export.description,
       icon: <FileText className="w-6 h-6" />,
       route: '/wizard/export',
-      completed: freedomScore >= 100,
-      current: progressData.outreachCount > 0 && freedomScore < 100,
+      completed: allModulesCompleted,
+      current: progressData.outreachCount > 0 && !allModulesCompleted,
       locked: progressData.outreachCount === 0,
     },
   ];
 
-  const currentStep = pathSteps.find(step => step.current) || pathSteps[0];
+  const currentStep = pathSteps.find(step => step.current) || pathSteps[pathSteps.length - 1];
   const completedSteps = pathSteps.filter(step => step.completed).length;
   const progressPercentage = (completedSteps / pathSteps.length) * 100;
+  
+  // Calculate freedom score dynamically based on completed steps
+  const freedomScore = Math.round((completedSteps / pathSteps.length) * 100);
 
   return (
     <MainLayout>
