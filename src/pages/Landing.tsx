@@ -10,10 +10,17 @@ import {
   CheckCircle2,
   Zap,
   Play,
+  Globe,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function Landing() {
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
 
   const features = [
     {
@@ -73,6 +80,21 @@ export default function Landing() {
           </Link>
           
           <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLocale('ro')} className={locale === 'ro' ? 'bg-secondary' : ''}>
+                  🇷🇴 Română
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-secondary' : ''}>
+                  🇬🇧 English
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
               <Link to="/auth/login">{t.landing.login}</Link>
             </Button>
