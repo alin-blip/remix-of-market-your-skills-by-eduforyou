@@ -118,14 +118,21 @@ export function GigJobBuilder() {
     const pkg = offer[`${packageKey}_package`];
     if (!pkg) return;
 
+    // Handle price as either number or string
+    const parsePrice = (price: unknown): number => {
+      if (typeof price === "number") return price;
+      if (typeof price === "string") return parseInt(price.replace(/[^0-9]/g, "") || "0");
+      return 0;
+    };
+
     setEditingItem({
       type: "gig",
       title: `${offer.smv} - ${pkg.name}`,
       description: pkg.deliverables?.join("\n• ") || "",
       skills: skills.slice(0, 5),
       priceType: "fixed",
-      priceMin: parseInt(pkg.price?.replace(/[^0-9]/g, "") || "0"),
-      priceMax: parseInt(pkg.price?.replace(/[^0-9]/g, "") || "0"),
+      priceMin: parsePrice(pkg.price),
+      priceMax: parsePrice(pkg.price),
       category: "webDevelopment",
       locationType: "remote",
       currency: "EUR",
