@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sparkles, Loader2, ArrowLeft, Globe } from 'lucide-react';
+import { Sparkles, Loader2, ArrowLeft, Globe, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const { t, locale, setLocale } = useI18n();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,28 +60,51 @@ export default function Login() {
             {t.common.back}
           </Link>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Globe className="h-4 w-4" />
-                <span className="text-xs uppercase font-medium">{locale}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem 
-                onClick={() => setLocale('ro')}
-                className={cn(locale === 'ro' && 'bg-accent')}
-              >
-                🇷🇴 Română
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setLocale('en')}
-                className={cn(locale === 'en' && 'bg-accent')}
-              >
-                🇬🇧 English
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Globe className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => setLocale('ro')}
+                  className={cn(locale === 'ro' && 'bg-accent')}
+                >
+                  🇷🇴 Română
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLocale('en')}
+                  className={cn(locale === 'en' && 'bg-accent')}
+                >
+                  🇬🇧 English
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  {theme === 'light' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => setTheme('light')}
+                  className={cn(theme === 'light' && 'bg-accent')}
+                >
+                  <Sun className="h-4 w-4 mr-2" /> Light
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('dark')}
+                  className={cn(theme === 'dark' && 'bg-accent')}
+                >
+                  <Moon className="h-4 w-4 mr-2" /> Dark
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Logo */}
