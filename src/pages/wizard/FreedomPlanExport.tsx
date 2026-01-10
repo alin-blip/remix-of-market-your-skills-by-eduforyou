@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
-import { FreedomPlanPDF, type FreedomPlanData } from '@/components/pdf/FreedomPlanPDF';
+import { FreedomPlanPDF, type FreedomPlanData, type PdfLabels } from '@/components/pdf/FreedomPlanPDF';
 import { PdfHealthCheck } from '@/components/pdf/PdfHealthCheck';
 import { generateFreedomPlanDocx } from '@/components/pdf/FreedomPlanDocx';
 import { useI18n } from '@/lib/i18n';
@@ -291,7 +291,7 @@ export default function FreedomPlanExport() {
             <CardContent>
               <div className="border rounded-lg overflow-hidden bg-muted/30">
                 <PDFViewer style={{ width: '100%', height: '600px', border: 'none' }} showToolbar={true}>
-                  <FreedomPlanPDF data={planData} />
+                  <FreedomPlanPDF data={planData} labels={t.pdfExport as PdfLabels} />
                 </PDFViewer>
               </div>
             </CardContent>
@@ -319,7 +319,7 @@ export default function FreedomPlanExport() {
                   <p className="text-sm text-muted-foreground max-w-md">{t.export.planReadyDescription}</p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <PDFDownloadLink
-                      document={<FreedomPlanPDF data={planData} />}
+                      document={<FreedomPlanPDF data={planData} labels={t.pdfExport as PdfLabels} />}
                       fileName={`freedom-plan-${planData.profile.fullName.replace(/\s+/g, '-').toLowerCase()}.pdf`}
                     >
                       {({ loading }) => (
@@ -338,7 +338,7 @@ export default function FreedomPlanExport() {
                         </Button>
                       )}
                     </PDFDownloadLink>
-                    <Button size="lg" variant="outline" className="gap-2" onClick={() => generateFreedomPlanDocx(planData)}>
+                    <Button size="lg" variant="outline" className="gap-2" onClick={() => generateFreedomPlanDocx(planData, t.pdfExport as PdfLabels)}>
                       <FileText className="h-5 w-5" />
                       {t.export.downloadDocx}
                     </Button>
