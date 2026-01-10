@@ -16,6 +16,7 @@ import {
   Moon,
   Monitor,
   Settings,
+  Briefcase,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -186,6 +187,28 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               </SidebarGroupContent>
             </CollapsibleContent>
           </Collapsible>
+        </SidebarGroup>
+
+        {/* Gig & Job Builder - Standalone Item */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/wizard/gig-job-builder'}
+                tooltip={t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}
+              >
+                <NavLink
+                  to="/wizard/gig-job-builder"
+                  className="flex items-center gap-3"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
