@@ -21,6 +21,9 @@ import FreedomPlanExport from "./pages/wizard/FreedomPlanExport";
 import GigJobBuilderPage from "./pages/wizard/GigJobBuilderPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import VerificationsManager from "./pages/admin/VerificationsManager";
+import UsersManager from "./pages/admin/UsersManager";
 
 const queryClient = new QueryClient();
 
@@ -130,6 +133,31 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Settings />
+                  </ProtectedRoute>
+                } 
+              />
+              {/* Admin Routes */}
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/verifications" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <VerificationsManager />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/users" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <UsersManager />
                   </ProtectedRoute>
                 } 
               />
