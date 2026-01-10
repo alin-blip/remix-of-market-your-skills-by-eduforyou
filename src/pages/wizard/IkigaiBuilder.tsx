@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IkigaiCircles } from '@/components/ikigai/IkigaiCircles';
+import { useI18n } from '@/lib/i18n';
 import { 
   Target, 
   ArrowRight, 
@@ -57,6 +58,7 @@ interface Skill {
 export default function IkigaiBuilder() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const [step, setStep] = useState<'loading' | 'no-skills' | 'ready' | 'generating' | 'results'>('loading');
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -72,7 +74,6 @@ export default function IkigaiBuilder() {
   const loadData = async () => {
     if (!user) return;
 
-    // Load skills and existing ikigai result in parallel
     const [skillsResponse, ikigaiResponse] = await Promise.all([
       supabase.from('skill_entries').select('*').eq('user_id', user.id),
       supabase.from('ikigai_results').select('*').eq('user_id', user.id).maybeSingle()
@@ -85,7 +86,6 @@ export default function IkigaiBuilder() {
     const loadedSkills = skillsResponse.data || [];
     setSkills(loadedSkills);
 
-    // Check if we have a saved ikigai result
     if (ikigaiResponse.data) {
       const savedResult: IkigaiResult = {
         what_you_love: (ikigaiResponse.data.what_you_love as unknown as string[]) || [],
@@ -108,7 +108,7 @@ export default function IkigaiBuilder() {
 
   const handleGenerate = async () => {
     if (skills.length === 0) {
-      toast.error('Trebuie să ai competențe scanate înainte');
+      toast.error(t.ikigaiBuilder.needSkillsFirst);
       navigate('/wizard/skill-scanner');
       return;
     }
@@ -121,7 +121,6 @@ export default function IkigaiBuilder() {
     }, 600);
 
     try {
-      // Get the user's session token for authenticated requests
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
 
@@ -146,7 +145,7 @@ export default function IkigaiBuilder() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Eroare la generare');
+        throw new Error(errorData.error || t.ikigaiBuilder.generateError);
       }
 
       const data: IkigaiResult = await response.json();
@@ -160,7 +159,7 @@ export default function IkigaiBuilder() {
     } catch (error) {
       clearInterval(progressInterval);
       console.error('Generate error:', error);
-      toast.error(error instanceof Error ? error.message : 'Eroare la generare');
+      toast.error(error instanceof Error ? error.message : t.ikigaiBuilder.generateError);
       setStep('ready');
     }
   };
@@ -169,7 +168,6 @@ export default function IkigaiBuilder() {
     if (!result || !user) return;
 
     try {
-      // First check if user already has an ikigai result
       const { data: existing } = await supabase
         .from('ikigai_results')
         .select('id')
@@ -177,7 +175,6 @@ export default function IkigaiBuilder() {
         .maybeSingle();
 
       if (existing) {
-        // Update existing
         const { error } = await supabase
           .from('ikigai_results')
           .update({
@@ -193,7 +190,6 @@ export default function IkigaiBuilder() {
 
         if (error) throw error;
       } else {
-        // Insert new
         const { error } = await supabase
           .from('ikigai_results')
           .insert([{
@@ -209,7 +205,6 @@ export default function IkigaiBuilder() {
         if (error) throw error;
       }
 
-      // Update freedom score
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ freedom_score: 40 })
@@ -217,19 +212,19 @@ export default function IkigaiBuilder() {
 
       if (profileError) throw profileError;
 
-      toast.success('Ikigai salvat cu succes!');
+      toast.success(t.ikigaiBuilder.ikigaiSaved);
       setHasSavedResult(true);
     } catch (error) {
       console.error('Save error:', error);
-      toast.error('Eroare la salvare');
+      toast.error(t.ikigaiBuilder.saveError);
     }
   };
 
   const quadrantConfig = [
-    { key: 'what_you_love', label: 'Ce Iubești', icon: Heart, color: 'text-rose-400', bg: 'bg-rose-500/20' },
-    { key: 'what_youre_good_at', label: 'La Ce Ești Bun', icon: Zap, color: 'text-blue-400', bg: 'bg-blue-500/20' },
-    { key: 'what_world_needs', label: 'Ce Are Nevoie Lumea', icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
-    { key: 'what_you_can_be_paid_for', label: 'Pentru Ce Poți Fi Plătit', icon: Coins, color: 'text-amber-400', bg: 'bg-amber-500/20' },
+    { key: 'what_you_love', label: t.ikigaiBuilder.quadrants.whatYouLove, icon: Heart, color: 'text-rose-400', bg: 'bg-rose-500/20' },
+    { key: 'what_youre_good_at', label: t.ikigaiBuilder.quadrants.whatYoureGoodAt, icon: Zap, color: 'text-blue-400', bg: 'bg-blue-500/20' },
+    { key: 'what_world_needs', label: t.ikigaiBuilder.quadrants.whatWorldNeeds, icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
+    { key: 'what_you_can_be_paid_for', label: t.ikigaiBuilder.quadrants.whatYouCanBePaidFor, icon: Coins, color: 'text-amber-400', bg: 'bg-amber-500/20' },
   ];
 
   return (
@@ -246,7 +241,7 @@ export default function IkigaiBuilder() {
               className="text-center py-16"
             >
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
-              <p className="text-muted-foreground mt-4">Se încarcă...</p>
+              <p className="text-muted-foreground mt-4">{t.common.loading}</p>
             </motion.div>
           )}
 
@@ -263,17 +258,17 @@ export default function IkigaiBuilder() {
                 <AlertCircle className="w-8 h-8 text-destructive" />
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
-                Nicio competență găsită
+                {t.ikigaiBuilder.noSkillsTitle}
               </h1>
               <p className="text-muted-foreground mb-6">
-                Trebuie să completezi Skill Scanner înainte de a construi Ikigai-ul tău.
+                {t.ikigaiBuilder.noSkillsDescription}
               </p>
               <Button 
                 onClick={() => navigate('/wizard/skill-scanner')}
                 className="gap-2 bg-gradient-to-r from-primary to-accent"
               >
                 <Sparkles className="w-5 h-5" />
-                Mergi la Skill Scanner
+                {t.ikigaiBuilder.goToSkillScanner}
               </Button>
             </motion.div>
           )}
@@ -292,17 +287,17 @@ export default function IkigaiBuilder() {
                   <Target className="w-8 h-8 text-primary" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Ikigai Builder AI
+                  {t.ikigaiBuilder.title}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                  Descoperă-ți poziționarea unică la intersecția pasiunilor, abilităților și oportunităților
+                  {t.ikigaiBuilder.subtitle}
                 </p>
               </div>
 
               {/* Skills Preview */}
               <Card className="glass border-white/10 p-6">
                 <h3 className="font-semibold text-foreground mb-4">
-                  Competențele tale ({skills.length})
+                  {t.ikigaiBuilder.yourSkills} ({skills.length})
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {skills.map(skill => (
@@ -323,10 +318,9 @@ export default function IkigaiBuilder() {
 
               {/* Ikigai Explanation */}
               <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
-                <h3 className="font-semibold text-foreground mb-3">Ce este Ikigai?</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t.ikigaiBuilder.whatIsIkigai}</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                  Ikigai este un concept japonez care reprezintă „rațiunea ta de a fi". 
-                  Se găsește la intersecția a patru cercuri:
+                  {t.ikigaiBuilder.ikigaiDescription}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {quadrantConfig.map(q => (
@@ -347,7 +341,7 @@ export default function IkigaiBuilder() {
                   size="lg"
                 >
                   <Target className="w-5 h-5" />
-                  Generează Ikigai-ul meu
+                  {t.ikigaiBuilder.generateButton}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -367,10 +361,10 @@ export default function IkigaiBuilder() {
                 <Loader2 className="w-10 h-10 text-primary animate-spin" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-4">
-                Construiesc Ikigai-ul tău...
+                {t.ikigaiBuilder.generating}
               </h2>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                AI-ul analizează competențele tale și creează o poziționare unică în piață.
+                {t.ikigaiBuilder.generatingDescription}
               </p>
               <div className="max-w-md mx-auto">
                 <Progress value={generateProgress} className="h-2" />
@@ -394,7 +388,7 @@ export default function IkigaiBuilder() {
                   <CheckCircle2 className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  {hasSavedResult ? 'Ikigai-ul tău salvat' : 'Ikigai-ul tău'}
+                  {hasSavedResult ? t.ikigaiBuilder.resultsSavedTitle : t.ikigaiBuilder.resultsTitle}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl mx-auto">
                   {result.core_positioning || result.ikigai_statements?.[0]?.statement || ''}
@@ -449,22 +443,33 @@ export default function IkigaiBuilder() {
                 <Card className="glass border-primary/20 p-6">
                   <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                     <Quote className="w-5 h-5 text-primary" />
-                    Declarații de poziționare
+                    {t.ikigaiBuilder.positioningStatements}
                   </h3>
                   <div className="space-y-3">
                     {result.ikigai_statements.map((stmt, index) => (
-                      <div
+                      <motion.div
                         key={index}
-                        onClick={() => setSelectedStatement(index)}
-                        className={`p-4 rounded-xl cursor-pointer transition-all ${
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        className={`p-4 rounded-lg cursor-pointer transition-all ${
                           selectedStatement === index
                             ? 'bg-primary/10 border border-primary/30'
-                            : 'bg-background/50 border border-transparent hover:border-white/10'
+                            : 'bg-muted/30 hover:bg-muted/50'
                         }`}
+                        onClick={() => setSelectedStatement(index)}
                       >
-                        <p className="font-medium text-foreground mb-1">"{stmt.statement}"</p>
-                        <p className="text-sm text-muted-foreground">{stmt.explanation}</p>
-                      </div>
+                        <p className="font-medium text-foreground">{stmt.statement}</p>
+                        {selectedStatement === index && stmt.explanation && (
+                          <motion.p
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="text-sm text-muted-foreground mt-2"
+                          >
+                            {stmt.explanation}
+                          </motion.p>
+                        )}
+                      </motion.div>
                     ))}
                   </div>
                 </Card>
@@ -472,67 +477,68 @@ export default function IkigaiBuilder() {
 
               {/* Service Angles */}
               {result.service_angles && result.service_angles.length > 0 && (
-                <div>
+                <Card className="glass border-accent/20 p-6">
                   <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-accent" />
-                    Unghiuri de servicii
+                    <Target className="w-5 h-5 text-accent" />
+                    {t.ikigaiBuilder.serviceAngles}
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {result.service_angles.map((angle, index) => (
                       <motion.div
                         key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 + index * 0.1 }}
+                        className="p-4 rounded-lg bg-accent/5 border border-accent/20"
                       >
-                        <Card className="glass border-white/10 p-5 h-full hover-lift">
-                          <h4 className="font-semibold text-foreground mb-2">{angle.title}</h4>
-                          <p className="text-sm text-muted-foreground mb-3">{angle.description}</p>
-                          <div className="space-y-1 text-xs">
-                            <p><span className="text-primary">Audiență:</span> <span className="text-muted-foreground">{angle.target_audience}</span></p>
-                            <p><span className="text-accent">Valoare unică:</span> <span className="text-muted-foreground">{angle.unique_value}</span></p>
-                          </div>
-                        </Card>
+                        <h4 className="font-semibold text-foreground mb-2">{angle.title}</h4>
+                        <p className="text-sm text-muted-foreground mb-3">{angle.description}</p>
+                        <div className="space-y-1 text-xs">
+                          <p className="text-muted-foreground">
+                            <span className="text-accent">Target:</span> {angle.target_audience}
+                          </p>
+                          <p className="text-muted-foreground">
+                            <span className="text-accent">USP:</span> {angle.unique_value}
+                          </p>
+                        </div>
                       </motion.div>
                     ))}
                   </div>
-                </div>
+                </Card>
               )}
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => {
-                    setStep('ready');
-                    setResult(null);
-                    setHasSavedResult(false);
-                  }}
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Generează din nou
-                </Button>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      setStep('ready');
+                      setHasSavedResult(false);
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    {t.ikigaiBuilder.regenerate}
+                  </Button>
                   {!hasSavedResult && (
                     <Button
-                      onClick={handleSave}
                       variant="outline"
+                      onClick={handleSave}
                       className="gap-2"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      Salvează Ikigai
+                      {t.ikigaiBuilder.saveButton}
                     </Button>
                   )}
-                  <Button
-                    onClick={() => navigate('/wizard/offer')}
-                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                    size="lg"
-                  >
-                    Continuă la Offer Builder
-                    <ArrowRight className="w-5 h-5" />
-                  </Button>
                 </div>
+                <Button
+                  onClick={() => navigate('/wizard/offer')}
+                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  size="lg"
+                >
+                  {t.ikigaiBuilder.continueToOffer}
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
               </div>
             </motion.div>
           )}
