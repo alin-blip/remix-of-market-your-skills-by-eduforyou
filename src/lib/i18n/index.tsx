@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { ro } from './translations/ro';
 import { en } from './translations/en';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/lib/auth';
 
 export type Locale = 'ro' | 'en';
 
@@ -23,28 +22,51 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const { user, profile } = useAuth();
   const [locale, setLocaleState] = useState<Locale>('ro');
   const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Initialize locale from profile
+  // Listen to auth changes directly from supabase to avoid circular dependency
   useEffect(() => {
-    if (profile?.locale && (profile.locale === 'ro' || profile.locale === 'en')) {
-      setLocaleState(profile.locale as Locale);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load locale from profile when user is authenticated
+  useEffect(() => {
+    if (userId) {
+      supabase
+        .from('profiles')
+        .select('locale')
+        .eq('id', userId)
+        .single()
+        .then(({ data }) => {
+          if (data?.locale && (data.locale === 'ro' || data.locale === 'en')) {
+            setLocaleState(data.locale as Locale);
+          }
+        });
     }
-  }, [profile?.locale]);
+  }, [userId]);
 
   const setLocale = async (newLocale: Locale) => {
     setLocaleState(newLocale);
     
     // If user is logged in, save to profile
-    if (user) {
+    if (userId) {
       setIsLoading(true);
       try {
         await supabase
           .from('profiles')
           .update({ locale: newLocale })
-          .eq('id', user.id);
+          .eq('id', userId);
       } catch (error) {
         console.error('Error saving locale:', error);
       } finally {
