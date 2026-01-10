@@ -50,7 +50,15 @@ interface GigJob {
 export function GigJobBuilder() {
   const { t } = useI18n();
   const { user } = useAuth();
-  const { isConnected, publishGig, publishProfile, isProfileSynced, markProfileSynced } = useSwipeHireIntegration();
+  const { 
+    isConnected, 
+    publishGig, 
+    publishProfile, 
+    isProfileSynced, 
+    markProfileSynced,
+    isServicesSynced,
+    markServicesSynced 
+  } = useSwipeHireIntegration();
   const [syncingProfile, setSyncingProfile] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -179,15 +187,20 @@ export function GigJobBuilder() {
   };
 
   const ensureProfileSynced = async (): Promise<boolean> => {
-    if (isProfileSynced()) return true;
+    // If both profile and services are synced, skip
+    const profileAlreadySynced = isProfileSynced();
+    const servicesAlreadySynced = isServicesSynced();
+    
+    if (profileAlreadySynced && servicesAlreadySynced) return true;
     if (!user?.id) return false;
 
     setSyncingProfile(true);
     try {
-      // Fetch profile and skills data
-      const [profileRes, ikigaiRes] = await Promise.all([
+      // Fetch profile, ikigai, and offers data
+      const [profileRes, ikigaiRes, offersRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("ikigai_results").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("offers").select("*").eq("user_id", user.id).maybeSingle(),
       ]);
 
       if (!profileRes.data) {
@@ -197,6 +210,28 @@ export function GigJobBuilder() {
 
       const profile = profileRes.data;
       const ikigai = ikigaiRes.data;
+      const offerData = offersRes.data;
+
+      // Map offer packages to services array
+      const services: { service_name: string; price_type: string; price_amount: number }[] = [];
+      if (offerData) {
+        const packages = [
+          { pkg: offerData.starter_package as { name?: string; price?: number | string } | null, tier: "Starter" },
+          { pkg: offerData.standard_package as { name?: string; price?: number | string } | null, tier: "Standard" },
+          { pkg: offerData.premium_package as { name?: string; price?: number | string } | null, tier: "Premium" },
+        ];
+        
+        packages.forEach(({ pkg, tier }) => {
+          if (pkg && pkg.name) {
+            const price = typeof pkg.price === "number" ? pkg.price : parseInt(String(pkg.price)) || 0;
+            services.push({
+              service_name: `${pkg.name} (${tier})`,
+              price_type: "fixed",
+              price_amount: price,
+            });
+          }
+        });
+      }
 
       const profilePayload: ProfilePayload = {
         profile: {
@@ -209,6 +244,7 @@ export function GigJobBuilder() {
           skills: skills,
           field_of_study: profile.study_field || undefined,
         },
+        services: services.length > 0 ? services : undefined,
         values: (profile.values as string[] || []).map((v, i) => ({
           value_name: v,
           priority: i + 1,
@@ -219,7 +255,10 @@ export function GigJobBuilder() {
 
       await publishProfile(profilePayload);
       markProfileSynced();
-      toast.success("Profile synced to SwipeHire!");
+      if (services.length > 0) {
+        markServicesSynced();
+      }
+      toast.success("Profile & services synced to SwipeHire!");
       return true;
     } catch (error) {
       console.error("Error syncing profile:", error);

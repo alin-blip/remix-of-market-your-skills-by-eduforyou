@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
+import { useSwipeHireIntegration } from '@/hooks/useSwipeHireIntegration';
 import { toast } from 'sonner';
 import { Package, Loader2, Check, RefreshCw, Star, Zap, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -32,6 +33,7 @@ interface Props {
 export default function OnboardingStep8Offer({ onOfferGenerated }: Props) {
   const { user } = useAuth();
   const { t } = useI18n();
+  const { clearServicesSynced } = useSwipeHireIntegration();
   const [step, setStep] = useState<'idle' | 'generating' | 'results'>('idle');
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<OfferResult | null>(null);
@@ -175,6 +177,9 @@ export default function OnboardingStep8Offer({ onOfferGenerated }: Props) {
         .from('profiles')
         .update({ freedom_score: 60 })
         .eq('id', user.id);
+
+      // Clear services sync flag so it re-syncs on next SwipeHire publish
+      clearServicesSynced();
 
       toast.success(t.onboardingStep8.offerSaved);
       setHasExistingOffer(true);

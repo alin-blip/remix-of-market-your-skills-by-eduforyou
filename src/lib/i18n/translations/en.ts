@@ -682,6 +682,8 @@ export const en = {
       publishError: 'Publish failed',
       profileSynced: 'Profile synced',
       profileNotSynced: 'Profile not synced yet',
+      servicesSynced: 'Services synced',
+      servicesNotSynced: 'Services not synced yet',
     },
     autoSync: {
       title: 'Auto-Sync Settings',
