@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { Sparkles, Brain, Users, Zap, Code, Loader2, Check, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -34,6 +34,7 @@ interface Props {
 
 export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [step, setStep] = useState<'idle' | 'scanning' | 'results'>('idle');
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -98,7 +99,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
     } catch (error: any) {
       clearInterval(progressInterval);
       console.error('Scan error:', error);
-      toast.error(error.message || 'A apărut o eroare la scanare');
+      toast.error(error.message || t.onboardingStep6.scanError);
       setStep('idle');
     }
   };
@@ -132,12 +133,12 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
         .update({ freedom_score: 20 })
         .eq('id', user.id);
 
-      toast.success(`${skillsToSave.length} competențe salvate!`);
+      toast.success(t.onboardingStep6.skillsSaved.replace('{count}', String(skillsToSave.length)));
       setHasSavedSkills(true);
       onSkillsGenerated(true);
     } catch (error: any) {
       console.error('Save error:', error);
-      toast.error(error.message || 'Eroare la salvare');
+      toast.error(error.message || t.onboardingStep6.saveError);
     } finally {
       setIsSaving(false);
     }
@@ -180,9 +181,9 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center">
             <Check className="w-8 h-8 text-green-500" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Competențe salvate!</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep6.skillsSavedTitle}</h3>
           <p className="text-muted-foreground">
-            Ai deja competențe salvate din analiza anterioară. Poți continua sau regenera.
+            {t.onboardingStep6.skillsSavedDescription}
           </p>
         </div>
         <div className="flex justify-center">
@@ -195,7 +196,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
             className="gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            Regenerează competențele
+            {t.onboardingStep6.regenerateSkills}
           </Button>
         </div>
       </div>
@@ -213,17 +214,17 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
           >
             <Sparkles className="w-8 h-8 text-primary" />
           </motion.div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Analizăm experiența ta...</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep6.analyzingTitle}</h3>
           <p className="text-muted-foreground">
-            AI-ul nostru identifică competențele tale ascunse
+            {t.onboardingStep6.analyzingDescription}
           </p>
         </div>
         <Progress value={progress} className="h-2" />
         <p className="text-center text-sm text-muted-foreground">
-          {progress < 30 && 'Se procesează experiențele...'}
-          {progress >= 30 && progress < 60 && 'Se identifică pattern-uri...'}
-          {progress >= 60 && progress < 90 && 'Se evaluează potențialul...'}
-          {progress >= 90 && 'Finalizare...'}
+          {progress < 30 && t.onboardingStep6.processing}
+          {progress >= 30 && progress < 60 && t.onboardingStep6.identifyingPatterns}
+          {progress >= 60 && progress < 90 && t.onboardingStep6.evaluatingPotential}
+          {progress >= 90 && t.onboardingStep6.finalizing}
         </p>
       </div>
     );
@@ -237,10 +238,10 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
             <Brain className="w-8 h-8 text-primary" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            Am identificat {result.skills.length} competențe!
+            {t.onboardingStep6.identifiedSkills.replace('{count}', String(result.skills.length))}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Selectează competențele pe care vrei să le salvezi
+            {t.onboardingStep6.selectSkillsToSave}
           </p>
         </div>
 
@@ -272,7 +273,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
                     <span className="font-medium text-foreground">{skill.name}</span>
                     {skill.monetization_potential === 'high' && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400">
-                        💰 High
+                        💰 {t.onboardingStep6.highPotential}
                       </span>
                     )}
                   </div>
@@ -287,7 +288,9 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
 
         <div className="flex items-center justify-between pt-4 border-t border-white/10">
           <span className="text-sm text-muted-foreground">
-            {selectedSkills.size} selectate din {result.skills.length}
+            {t.onboardingStep6.selectedOf
+              .replace('{selected}', String(selectedSkills.size))
+              .replace('{total}', String(result.skills.length))}
           </span>
           <Button
             onClick={handleSaveSkills}
@@ -297,12 +300,12 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Se salvează...
+                {t.onboardingStep6.savingSkills}
               </>
             ) : (
               <>
                 <Check className="w-4 h-4" />
-                Salvează și continuă
+                {t.onboardingStep6.saveAndContinue}
               </>
             )}
           </Button>
@@ -318,26 +321,26 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">Skill Scanner</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{t.onboardingStep6.scannerTitle}</h3>
         <p className="text-muted-foreground">
-          Lasă AI-ul să îți analizeze experiențele și să identifice competențele tale monetizabile.
+          {t.onboardingStep6.scannerDescription}
         </p>
       </div>
 
       <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-        <h4 className="font-medium text-foreground mb-2">Ce vom analiza:</h4>
+        <h4 className="font-medium text-foreground mb-2">{t.onboardingStep6.whatWeAnalyze}</h4>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-500" />
-            Cursul tău: <span className="text-foreground">{data.study_field}</span>
+            {t.onboardingStep6.yourCourse} <span className="text-foreground">{data.study_field}</span>
           </li>
           <li className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-500" />
-            {data.interests.length} interese selectate
+            {t.onboardingStep6.interestsSelected.replace('{count}', String(data.interests.length))}
           </li>
           <li className="flex items-center gap-2">
             <Check className="w-4 h-4 text-green-500" />
-            Experiențele și proiectele tale
+            {t.onboardingStep6.experiencesAndProjects}
           </li>
         </ul>
       </div>
@@ -345,7 +348,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
       <div className="flex justify-center">
         <Button onClick={handleScan} size="lg" className="gap-2">
           <Sparkles className="w-5 h-5" />
-          Scanează competențele
+          {t.onboardingStep6.scanButton}
         </Button>
       </div>
     </div>
