@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -51,6 +52,7 @@ export default function Dashboard() {
     outreachCount: 0,
   });
   const [loading, setLoading] = useState(true);
+  const confettiTriggered = useRef(false);
 
   useEffect(() => {
     if (user) {
@@ -153,6 +155,50 @@ export default function Dashboard() {
   const freedomScore = Math.round((completedSteps / pathSteps.length) * 100);
   const allStepsCompleted = completedSteps === pathSteps.length;
 
+  // Trigger confetti when all steps are completed
+  useEffect(() => {
+    if (allStepsCompleted && !loading && !confettiTriggered.current) {
+      confettiTriggered.current = true;
+      
+      // Fire confetti from multiple angles
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981'];
+
+      (function frame() {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+
+      // Big burst in the center
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: colors
+        });
+      }, 200);
+    }
+  }, [allStepsCompleted, loading]);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -222,26 +268,72 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           {allStepsCompleted ? (
-            <Card className="glass border-accent/30 p-6 bg-gradient-to-r from-accent/10 to-primary/10">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center text-accent">
-                    <CheckCircle2 className="w-8 h-8" />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ 
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+                delay: 0.3
+              }}
+            >
+              <Card className="relative overflow-hidden glass border-accent/30 p-6 bg-gradient-to-r from-accent/10 via-primary/10 to-accent/10">
+                {/* Animated background glow */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-accent/20 via-primary/20 to-accent/20"
+                  animate={{ 
+                    opacity: [0.3, 0.6, 0.3],
+                    scale: [1, 1.02, 1]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <motion.div 
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center text-white shadow-lg shadow-accent/30"
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                        scale: [1, 1.05, 1]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <CheckCircle2 className="w-8 h-8" />
+                    </motion.div>
+                    <div>
+                      <motion.p 
+                        className="text-lg text-accent font-bold mb-1"
+                        animate={{ scale: [1, 1.02, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        🎉 {t.common.completed}!
+                      </motion.p>
+                      <h3 className="text-xl font-bold text-foreground">{t.export.allCompletedDescription}</h3>
+                      <p className="text-muted-foreground">{t.export.planReadyDescription}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-accent font-medium mb-1">🎉 {t.common.completed}</p>
-                    <h3 className="text-xl font-bold text-foreground">{t.export.allCompletedDescription}</h3>
-                    <p className="text-muted-foreground">{t.export.planReadyDescription}</p>
-                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-accent to-primary hover:opacity-90 shadow-lg shadow-primary/30">
+                      <Link to="/wizard/export">
+                        {t.export.downloadPdf}
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </motion.div>
                 </div>
-                <Button asChild className="gap-2 bg-gradient-to-r from-accent to-primary hover:opacity-90">
-                  <Link to="/wizard/export">
-                    {t.export.downloadPdf}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           ) : currentStep ? (
             <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
