@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -15,9 +16,11 @@ export function ProtectedRoute({
   requireOnboarding = true,
 }: ProtectedRouteProps) {
   const { user, profile, loading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminRole();
   const location = useLocation();
 
-  if (loading) {
+  // Show loading state while checking auth and admin status
+  if (loading || (requireAdmin && adminLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -29,7 +32,8 @@ export function ProtectedRoute({
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && profile?.role !== 'admin') {
+  // Use secure server-side admin check for admin routes
+  if (requireAdmin && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 

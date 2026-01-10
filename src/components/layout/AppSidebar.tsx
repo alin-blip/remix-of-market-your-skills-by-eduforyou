@@ -17,6 +17,7 @@ import {
   Monitor,
   Settings,
   Briefcase,
+  Shield,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -47,6 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
+import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface AppSidebarProps {
   completedSteps?: number;
@@ -57,6 +59,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
   const { state } = useSidebar();
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
+  const { isAdmin } = useAdminRole();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const currentPath = location.pathname;
@@ -210,6 +213,30 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
+
+        {/* Admin Panel - Only visible for admins */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={currentPath.startsWith('/admin')}
+                  tooltip={t.admin?.title || 'Admin Panel'}
+                >
+                  <NavLink
+                    to="/admin"
+                    className="flex items-center gap-3"
+                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                  >
+                    <Shield className="h-4 w-4" />
+                    {!collapsed && <span>{t.admin?.title || 'Admin Panel'}</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       {/* Footer with Progress and Language/Theme Selectors */}
