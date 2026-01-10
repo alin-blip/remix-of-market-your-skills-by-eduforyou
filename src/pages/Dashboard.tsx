@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
   MessageSquare, 
   FileText,
   CheckCircle2,
-  Circle,
   ArrowRight,
   TrendingUp,
   Lock,
@@ -43,6 +43,7 @@ interface ProgressData {
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
+  const { t } = useI18n();
   const [progressData, setProgressData] = useState<ProgressData>({
     skillsCount: 0,
     hasIkigai: false,
@@ -88,8 +89,8 @@ export default function Dashboard() {
   const pathSteps: PathStep[] = [
     {
       id: 'skills',
-      title: 'Skill Scanner',
-      description: 'Descoperă-ți competențele monetizabile',
+      title: t.pathSteps.skills.title,
+      description: t.pathSteps.skills.description,
       icon: <Sparkles className="w-6 h-6" />,
       route: '/wizard/skill-scanner',
       completed: progressData.skillsCount > 0,
@@ -99,8 +100,8 @@ export default function Dashboard() {
     },
     {
       id: 'ikigai',
-      title: 'Ikigai Builder',
-      description: 'Găsește-ți poziționarea unică',
+      title: t.pathSteps.ikigai.title,
+      description: t.pathSteps.ikigai.description,
       icon: <Target className="w-6 h-6" />,
       route: '/wizard/ikigai',
       completed: progressData.hasIkigai,
@@ -109,8 +110,8 @@ export default function Dashboard() {
     },
     {
       id: 'offer',
-      title: 'Offer Builder',
-      description: 'Creează-ți pachetele de servicii',
+      title: t.pathSteps.offer.title,
+      description: t.pathSteps.offer.description,
       icon: <Package className="w-6 h-6" />,
       route: '/wizard/offer',
       completed: progressData.hasOffer,
@@ -119,8 +120,8 @@ export default function Dashboard() {
     },
     {
       id: 'outreach',
-      title: 'Outreach Generator',
-      description: 'Generează mesaje de prospectare',
+      title: t.pathSteps.outreach.title,
+      description: t.pathSteps.outreach.description,
       icon: <MessageSquare className="w-6 h-6" />,
       route: '/wizard/outreach',
       completed: progressData.outreachCount > 0,
@@ -130,8 +131,8 @@ export default function Dashboard() {
     },
     {
       id: 'export',
-      title: 'Freedom Plan',
-      description: 'Exportă-ți planul complet',
+      title: t.pathSteps.export.title,
+      description: t.pathSteps.export.description,
       icon: <FileText className="w-6 h-6" />,
       route: '/wizard/export',
       completed: freedomScore >= 100,
@@ -154,10 +155,10 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Bună, {profile?.full_name?.split(' ')[0] || 'Student'}! 👋
+            {t.dashboard.greeting}, {profile?.full_name?.split(' ')[0] || 'Student'}! 👋
           </h1>
           <p className="text-muted-foreground text-lg">
-            Continuă-ți călătoria către libertatea financiară.
+            {t.dashboard.subtitle}
           </p>
         </motion.div>
 
@@ -171,7 +172,7 @@ export default function Dashboard() {
           {/* Freedom Score */}
           <Card className="glass border-white/10 p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground">Freedom Score</span>
+              <span className="text-muted-foreground">{t.dashboard.freedomScore}</span>
               <TrendingUp className="w-5 h-5 text-primary" />
             </div>
             <div className="flex items-end gap-2">
@@ -184,7 +185,7 @@ export default function Dashboard() {
           {/* Progress Card */}
           <Card className="glass border-white/10 p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground">Pași completați</span>
+              <span className="text-muted-foreground">{t.dashboard.stepsCompleted}</span>
               <CheckCircle2 className="w-5 h-5 text-accent" />
             </div>
             <div className="flex items-end gap-2">
@@ -197,11 +198,11 @@ export default function Dashboard() {
           {/* Domain Card */}
           <Card className="glass border-white/10 p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground">Domeniu</span>
+              <span className="text-muted-foreground">{t.dashboard.domain}</span>
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <span className="text-xl font-semibold text-foreground">
-              {profile?.study_field || 'Nesetat'}
+              {profile?.study_field || t.dashboard.notSet}
             </span>
           </Card>
         </motion.div>
@@ -219,14 +220,14 @@ export default function Dashboard() {
                   {currentStep.icon}
                 </div>
                 <div>
-                  <p className="text-sm text-primary font-medium mb-1">Următorul pas</p>
+                  <p className="text-sm text-primary font-medium mb-1">{t.dashboard.nextStep}</p>
                   <h3 className="text-xl font-bold text-foreground">{currentStep.title}</h3>
                   <p className="text-muted-foreground">{currentStep.description}</p>
                 </div>
               </div>
               <Button asChild className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90">
                 <Link to={currentStep.route}>
-                  Începe acum
+                  {t.dashboard.startNow}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
@@ -240,7 +241,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <h2 className="text-2xl font-bold text-foreground mb-6">Freedom Path</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t.dashboard.freedomPath}</h2>
           
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -294,11 +295,11 @@ export default function Dashboard() {
                           </h3>
                           {step.completed && step.dataCount !== undefined && step.dataCount > 0 && (
                             <Badge variant="secondary" className="text-xs">
-                              {step.dataCount} {step.dataCount === 1 ? 'item' : 'items'}
+                              {step.dataCount} {step.dataCount === 1 ? t.common.item : t.common.items}
                             </Badge>
                           )}
                           {step.completed && !step.dataCount && (
-                            <Badge className="bg-accent/20 text-accent text-xs">Completat</Badge>
+                            <Badge className="bg-accent/20 text-accent text-xs">{t.common.completed}</Badge>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground truncate">{step.description}</p>
@@ -313,7 +314,7 @@ export default function Dashboard() {
                           className="shrink-0 gap-1"
                         >
                           <Link to={step.route}>
-                            Revizuiește
+                            {t.common.review}
                             <ArrowRight className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -326,7 +327,7 @@ export default function Dashboard() {
                           className="shrink-0 gap-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
                         >
                           <Link to={step.route}>
-                            Start
+                            {t.common.start}
                             <ArrowRight className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -335,7 +336,7 @@ export default function Dashboard() {
                       {step.locked && (
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Lock className="w-3 h-3" />
-                          Blocat
+                          {t.common.locked}
                         </div>
                       )}
                     </div>

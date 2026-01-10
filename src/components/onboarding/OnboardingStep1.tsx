@@ -1,7 +1,8 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, GraduationCap, Calendar } from 'lucide-react';
+import { User, GraduationCap, Calendar, Globe } from 'lucide-react';
+import { useI18n, Locale } from '@/lib/i18n';
 
 interface OnboardingData {
   full_name: string;
@@ -67,8 +68,6 @@ const eduforyouCourses = [
   { category: 'Law & Humanities', name: 'Politics & International Relations (BA)' },
   { category: 'Law & Humanities', name: 'History (BA)' },
   { category: 'Law & Humanities', name: 'English Literature (BA)' },
-  // Other
-  { category: 'Altele', name: 'Alt curs din UK' },
 ];
 
 // Group courses by category
@@ -81,7 +80,12 @@ const coursesByCategory = eduforyouCourses.reduce((acc, course) => {
 }, {} as Record<string, string[]>);
 
 export default function OnboardingStep1({ data, updateData }: Props) {
-  const isOtherCourse = data.study_field === 'Alt curs din UK';
+  const { locale, setLocale, t } = useI18n();
+  const isOtherCourse = data.study_field === t.onboardingStep1.otherCourse;
+
+  const handleLanguageChange = (value: string) => {
+    setLocale(value as Locale);
+  };
 
   return (
     <div className="space-y-6">
@@ -90,19 +94,44 @@ export default function OnboardingStep1({ data, updateData }: Props) {
           <User className="w-8 h-8 text-primary" />
         </div>
         <p className="text-muted-foreground">
-          Completează câteva detalii despre tine pentru a personaliza experiența ta.
+          {t.onboardingStep1.description}
         </p>
       </div>
 
       <div className="space-y-4">
+        {/* Language Selector */}
+        <div className="space-y-2">
+          <Label htmlFor="language" className="text-foreground flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            {t.onboardingStep1.languageLabel}
+          </Label>
+          <Select value={locale} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="bg-background/50 border-white/10 focus:border-primary">
+              <SelectValue placeholder={t.onboardingStep1.languagePlaceholder} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ro">
+                <span className="flex items-center gap-2">
+                  🇷🇴 {t.languages.ro}
+                </span>
+              </SelectItem>
+              <SelectItem value="en">
+                <span className="flex items-center gap-2">
+                  🇬🇧 {t.languages.en}
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="full_name" className="text-foreground flex items-center gap-2">
             <User className="w-4 h-4" />
-            Numele tău complet *
+            {t.onboardingStep1.fullNameLabel}
           </Label>
           <Input
             id="full_name"
-            placeholder="ex: Alexandru Popescu"
+            placeholder={t.onboardingStep1.fullNamePlaceholder}
             value={data.full_name}
             onChange={(e) => updateData({ full_name: e.target.value })}
             className="bg-background/50 border-white/10 focus:border-primary"
@@ -112,7 +141,7 @@ export default function OnboardingStep1({ data, updateData }: Props) {
         <div className="space-y-2">
           <Label htmlFor="date_of_birth" className="text-foreground flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            Data nașterii (opțional)
+            {t.onboardingStep1.dateOfBirthLabel}
           </Label>
           <Input
             id="date_of_birth"
@@ -126,14 +155,17 @@ export default function OnboardingStep1({ data, updateData }: Props) {
         <div className="space-y-2">
           <Label htmlFor="study_field" className="text-foreground flex items-center gap-2">
             <GraduationCap className="w-4 h-4" />
-            Ce curs studiezi sau ai studiat? *
+            {t.onboardingStep1.studyFieldLabel}
           </Label>
           <Select
             value={data.study_field}
-            onValueChange={(value) => updateData({ study_field: value, other_course: value === 'Alt curs din UK' ? data.other_course : '' })}
+            onValueChange={(value) => updateData({ 
+              study_field: value, 
+              other_course: value === t.onboardingStep1.otherCourse ? data.other_course : '' 
+            })}
           >
             <SelectTrigger className="bg-background/50 border-white/10 focus:border-primary">
-              <SelectValue placeholder="Alege cursul tău" />
+              <SelectValue placeholder={t.onboardingStep1.studyFieldPlaceholder} />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
               {Object.entries(coursesByCategory).map(([category, courses]) => (
@@ -146,21 +178,27 @@ export default function OnboardingStep1({ data, updateData }: Props) {
                   ))}
                 </SelectGroup>
               ))}
+              <SelectGroup>
+                <SelectLabel className="text-primary font-semibold">{t.onboardingStep1.otherCategory}</SelectLabel>
+                <SelectItem value={t.onboardingStep1.otherCourse}>
+                  {t.onboardingStep1.otherCourse}
+                </SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Cursuri oferite de EduForYou UK și alte universități din UK
+            {t.onboardingStep1.studyFieldHint}
           </p>
         </div>
 
         {isOtherCourse && (
           <div className="space-y-2">
             <Label htmlFor="other_course" className="text-foreground">
-              Specifică cursul tău *
+              {t.onboardingStep1.otherCourseLabel}
             </Label>
             <Input
               id="other_course"
-              placeholder="ex: Economics (BSc) - University of Manchester"
+              placeholder={t.onboardingStep1.otherCoursePlaceholder}
               value={data.other_course || ''}
               onChange={(e) => updateData({ other_course: e.target.value })}
               className="bg-background/50 border-white/10 focus:border-primary"
