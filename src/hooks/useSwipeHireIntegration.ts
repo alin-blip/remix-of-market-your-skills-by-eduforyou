@@ -192,6 +192,9 @@ export const useSwipeHireIntegration = () => {
 
     setIsPublishing(true);
     try {
+      // SwipeHire expects payload wrapped in a "job" object
+      const wrappedPayload = { job: payload };
+      
       const response = await fetch(`${SWIPEHIRE_API_URL}/sync-job-from-external`, {
         method: "POST",
         headers: {
@@ -199,7 +202,7 @@ export const useSwipeHireIntegration = () => {
           "x-api-key": apiKey,
           "x-platform-origin": "freedom_os",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(wrappedPayload),
       });
 
       const data = await response.json();
