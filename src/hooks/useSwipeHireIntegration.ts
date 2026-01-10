@@ -4,6 +4,7 @@ import { toast } from "sonner";
 const SWIPEHIRE_API_URL = "https://qqnazmzdzavshmmuycgq.supabase.co/functions/v1";
 const API_KEY_STORAGE_KEY = "swipehire_api_key";
 const PROFILE_SYNCED_KEY = "swipehire_profile_synced";
+const SERVICES_SYNCED_KEY = "swipehire_services_synced";
 
 export interface ProfilePayload {
   profile?: {
@@ -81,6 +82,7 @@ export const useSwipeHireIntegration = () => {
   const clearApiKey = useCallback(() => {
     localStorage.removeItem(API_KEY_STORAGE_KEY);
     localStorage.removeItem(PROFILE_SYNCED_KEY);
+    localStorage.removeItem(SERVICES_SYNCED_KEY);
     toast.success("API Key removed");
   }, []);
 
@@ -94,6 +96,18 @@ export const useSwipeHireIntegration = () => {
 
   const clearProfileSynced = useCallback(() => {
     localStorage.removeItem(PROFILE_SYNCED_KEY);
+  }, []);
+
+  const isServicesSynced = useCallback((): boolean => {
+    return localStorage.getItem(SERVICES_SYNCED_KEY) === "true";
+  }, []);
+
+  const markServicesSynced = useCallback(() => {
+    localStorage.setItem(SERVICES_SYNCED_KEY, "true");
+  }, []);
+
+  const clearServicesSynced = useCallback(() => {
+    localStorage.removeItem(SERVICES_SYNCED_KEY);
   }, []);
 
   const isConnected = !!getApiKey();
@@ -209,6 +223,9 @@ export const useSwipeHireIntegration = () => {
     isProfileSynced,
     markProfileSynced,
     clearProfileSynced,
+    isServicesSynced,
+    markServicesSynced,
+    clearServicesSynced,
     publishProfile,
     publishGig,
     publishJob,

@@ -682,6 +682,8 @@ export const ro = {
       publishError: 'Publicare eșuată',
       profileSynced: 'Profil sincronizat',
       profileNotSynced: 'Profilul nu a fost încă sincronizat',
+      servicesSynced: 'Servicii sincronizate',
+      servicesNotSynced: 'Serviciile nu au fost încă sincronizate',
     },
     autoSync: {
       title: 'Setări Auto-Sync',
