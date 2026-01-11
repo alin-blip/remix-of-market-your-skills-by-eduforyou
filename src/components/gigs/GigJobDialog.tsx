@@ -21,6 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, X, Briefcase, Zap, Globe, Building2, MapPin, DollarSign, Tag, FileText } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface GigJobFormData {
   id?: string;
@@ -36,6 +38,7 @@ export interface GigJobFormData {
   locationType: "remote" | "onsite" | "hybrid";
   location?: string;
   sourcePackage?: string;
+  platform?: string;
 }
 
 interface GigJobDialogProps {
@@ -58,6 +61,13 @@ const categories = [
   { value: "other", label: "Other", icon: "📦" },
 ];
 
+const platforms = [
+  { value: "swipehire", label: "SwipeHire", icon: "🚀", color: "bg-primary" },
+  { value: "fiverr", label: "Fiverr", icon: "🟢", color: "bg-green-500" },
+  { value: "upwork", label: "Upwork", icon: "🟩", color: "bg-emerald-500" },
+  { value: "freelancer", label: "Freelancer.com", icon: "🔵", color: "bg-blue-500" },
+];
+
 export function GigJobDialog({
   open,
   onOpenChange,
@@ -70,6 +80,7 @@ export function GigJobDialog({
 }: GigJobDialogProps) {
   const { t } = useI18n();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingPlatform, setIsGeneratingPlatform] = useState(false);
   const [skillInput, setSkillInput] = useState("");
   
   const [formData, setFormData] = useState<GigJobFormData>({
@@ -83,6 +94,7 @@ export function GigJobDialog({
     priceMax: 0,
     currency: "EUR",
     locationType: "remote",
+    platform: "swipehire",
     ...initialData,
   });
 
@@ -129,6 +141,48 @@ export function GigJobDialog({
     }
   };
 
+  const handleGenerateForPlatform = async () => {
+    if (!formData.title || !formData.platform) {
+      toast.error("Adaugă un titlu mai întâi");
+      return;
+    }
+
+    setIsGeneratingPlatform(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('gig-platform-generator', {
+        body: {
+          platform: formData.platform,
+          title: formData.title,
+          category: formData.category,
+          skills: formData.skills,
+          priceMin: formData.priceMin,
+          priceMax: formData.priceMax,
+          priceType: formData.priceType,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.optimizedTitle) {
+        handleChange("title", data.optimizedTitle);
+      }
+      if (data?.optimizedDescription) {
+        handleChange("description", data.optimizedDescription);
+      }
+      if (data?.suggestedPrice) {
+        handleChange("priceMin", data.suggestedPrice.min || formData.priceMin);
+        handleChange("priceMax", data.suggestedPrice.max || formData.priceMax);
+      }
+
+      toast.success(`Gig optimizat pentru ${platforms.find(p => p.value === formData.platform)?.label}!`);
+    } catch (error) {
+      console.error('Platform generation error:', error);
+      toast.error("Eroare la generarea conținutului");
+    } finally {
+      setIsGeneratingPlatform(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
@@ -149,6 +203,52 @@ export function GigJobDialog({
         </div>
 
         <div className="px-6 py-4 space-y-6">
+          {/* Platform Selector - NEW */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              Platformă țintă
+            </Label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {platforms.map((platform) => (
+                <motion.button
+                  key={platform.value}
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleChange("platform", platform.value)}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                    formData.platform === platform.value
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <span className="text-xl">{platform.icon}</span>
+                  <span className={`text-xs font-medium ${formData.platform === platform.value ? "" : "text-muted-foreground"}`}>
+                    {platform.label}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+            
+            {/* AI Generate for Platform Button */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleGenerateForPlatform}
+              disabled={isGeneratingPlatform || !formData.title}
+              className="w-full gap-2 border-dashed"
+            >
+              {isGeneratingPlatform ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Generează conținut optimizat pentru {platforms.find(p => p.value === formData.platform)?.label}
+            </Button>
+          </div>
+
           {/* Type Selector */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-medium">
