@@ -1,0 +1,105 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface VisionImageRequest {
+  area_key: string;
+  area_name: string;
+  annual_goal: string;
+  description?: string;
+  locale?: string;
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { area_key, area_name, annual_goal, description, locale = 'en' }: VisionImageRequest = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Create a detailed vision board prompt based on the area and goal
+    const areaPrompts: Record<string, string> = {
+      business: "professional business achievement, luxury office, wealth symbols, entrepreneur success, gold accents, modern business aesthetic",
+      body: "fit healthy body, athletic achievement, gym equipment, healthy food, vitality, fitness goals, health transformation",
+      mind: "intellectual growth, books, meditation, brain power, learning, wisdom, mental clarity, academic success",
+      relationships: "happy family, loving relationships, friendship, connection, warmth, togetherness, emotional bonds",
+      spirituality: "spiritual awakening, meditation, cosmic energy, inner peace, mindfulness, transcendence, sacred geometry",
+      finance: "financial freedom, wealth accumulation, investment success, money growth, prosperity, luxury lifestyle",
+      fun: "adventure, joy, entertainment, hobbies, travel, excitement, leisure activities, happiness",
+    };
+
+    const areaStyle = areaPrompts[area_key] || "success, achievement, personal growth";
+
+    const prompt = `Create a vision board collage image for "${area_name}" life area. 
+The main goal is: "${annual_goal}". 
+${description ? `Additional context: ${description}.` : ''}
+Style: ${areaStyle}. 
+Make it inspiring, aspirational, photorealistic collage with multiple images representing success and achievement in this area. 
+Include motivational elements, luxury aesthetics, and symbols of accomplishment. 
+The image should be visually stunning and inspire action. 
+High quality, detailed, cinematic lighting. 16:9 aspect ratio vision board style.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image-preview",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Insufficient credits. Please add funds." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      throw new Error("Failed to generate vision image");
+    }
+
+    const data = await response.json();
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+    if (!imageData) {
+      throw new Error("No image generated");
+    }
+
+    return new Response(
+      JSON.stringify({ image_url: imageData }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Vision image generator error:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

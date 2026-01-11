@@ -908,5 +908,17 @@ export const en = {
     goalsCompleted: 'goals completed',
     viewAllGoals: 'View All Goals',
     planWeek: 'Plan Week',
+    visionBoard: {
+      title: 'Vision Board',
+      generating: 'Generating...',
+      generateImage: 'Generate Image',
+      imageGenerated: 'Vision image generated!',
+      imageError: 'Failed to generate image',
+      regenerateAll: 'Regenerate All',
+      addArea: 'Add Area',
+      more: 'more',
+      ninetyDays: '90 Days',
+      annual: 'Annual',
+    },
   },
 };

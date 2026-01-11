@@ -260,6 +260,7 @@ export type Database = {
           title: string
           updated_at: string | null
           user_id: string
+          vision_image_url: string | null
         }
         Insert: {
           area_key: string
@@ -278,6 +279,7 @@ export type Database = {
           title: string
           updated_at?: string | null
           user_id: string
+          vision_image_url?: string | null
         }
         Update: {
           area_key?: string
@@ -296,6 +298,7 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+          vision_image_url?: string | null
         }
         Relationships: [
           {

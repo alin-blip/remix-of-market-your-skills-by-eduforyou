@@ -8,10 +8,8 @@ import {
   CheckCircle2, 
   Circle, 
   Plus,
-  ChevronRight,
-  Sparkles,
-  TrendingUp,
   Zap,
+  TrendingUp,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,9 +26,10 @@ import {
   useLifeOSSetupComplete,
   getCurrentWeekKey,
 } from '@/hooks/useLifeOS';
-import { LIFE_AREAS, DAYS_OF_WEEK, DAY_LABELS, DayOfWeek } from '@/types/lifeOS';
+import { DAYS_OF_WEEK, DAY_LABELS, DayOfWeek } from '@/types/lifeOS';
 import { cn } from '@/lib/utils';
 import { AreaIcon } from '@/components/life-os/AreaIcon';
+import { VisionBoard } from '@/components/life-os/VisionBoard';
 
 export default function LifeOSDashboard() {
   const { t, locale } = useI18n();
@@ -124,24 +123,8 @@ export default function LifeOSDashboard() {
           </Button>
         </div>
         
-        {/* Areas Progress */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          {areas?.map((area) => (
-            <Card 
-              key={area.id} 
-              className="cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => navigate(`/life-os/area/${area.area_key}`)}
-            >
-              <CardContent className="p-4 text-center">
-                <AreaIcon areaKey={area.area_key} className="h-8 w-8 mx-auto mb-2" />
-                <p className="text-sm font-medium capitalize">
-                  {t.lifeOS?.areas?.[area.area_key] || area.area_key}
-                </p>
-                <Progress value={65} className="h-1.5 mt-2" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Vision Board with Goals */}
+        <VisionBoard />
         
         {/* Week Navigation */}
         <Card>
