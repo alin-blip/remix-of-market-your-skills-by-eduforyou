@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useI18n } from '@/lib/i18n';
-import { useLifeAreas, useLifeGoals, useUpdateLifeGoal } from '@/hooks/useLifeOS';
+import { useAuth } from '@/lib/auth';
+import { useLifeAreas, useLifeGoals } from '@/hooks/useLifeOS';
 import { LifeAreaKey, LifeGoal, GoalType } from '@/types/lifeOS';
 import { AreaIcon } from './AreaIcon';
+import { GoalEditDialog } from './GoalEditDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -18,14 +19,18 @@ interface VisionCardProps {
   goal: LifeGoal;
   areaName: string;
   onRegenerate: (goal: LifeGoal) => void;
+  onEdit: (goal: LifeGoal) => void;
   isGenerating: boolean;
 }
 
-function VisionCard({ goal, areaName, onRegenerate, isGenerating }: VisionCardProps) {
+function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: VisionCardProps) {
   const { t } = useI18n();
   
   return (
-    <Card className="overflow-hidden group relative cursor-pointer hover:shadow-lg transition-all">
+    <Card 
+      className="overflow-hidden group relative cursor-pointer hover:shadow-lg transition-all"
+      onClick={() => onEdit(goal)}
+    >
       <div className="relative aspect-[4/3] bg-muted">
         {goal.vision_image_url ? (
           <img
@@ -46,7 +51,10 @@ function VisionCard({ goal, areaName, onRegenerate, isGenerating }: VisionCardPr
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => onRegenerate(goal)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRegenerate(goal);
+                }}
                 className="flex flex-col items-center gap-2 h-auto py-4"
               >
                 <ImageOff className="h-8 w-8 text-muted-foreground" />
@@ -66,6 +74,11 @@ function VisionCard({ goal, areaName, onRegenerate, isGenerating }: VisionCardPr
             <span className="text-white font-semibold text-lg">{areaName}</span>
           </div>
           <p className="text-white/80 text-sm line-clamp-2">{goal.title}</p>
+          {goal.progress !== null && goal.progress !== undefined && (
+            <Badge variant="secondary" className="mt-2 text-xs">
+              {goal.progress}%
+            </Badge>
+          )}
         </div>
         
         {/* Regenerate button on hover */}
@@ -91,9 +104,10 @@ interface GoalCardProps {
   goal: LifeGoal;
   areaName: string;
   areaColor: string;
+  onEdit: (goal: LifeGoal) => void;
 }
 
-function GoalCard({ goal, areaName, areaColor }: GoalCardProps) {
+function GoalCard({ goal, areaName, areaColor, onEdit }: GoalCardProps) {
   const { t } = useI18n();
   
   // Parse goals list from description or title
@@ -102,7 +116,11 @@ function GoalCard({ goal, areaName, areaColor }: GoalCardProps) {
   const moreCount = goalsList.length - 3;
   
   return (
-    <Card className={cn("border-l-4")} style={{ borderLeftColor: areaColor }}>
+    <Card 
+      className={cn("border-l-4 cursor-pointer hover:shadow-md transition-all")} 
+      style={{ borderLeftColor: areaColor }}
+      onClick={() => onEdit(goal)}
+    >
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -132,18 +150,26 @@ function GoalCard({ goal, areaName, areaColor }: GoalCardProps) {
   );
 }
 
-export function VisionBoard() {
+interface VisionBoardProps {
+  compact?: boolean;
+}
+
+export function VisionBoard({ compact = false }: VisionBoardProps) {
   const { t, locale } = useI18n();
+  const { user } = useAuth();
   const { data: areas } = useLifeAreas();
   const { data: annualGoals, refetch: refetchAnnual } = useLifeGoals('annual', new Date().getFullYear().toString());
   const { data: quarterlyGoals } = useLifeGoals('quarterly');
   const { data: monthlyGoals } = useLifeGoals('monthly', format(new Date(), 'yyyy-MM'));
-  const updateGoal = useUpdateLifeGoal();
   
   const [generatingAreas, setGeneratingAreas] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<GoalType | 'annual'>('monthly');
+  const [editingGoal, setEditingGoal] = useState<LifeGoal | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const handleRegenerateImage = async (goal: LifeGoal) => {
+    if (!user) return;
+    
     const areaName = t.lifeOS?.areas?.[goal.area_key] || goal.area_key;
     setGeneratingAreas(prev => new Set([...prev, goal.id]));
     
@@ -155,17 +181,13 @@ export function VisionBoard() {
           annual_goal: goal.title,
           description: goal.description,
           locale,
+          user_id: user.id,
+          goal_id: goal.id,
         },
       });
 
       if (error) throw error;
       if (!data?.image_url) throw new Error('No image generated');
-
-      // Update the goal with the new image URL
-      await updateGoal.mutateAsync({
-        id: goal.id,
-        updates: { vision_image_url: data.image_url },
-      });
 
       toast.success(t.lifeOS?.visionBoard?.imageGenerated || 'Vision image generated!');
       refetchAnnual();
@@ -187,6 +209,11 @@ export function VisionBoard() {
     for (const goal of annualGoals) {
       await handleRegenerateImage(goal);
     }
+  };
+
+  const handleEditGoal = (goal: LifeGoal) => {
+    setEditingGoal(goal);
+    setEditDialogOpen(true);
   };
 
   const getAreaColor = (areaKey: LifeAreaKey): string => {
@@ -215,10 +242,57 @@ export function VisionBoard() {
   };
 
   const currentGoals = getGoalsForTab();
-  const currentMonth = format(new Date(), 'MMMM yyyy', { locale: locale === 'ro' ? undefined : undefined });
 
   if (!areas?.length) {
     return null;
+  }
+
+  // Compact version for main Dashboard
+  if (compact) {
+    return (
+      <>
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Eye className="h-5 w-5 text-primary" />
+                <CardTitle>{t.lifeOS?.visionBoard?.title || 'Vision Board'}</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {annualGoals?.length ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {annualGoals.slice(0, 4).map((goal) => (
+                  <VisionCard
+                    key={goal.id}
+                    goal={goal}
+                    areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
+                    onRegenerate={handleRegenerateImage}
+                    onEdit={handleEditGoal}
+                    isGenerating={generatingAreas.has(goal.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  {t.lifeOS?.noAreasDescription || 'Set up your annual vision to see the board'}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <GoalEditDialog
+          goal={editingGoal}
+          areaName={editingGoal ? (t.lifeOS?.areas?.[editingGoal.area_key] || editingGoal.area_key) : ''}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSaved={refetchAnnual}
+        />
+      </>
+    );
   }
 
   return (
@@ -252,6 +326,7 @@ export function VisionBoard() {
                   goal={goal}
                   areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
                   onRegenerate={handleRegenerateImage}
+                  onEdit={handleEditGoal}
                   isGenerating={generatingAreas.has(goal.id)}
                 />
               ))}
@@ -311,6 +386,7 @@ export function VisionBoard() {
                   goal={goal}
                   areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
                   areaColor={getAreaColor(goal.area_key)}
+                  onEdit={handleEditGoal}
                 />
               ))}
               {!currentGoals?.length && (
@@ -322,6 +398,14 @@ export function VisionBoard() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <GoalEditDialog
+        goal={editingGoal}
+        areaName={editingGoal ? (t.lifeOS?.areas?.[editingGoal.area_key] || editingGoal.area_key) : ''}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSaved={refetchAnnual}
+      />
     </div>
   );
 }

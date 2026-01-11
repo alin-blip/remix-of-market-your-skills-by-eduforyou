@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useSwipeHireIntegration } from '@/hooks/useSwipeHireIntegration';
 import { GigJobBuilder } from '@/components/gigs/GigJobBuilder';
+import { VisionBoard } from '@/components/life-os/VisionBoard';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -221,11 +222,20 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Vision Board Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <VisionBoard compact />
+        </motion.div>
+
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {/* Freedom Score */}

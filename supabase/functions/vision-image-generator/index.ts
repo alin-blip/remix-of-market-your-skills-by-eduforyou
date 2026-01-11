@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +12,8 @@ interface VisionImageRequest {
   annual_goal: string;
   description?: string;
   locale?: string;
+  user_id: string;
+  goal_id: string;
 }
 
 serve(async (req) => {
@@ -19,12 +22,25 @@ serve(async (req) => {
   }
 
   try {
-    const { area_key, area_name, annual_goal, description, locale = 'en' }: VisionImageRequest = await req.json();
+    const { area_key, area_name, annual_goal, description, locale = 'en', user_id, goal_id }: VisionImageRequest = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
+
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("Supabase configuration missing");
+    }
+
+    if (!user_id || !goal_id) {
+      throw new Error("user_id and goal_id are required");
+    }
+
+    // Create Supabase client for storage operations
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Create a detailed vision board prompt based on the area and goal
     const areaPrompts: Record<string, string> = {
@@ -85,14 +101,65 @@ High quality, detailed, cinematic lighting. 16:9 aspect ratio vision board style
     }
 
     const data = await response.json();
-    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const imageDataUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
-    if (!imageData) {
+    if (!imageDataUrl) {
       throw new Error("No image generated");
     }
 
+    // Extract base64 data from data URL
+    const base64Match = imageDataUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+    if (!base64Match) {
+      throw new Error("Invalid image data format");
+    }
+
+    const imageFormat = base64Match[1];
+    const base64Data = base64Match[2];
+    
+    // Convert base64 to Uint8Array
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Generate unique filename
+    const fileName = `${user_id}/${goal_id}-${Date.now()}.${imageFormat}`;
+
+    // Upload to storage bucket
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('vision-images')
+      .upload(fileName, bytes, {
+        contentType: `image/${imageFormat}`,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      throw new Error("Failed to upload image to storage");
+    }
+
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from('vision-images')
+      .getPublicUrl(fileName);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    // Update the goal with the new image URL
+    const { error: updateError } = await supabase
+      .from('life_goals')
+      .update({ vision_image_url: publicUrl })
+      .eq('id', goal_id)
+      .eq('user_id', user_id);
+
+    if (updateError) {
+      console.error("Goal update error:", updateError);
+      throw new Error("Failed to update goal with image URL");
+    }
+
     return new Response(
-      JSON.stringify({ image_url: imageData }),
+      JSON.stringify({ image_url: publicUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
