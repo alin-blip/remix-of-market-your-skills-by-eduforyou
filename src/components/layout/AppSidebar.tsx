@@ -118,6 +118,22 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
+                isActive={currentPath.startsWith('/life-os')}
+                tooltip={t.lifeOS?.title || "Life OS"}
+              >
+                <NavLink
+                  to="/life-os"
+                  className="flex items-center gap-3"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <Target className="h-4 w-4" />
+                  {!collapsed && <span>{t.lifeOS?.title || "Life OS"}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
                 isActive={currentPath === '/settings'}
                 tooltip={t.sidebar?.settings || "Settings"}
               >
