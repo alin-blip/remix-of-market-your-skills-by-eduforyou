@@ -22,6 +22,9 @@ import GigJobBuilderPage from "./pages/wizard/GigJobBuilderPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import LifeOSDashboard from "./pages/life-os/LifeOSDashboard";
+import LifeOSSetup from "./pages/life-os/LifeOSSetup";
+import WeeklySprintPage from "./pages/life-os/WeeklySprintPage";
 import VerificationsManager from "./pages/admin/VerificationsManager";
 import UsersManager from "./pages/admin/UsersManager";
 
