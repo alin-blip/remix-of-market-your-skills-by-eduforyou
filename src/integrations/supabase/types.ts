@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_tasks: {
+        Row: {
+          area_key: string | null
+          completed_at: string | null
+          created_at: string | null
+          day_date: string
+          day_of_week: string
+          description: string | null
+          id: string
+          is_completed: boolean | null
+          linked_goal_id: string | null
+          position: number | null
+          sprint_id: string | null
+          task_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          area_key?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_date: string
+          day_of_week: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          linked_goal_id?: string | null
+          position?: number | null
+          sprint_id?: string | null
+          task_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          area_key?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_date?: string
+          day_of_week?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean | null
+          linked_goal_id?: string | null
+          position?: number | null
+          sprint_id?: string | null
+          task_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_tasks_linked_goal_id_fkey"
+            columns: ["linked_goal_id"]
+            isOneToOne: false
+            referencedRelation: "life_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_tasks_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_sprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gigs_jobs: {
         Row: {
           category: string | null
@@ -148,6 +214,98 @@ export type Database = {
           what_youre_good_at?: Json | null
         }
         Relationships: []
+      }
+      life_areas: {
+        Row: {
+          area_key: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          position: number | null
+          user_id: string
+        }
+        Insert: {
+          area_key: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          position?: number | null
+          user_id: string
+        }
+        Update: {
+          area_key?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          position?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      life_goals: {
+        Row: {
+          area_key: string
+          created_at: string | null
+          current_value: string | null
+          description: string | null
+          goal_type: string
+          id: string
+          measurable_result: string | null
+          parent_goal_id: string | null
+          period: string
+          position: number | null
+          progress: number | null
+          status: string | null
+          target_value: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          area_key: string
+          created_at?: string | null
+          current_value?: string | null
+          description?: string | null
+          goal_type: string
+          id?: string
+          measurable_result?: string | null
+          parent_goal_id?: string | null
+          period: string
+          position?: number | null
+          progress?: number | null
+          status?: string | null
+          target_value?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          area_key?: string
+          created_at?: string | null
+          current_value?: string | null
+          description?: string | null
+          goal_type?: string
+          id?: string
+          measurable_result?: string | null
+          parent_goal_id?: string | null
+          period?: string
+          position?: number | null
+          progress?: number | null
+          status?: string | null
+          target_value?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_goals_parent_goal_id_fkey"
+            columns: ["parent_goal_id"]
+            isOneToOne: false
+            referencedRelation: "life_goals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offers: {
         Row: {
@@ -413,6 +571,51 @@ export type Database = {
           reviewed_at?: string | null
           status?: Database["public"]["Enums"]["verification_status"] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_sprints: {
+        Row: {
+          created_at: string | null
+          energy_level: number | null
+          id: string
+          lessons: Json | null
+          planned_at: string | null
+          reflection: string | null
+          reviewed_at: string | null
+          updated_at: string | null
+          user_id: string
+          week_goal: string | null
+          week_key: string
+          wins: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          lessons?: Json | null
+          planned_at?: string | null
+          reflection?: string | null
+          reviewed_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          week_goal?: string | null
+          week_key: string
+          wins?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          lessons?: Json | null
+          planned_at?: string | null
+          reflection?: string | null
+          reviewed_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          week_goal?: string | null
+          week_key?: string
+          wins?: Json | null
         }
         Relationships: []
       }

@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.gig-generator]
 verify_jwt = false
+
+[functions.life-os-wizard]
+verify_jwt = false
