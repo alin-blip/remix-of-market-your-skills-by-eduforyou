@@ -108,6 +108,29 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
+            {/* Define Your Path - First after Dashboard */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isOnWizardPath}
+                tooltip={t.sidebar.defineYourPath}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/wizard/path"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    isOnWizardPath && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Compass className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar.defineYourPath}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -128,12 +151,8 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
 
-        {/* Gig & Job Builder */}
-        <SidebarGroup className="gap-1">
-          <SidebarMenu className="gap-1">
+            {/* Gig & Job Builder */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -151,32 +170,6 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <Briefcase className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Define Your Path - Simple Link */}
-        <SidebarGroup className="gap-1">
-          <SidebarMenu className="gap-1">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={isOnWizardPath}
-                tooltip={t.sidebar.defineYourPath}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/wizard/path"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    isOnWizardPath && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <Compass className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar.defineYourPath}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

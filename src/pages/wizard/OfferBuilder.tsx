@@ -457,6 +457,20 @@ export default function OfferBuilder() {
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                   {result.smv}
                 </p>
+                
+                {/* Regenerate Button */}
+                <Button
+                  onClick={() => {
+                    setResult(null);
+                    setHasSavedResult(false);
+                    setStep('ready');
+                  }}
+                  variant="outline"
+                  className="mt-4 gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  {t.offerBuilder.regenerate || 'Generează ofertă nouă'}
+                </Button>
               </div>
 
               {/* Target Market & Justification */}
