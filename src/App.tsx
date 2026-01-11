@@ -158,6 +158,31 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdmin>
                     <UsersManager />
+              </ProtectedRoute>
+                } 
+              />
+              {/* Life OS Routes */}
+              <Route 
+                path="/life-os" 
+                element={
+                  <ProtectedRoute>
+                    <LifeOSDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/life-os/setup" 
+                element={
+                  <ProtectedRoute>
+                    <LifeOSSetup />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/life-os/sprint" 
+                element={
+                  <ProtectedRoute>
+                    <WeeklySprintPage />
                   </ProtectedRoute>
                 } 
               />
