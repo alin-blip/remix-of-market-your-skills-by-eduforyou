@@ -690,6 +690,7 @@ export const en = {
     gigJobBuilder: 'Gig & Job Builder',
     progressLabel: 'Freedom Path Progress',
     settings: 'Settings',
+    realStartup: 'Real Start-up',
   },
 
   // Main Layout
