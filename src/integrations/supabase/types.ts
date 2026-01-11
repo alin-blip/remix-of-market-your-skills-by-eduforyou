@@ -44,6 +44,237 @@ export type Database = {
         }
         Relationships: []
       }
+      client_projects: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          value: number | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          value?: number | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          last_contact_at: string | null
+          name: string
+          next_followup_at: string | null
+          notes: string | null
+          phone: string | null
+          source: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          name: string
+          next_followup_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          name?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      course_lessons: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_free: boolean | null
+          position: number
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_free?: boolean | null
+          position?: number
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_free?: boolean | null
+          position?: number
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_purchases: {
+        Row: {
+          amount: number
+          course_id: string
+          currency: string | null
+          id: string
+          purchased_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          course_id: string
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          course_id?: string
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          lessons_count: number | null
+          level: string
+          platform: string
+          price: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          lessons_count?: number | null
+          level?: string
+          platform?: string
+          price?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          lessons_count?: number | null
+          level?: string
+          platform?: string
+          price?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       daily_tasks: {
         Row: {
           area_key: string | null
@@ -106,6 +337,50 @@ export type Database = {
             columns: ["sprint_id"]
             isOneToOne: false
             referencedRelation: "weekly_sprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followup_reminders: {
+        Row: {
+          client_id: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          notes: string | null
+          reminder_date: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          notes?: string | null
+          reminder_date: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          notes?: string | null
+          reminder_date?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_reminders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -620,6 +895,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_course_progress: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          created_at: string | null
+          id: string
+          lesson_id: string | null
+          progress_percent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          created_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          progress_percent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          progress_percent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_course_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

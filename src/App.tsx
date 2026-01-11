@@ -31,6 +31,7 @@ import UsersManager from "./pages/admin/UsersManager";
 import Pricing from "./pages/Pricing";
 import IncomeTracker from "./pages/IncomeTracker";
 import LearningHub from "./pages/LearningHub";
+import ClientCRM from "./pages/ClientCRM";
 
 const queryClient = new QueryClient();
 
@@ -223,6 +224,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <LearningHub />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/client-crm" 
+                  element={
+                    <ProtectedRoute>
+                      <ClientCRM />
                     </ProtectedRoute>
                   } 
                 />
