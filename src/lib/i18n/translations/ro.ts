@@ -256,6 +256,45 @@ export const ro = {
     outreachGenerator: 'Outreach Generator',
   },
 
+  // Define Your Path page
+  defineYourPath: {
+    title: 'Definește-ți Calea',
+    subtitle: 'Parcurge pașii pentru a-ți construi calea către libertatea financiară',
+    step: 'Pasul',
+    startButton: 'Începe',
+    tipTitle: 'Sfat',
+    tipText: 'Completează toți pașii pentru a debloca planul tău complet de libertate',
+    progressLabel: 'Progres',
+    stepsCompleted: 'pași completați din',
+    allCompleted: 'Ai completat toate etapele! 🎉',
+    steps: {
+      skillScanner: {
+        title: 'Skill Scanner',
+        description: 'Descoperă-ți competențele monetizabile',
+      },
+      ikigaiBuilder: {
+        title: 'Ikigai Builder',
+        description: 'Găsește-ți poziționarea unică',
+      },
+      offerBuilder: {
+        title: 'Offer Builder',
+        description: 'Creează-ți pachetele de servicii',
+      },
+      profileBuilder: {
+        title: 'Profile Builder',
+        description: 'Optimizează-ți profilurile sociale',
+      },
+      outreachGenerator: {
+        title: 'Outreach Generator',
+        description: 'Generează mesaje de prospectare',
+      },
+      freedomPlanExport: {
+        title: 'Freedom Plan',
+        description: 'Exportă-ți planul complet',
+      },
+    },
+  },
+
   // Skill Scanner page
   skillScanner: {
     title: 'Skill Scanner AI',

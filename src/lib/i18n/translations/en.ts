@@ -256,6 +256,45 @@ export const en = {
     outreachGenerator: 'Outreach Generator',
   },
 
+  // Define Your Path page
+  defineYourPath: {
+    title: 'Define Your Path',
+    subtitle: 'Follow the steps to build your path towards financial freedom',
+    step: 'Step',
+    startButton: 'Start',
+    tipTitle: 'Tip',
+    tipText: 'Complete all steps to unlock your complete freedom plan',
+    progressLabel: 'Progress',
+    stepsCompleted: 'steps completed of',
+    allCompleted: 'You completed all steps! 🎉',
+    steps: {
+      skillScanner: {
+        title: 'Skill Scanner',
+        description: 'Discover your monetizable skills',
+      },
+      ikigaiBuilder: {
+        title: 'Ikigai Builder',
+        description: 'Find your unique positioning',
+      },
+      offerBuilder: {
+        title: 'Offer Builder',
+        description: 'Create your service packages',
+      },
+      profileBuilder: {
+        title: 'Profile Builder',
+        description: 'Optimize your social profiles',
+      },
+      outreachGenerator: {
+        title: 'Outreach Generator',
+        description: 'Generate prospecting messages',
+      },
+      freedomPlanExport: {
+        title: 'Freedom Plan',
+        description: 'Export your complete plan',
+      },
+    },
+  },
+
   // Skill Scanner page
   skillScanner: {
     title: 'Skill Scanner AI',
