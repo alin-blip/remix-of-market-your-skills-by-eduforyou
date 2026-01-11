@@ -110,6 +110,59 @@ export type Database = {
           },
         ]
       }
+      freelance_income: {
+        Row: {
+          amount: number
+          client_name: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          gig_id: string | null
+          id: string
+          payment_date: string
+          payment_status: string | null
+          platform: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          client_name?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          gig_id?: string | null
+          id?: string
+          payment_date: string
+          payment_status?: string | null
+          platform: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          client_name?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          gig_id?: string | null
+          id?: string
+          payment_date?: string
+          payment_status?: string | null
+          platform?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelance_income_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gigs_jobs: {
         Row: {
           category: string | null
@@ -120,6 +173,9 @@ export type Database = {
           is_published: boolean | null
           location: string | null
           location_type: string | null
+          platform: string | null
+          platform_listing_url: string | null
+          platform_specific_data: Json | null
           price_max: number | null
           price_min: number | null
           price_type: string | null
@@ -141,6 +197,9 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           location_type?: string | null
+          platform?: string | null
+          platform_listing_url?: string | null
+          platform_specific_data?: Json | null
           price_max?: number | null
           price_min?: number | null
           price_type?: string | null
@@ -162,6 +221,9 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           location_type?: string | null
+          platform?: string | null
+          platform_listing_url?: string | null
+          platform_specific_data?: Json | null
           price_max?: number | null
           price_min?: number | null
           price_type?: string | null
@@ -517,6 +579,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username_suggestions?: Json | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          ai_generations_used: number | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          gigs_used: number | null
+          id: string
+          plan: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_generations_used?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          gigs_used?: number | null
+          id?: string
+          plan?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_generations_used?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          gigs_used?: number | null
+          id?: string
+          plan?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
