@@ -1,32 +1,23 @@
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import {
   LayoutDashboard,
   Sparkles,
-  Target,
-  Package,
-  User,
-  MessageSquare,
-  FileDown,
-  ChevronDown,
   Compass,
   Globe,
   Sun,
   Moon,
-  Monitor,
   Settings,
   Briefcase,
   Shield,
   LogOut,
+  Target,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -36,11 +27,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,18 +55,8 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const pathItems = [
-    { title: t.sidebar.skillScanner, url: '/wizard/skill-scanner', icon: Sparkles },
-    { title: t.sidebar.ikigaiBuilder, url: '/wizard/ikigai', icon: Target },
-    { title: t.sidebar.offerBuilder, url: '/wizard/offer', icon: Package },
-    { title: t.sidebar.profileBuilder, url: '/wizard/profile', icon: User },
-    { title: t.sidebar.outreachGenerator, url: '/wizard/outreach', icon: MessageSquare },
-    { title: t.sidebar.freedomPlanExport, url: '/wizard/export', icon: FileDown },
-  ];
-
-  // Check if any path item is active
-  const isPathActive = pathItems.some((item) => currentPath.startsWith(item.url));
-  const [pathOpen, setPathOpen] = useState(isPathActive);
+  // Check if user is on any wizard path
+  const isOnWizardPath = currentPath.startsWith('/wizard');
 
   const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
   const isComplete = completedSteps >= totalSteps;
@@ -181,63 +157,30 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Define Your Path - Collapsible Group */}
-        <SidebarGroup className="mt-2">
-          <Collapsible open={pathOpen} onOpenChange={setPathOpen}>
-            <CollapsibleTrigger asChild>
-              <SidebarGroupLabel
-                className={cn(
-                  'flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded-lg px-3 py-2.5 transition-colors text-xs uppercase tracking-wider font-semibold',
-                  isPathActive && 'text-primary'
-                )}
+        {/* Define Your Path - Simple Link */}
+        <SidebarGroup className="gap-1">
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isOnWizardPath}
+                tooltip={t.sidebar.defineYourPath}
+                className="h-10 rounded-lg"
               >
-                <div className="flex items-center gap-2">
-                  <Compass className="h-4 w-4" />
+                <NavLink
+                  to="/wizard/path"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    isOnWizardPath && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Compass className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar.defineYourPath}</span>}
-                </div>
-                {!collapsed && (
-                  <ChevronDown
-                    className={cn(
-                      'h-4 w-4 transition-transform duration-200',
-                      pathOpen && 'rotate-180'
-                    )}
-                  />
-                )}
-              </SidebarGroupLabel>
-            </CollapsibleTrigger>
-
-            <CollapsibleContent>
-              <SidebarGroupContent className="mt-1">
-                <SidebarMenu className="gap-0.5">
-                  {pathItems.map((item) => {
-                    const isActive = currentPath.startsWith(item.url);
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={isActive}
-                          tooltip={item.title}
-                          className="h-9 rounded-lg"
-                        >
-                          <NavLink
-                            to={item.url}
-                            className={cn(
-                              'flex items-center gap-3 pl-5 pr-3 text-sm transition-all',
-                              isActive && 'bg-primary/10 text-primary font-medium'
-                            )}
-                            activeClassName=""
-                          >
-                            <item.icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.title}</span>}
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarGroup>
 
         {/* Spacer */}

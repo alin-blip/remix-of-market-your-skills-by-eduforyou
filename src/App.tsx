@@ -19,6 +19,7 @@ import ProfileBuilder from "./pages/wizard/ProfileBuilder";
 import OutreachGenerator from "./pages/wizard/OutreachGenerator";
 import FreedomPlanExport from "./pages/wizard/FreedomPlanExport";
 import GigJobBuilderPage from "./pages/wizard/GigJobBuilderPage";
+import DefineYourPath from "./pages/wizard/DefineYourPath";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -120,6 +121,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <GigJobBuilderPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/wizard/path" 
+                element={
+                  <ProtectedRoute>
+                    <DefineYourPath />
                   </ProtectedRoute>
                 } 
               />
