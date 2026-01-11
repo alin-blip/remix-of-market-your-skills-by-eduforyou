@@ -12,6 +12,7 @@ import {
   Shield,
   LogOut,
   Target,
+  Rocket,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -170,6 +171,39 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <Briefcase className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Real Start-up Section */}
+        <SidebarGroup className="gap-1">
+          {!collapsed && (
+            <div className="px-3 py-2">
+              <span className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
+                {t.sidebar?.realStartup || 'Real Start-up'}
+              </span>
+            </div>
+          )}
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/startup'}
+                tooltip={t.sidebar?.realStartup || 'Real Start-up'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/startup"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/startup' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Rocket className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.realStartup || 'Real Start-up'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

@@ -690,6 +690,7 @@ export const ro = {
     gigJobBuilder: 'Gig & Job Builder',
     progressLabel: 'Progres Freedom Path',
     settings: 'Setări',
+    realStartup: 'Real Start-up',
   },
 
   // Main Layout
