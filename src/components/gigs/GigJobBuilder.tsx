@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Package, Briefcase, Loader2 } from "lucide-react";
+import { Plus, Package, Briefcase, Loader2, Sparkles, Rocket, Zap, Star, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import { AlertCircle, User } from "lucide-react";
 import { GigJobCard } from "./GigJobCard";
 import { GigJobDialog, GigJobFormData } from "./GigJobDialog";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PackageData {
   name: string;
@@ -129,7 +130,6 @@ export function GigJobBuilder() {
     const pkg = offer[`${packageKey}_package`];
     if (!pkg) return;
 
-    // Handle price as either number or string
     const parsePrice = (price: unknown): number => {
       if (typeof price === "number") return price;
       if (typeof price === "string") return parseInt(price.replace(/[^0-9]/g, "") || "0");
@@ -187,7 +187,6 @@ export function GigJobBuilder() {
   };
 
   const ensureProfileSynced = async (): Promise<boolean> => {
-    // If both profile and services are synced, skip
     const profileAlreadySynced = isProfileSynced();
     const servicesAlreadySynced = isServicesSynced();
     
@@ -196,7 +195,6 @@ export function GigJobBuilder() {
 
     setSyncingProfile(true);
     try {
-      // Fetch profile, ikigai, and offers data
       const [profileRes, ikigaiRes, offersRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("ikigai_results").select("*").eq("user_id", user.id).maybeSingle(),
@@ -212,7 +210,6 @@ export function GigJobBuilder() {
       const ikigai = ikigaiRes.data;
       const offerData = offersRes.data;
 
-      // Map offer packages to services array
       const services: { service_name: string; price_type: string; price_amount: number }[] = [];
       if (offerData) {
         const packages = [
@@ -273,7 +270,6 @@ export function GigJobBuilder() {
       return;
     }
 
-    // Ensure profile is synced first
     const profileSynced = await ensureProfileSynced();
     if (!profileSynced) return;
 
@@ -338,7 +334,6 @@ export function GigJobBuilder() {
 
     setPublishingId(gig.id);
     
-    // Ensure profile is synced first
     const profileSynced = await ensureProfileSynced();
     if (!profileSynced) {
       setPublishingId(null);
@@ -408,30 +403,103 @@ export function GigJobBuilder() {
   const gigs = gigsJobs.filter((g) => g.type === "gig");
   const jobs = gigsJobs.filter((g) => g.type === "job");
 
+  const packageIcons = {
+    starter: <Zap className="h-5 w-5" />,
+    standard: <Star className="h-5 w-5" />,
+    premium: <Rocket className="h-5 w-5" />,
+  };
+
+  const packageColors = {
+    starter: "from-blue-500 to-cyan-500",
+    standard: "from-purple-500 to-pink-500",
+    premium: "from-amber-500 to-orange-500",
+  };
+
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-4"
+        >
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/30 rounded-full" />
+            <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-muted-foreground">{t.common?.loading || "Loading..."}</p>
+        </motion.div>
+      </div>
     );
   }
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5" />
-            {t.gigs?.title || "Gig & Job Builder"}
-          </CardTitle>
-          <CardDescription>{t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {isConnected && !isProfileSynced() && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="relative z-10">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-3 mb-4"
+            >
+              <div className="p-3 rounded-xl bg-primary/20 backdrop-blur-sm">
+                <Briefcase className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  {t.gigs?.title || "Gig & Job Builder"}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}
+                </p>
+              </div>
+            </motion.div>
+            
+            {/* Stats */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-wrap gap-6 mt-6"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{gigs.filter(g => g.is_published).length}</span> Published Gigs
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{gigs.filter(g => !g.is_published).length}</span> Draft Gigs
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{jobs.length}</span> Jobs
+                </span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Sync Alert */}
+        {isConnected && !isProfileSynced() && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Alert className="border-amber-500/50 bg-amber-500/10">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{t.gigs?.profileNotSynced || "Your profile hasn't been synced to SwipeHire yet. It will sync automatically on first publish."}</span>
                 <Button 
@@ -439,6 +507,7 @@ export function GigJobBuilder() {
                   variant="outline" 
                   onClick={ensureProfileSynced}
                   disabled={syncingProfile}
+                  className="border-amber-500/50 hover:bg-amber-500/10"
                 >
                   {syncingProfile ? (
                     <Loader2 className="mr-2 h-3 w-3 animate-spin" />
@@ -449,136 +518,272 @@ export function GigJobBuilder() {
                 </Button>
               </AlertDescription>
             </Alert>
-          )}
+          </motion.div>
+        )}
 
-          {offer && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium">{t.gigs?.fromOffer || "Create from your offer"}</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {(["starter", "standard", "premium"] as const).map((key) => {
-                  const pkg = offer[`${key}_package`];
-                  if (!pkg) return null;
-                  return (
-                    <Card key={key} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => createFromPackage(key)}>
-                      <CardContent className="pt-4 space-y-2">
+        {/* Create from Packages */}
+        {offer && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  {t.gigs?.fromOffer || "Create from your offer"}
+                </h2>
+                <p className="text-sm text-muted-foreground">Quick-start with your pre-defined packages</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {(["starter", "standard", "premium"] as const).map((key, index) => {
+                const pkg = offer[`${key}_package`];
+                if (!pkg) return null;
+                return (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="group cursor-pointer"
+                    onClick={() => createFromPackage(key)}
+                  >
+                    <Card className="relative overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all duration-300">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${packageColors[key]} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                      <CardContent className="pt-6 space-y-4">
                         <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="capitalize">{pkg.name || key}</Badge>
-                          <span className="font-bold">{pkg.price}</span>
+                          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${packageColors[key]} text-white`}>
+                            {packageIcons[key]}
+                          </div>
+                          <Badge variant="outline" className="capitalize font-medium">
+                            {pkg.name || key}
+                          </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
+                        
+                        <div>
+                          <p className="text-2xl font-bold">{pkg.price}</p>
+                          <p className="text-sm text-muted-foreground">{pkg.delivery_time}</p>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
                           {pkg.deliverables?.slice(0, 2).join(", ")}
                         </p>
-                        <Button size="sm" variant="secondary" className="w-full">
-                          <Package className="mr-2 h-3 w-3" />
+                        
+                        <Button 
+                          size="sm" 
+                          className={`w-full bg-gradient-to-r ${packageColors[key]} text-white border-0 opacity-90 group-hover:opacity-100`}
+                        >
+                          <Package className="mr-2 h-4 w-4" />
                           {t.gigs?.createFromPackage || "Create Gig"}
+                          <ArrowRight className="ml-2 h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                         </Button>
                       </CardContent>
                     </Card>
-                  );
-                })}
-              </div>
+                  </motion.div>
+                );
+              })}
             </div>
-          )}
+          </motion.section>
+        )}
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingItem({ type: "gig", skills: skills.slice(0, 5), locationType: "remote", priceType: "fixed", category: "webDevelopment", currency: "EUR" });
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t.gigs?.createGig || "Create Gig"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingItem({ type: "job", skills: skills.slice(0, 5), locationType: "remote", priceType: "monthly", category: "webDevelopment", currency: "EUR" });
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t.gigs?.createJob || "Create Full-time Job"}
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex flex-wrap gap-3"
+        >
+          <Button
+            onClick={() => {
+              setEditingItem({ type: "gig", skills: skills.slice(0, 5), locationType: "remote", priceType: "fixed", category: "webDevelopment", currency: "EUR" });
+              setDialogOpen(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {t.gigs?.createGig || "Create Gig"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setEditingItem({ type: "job", skills: skills.slice(0, 5), locationType: "remote", priceType: "monthly", category: "webDevelopment", currency: "EUR" });
+              setDialogOpen(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {t.gigs?.createJob || "Create Job"}
+          </Button>
+        </motion.div>
 
-          <Tabs defaultValue="gigs">
-            <TabsList>
-              <TabsTrigger value="gigs">
-                {t.gigs?.yourGigs || "Your Gigs"} ({gigs.length})
+        {/* Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Tabs defaultValue="gigs" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 p-1 bg-muted/50">
+              <TabsTrigger value="gigs" className="gap-2 data-[state=active]:bg-background">
+                <Sparkles className="h-4 w-4" />
+                {t.gigs?.yourGigs || "Your Gigs"}
+                {gigs.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {gigs.length}
+                  </Badge>
+                )}
               </TabsTrigger>
-              <TabsTrigger value="jobs">
-                {t.gigs?.yourJobs || "Your Jobs"} ({jobs.length})
+              <TabsTrigger value="jobs" className="gap-2 data-[state=active]:bg-background">
+                <Briefcase className="h-4 w-4" />
+                {t.gigs?.yourJobs || "Your Jobs"}
+                {jobs.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {jobs.length}
+                  </Badge>
+                )}
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="gigs" className="mt-4">
-              {gigs.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  {t.gigs?.noGigsYet || "No gigs yet. Create your first gig from your offer packages."}
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {gigs.map((gig) => (
-                    <GigJobCard
-                      key={gig.id}
-                      id={gig.id}
-                      type={gig.type}
-                      title={gig.title}
-                      description={gig.description}
-                      skills={gig.skills}
-                      priceType={gig.price_type || undefined}
-                      priceMin={gig.price_min || undefined}
-                      priceMax={gig.price_max || undefined}
-                      currency={gig.currency || undefined}
-                      locationType={gig.location_type || undefined}
-                      isPublished={gig.is_published}
-                      onEdit={() => handleEdit(gig)}
-                      onDelete={() => handleDelete(gig.id)}
-                      onPublish={() => handlePublish(gig)}
-                      isPublishing={publishingId === gig.id}
-                    />
-                  ))}
-                </div>
-              )}
+
+            <TabsContent value="gigs" className="mt-6">
+              <AnimatePresence mode="popLayout">
+                {gigs.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Card className="border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="p-4 rounded-full bg-primary/10 mb-4">
+                          <Sparkles className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="font-semibold mb-2">{t.gigs?.noGigsYet || "No gigs yet"}</h3>
+                        <p className="text-sm text-muted-foreground max-w-sm">
+                          Create your first gig to start offering your services
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4"
+                          onClick={() => {
+                            setEditingItem({ type: "gig", skills: skills.slice(0, 5), locationType: "remote", priceType: "fixed", category: "webDevelopment", currency: "EUR" });
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t.gigs?.createGig || "Create Gig"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {gigs.map((gig, index) => (
+                      <motion.div
+                        key={gig.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ delay: index * 0.05 }}
+                        layout
+                      >
+                        <GigJobCard
+                          {...gig}
+                          skills={gig.skills}
+                          priceType={gig.price_type || undefined}
+                          priceMin={gig.price_min || undefined}
+                          priceMax={gig.price_max || undefined}
+                          currency={gig.currency || undefined}
+                          locationType={gig.location_type || undefined}
+                          isPublished={gig.is_published}
+                          onEdit={() => handleEdit(gig)}
+                          onDelete={() => handleDelete(gig.id)}
+                          onPublish={() => handlePublish(gig)}
+                          isPublishing={publishingId === gig.id}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </AnimatePresence>
             </TabsContent>
-            <TabsContent value="jobs" className="mt-4">
-              {jobs.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  {t.gigs?.noJobsYet || "No jobs yet. Create your first job posting."}
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {jobs.map((job) => (
-                    <GigJobCard
-                      key={job.id}
-                      id={job.id}
-                      type={job.type}
-                      title={job.title}
-                      description={job.description}
-                      skills={job.skills}
-                      priceType={job.price_type || undefined}
-                      priceMin={job.price_min || undefined}
-                      priceMax={job.price_max || undefined}
-                      currency={job.currency || undefined}
-                      locationType={job.location_type || undefined}
-                      isPublished={job.is_published}
-                      onEdit={() => handleEdit(job)}
-                      onDelete={() => handleDelete(job.id)}
-                      onPublish={() => handlePublish(job)}
-                      isPublishing={publishingId === job.id}
-                    />
-                  ))}
-                </div>
-              )}
+
+            <TabsContent value="jobs" className="mt-6">
+              <AnimatePresence mode="popLayout">
+                {jobs.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Card className="border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="p-4 rounded-full bg-primary/10 mb-4">
+                          <Briefcase className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="font-semibold mb-2">{t.gigs?.noJobsYet || "No jobs yet"}</h3>
+                        <p className="text-sm text-muted-foreground max-w-sm">
+                          Create a job posting to find full-time opportunities
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4"
+                          onClick={() => {
+                            setEditingItem({ type: "job", skills: skills.slice(0, 5), locationType: "remote", priceType: "monthly", category: "webDevelopment", currency: "EUR" });
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t.gigs?.createJob || "Create Job"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {jobs.map((job, index) => (
+                      <motion.div
+                        key={job.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ delay: index * 0.05 }}
+                        layout
+                      >
+                        <GigJobCard
+                          {...job}
+                          skills={job.skills}
+                          priceType={job.price_type || undefined}
+                          priceMin={job.price_min || undefined}
+                          priceMax={job.price_max || undefined}
+                          currency={job.currency || undefined}
+                          locationType={job.location_type || undefined}
+                          isPublished={job.is_published}
+                          onEdit={() => handleEdit(job)}
+                          onDelete={() => handleDelete(job.id)}
+                          onPublish={() => handlePublish(job)}
+                          isPublishing={publishingId === job.id}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </AnimatePresence>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </motion.div>
+      </motion.div>
 
       <GigJobDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditingItem(undefined);
+        }}
         initialData={editingItem}
         availableSkills={skills}
         onSave={handleSave}
