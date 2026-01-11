@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Eye, RefreshCw, Plus, Sparkles, ImageOff, ChevronDown, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, RefreshCw, Plus, Sparkles, ImageOff, ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -14,6 +16,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface VisionCardProps {
   goal: LifeGoal;
@@ -23,6 +42,114 @@ interface VisionCardProps {
   isGenerating: boolean;
 }
 
+interface SortableVisionCardProps extends VisionCardProps {
+  id: string;
+}
+
+function SortableVisionCard({ id, goal, areaName, onRegenerate, onEdit, isGenerating }: SortableVisionCardProps) {
+  const { t } = useI18n();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card 
+        className="overflow-hidden group relative cursor-pointer hover:shadow-lg transition-all"
+        onClick={() => onEdit(goal)}
+      >
+        {/* Drag handle */}
+        <div 
+          {...attributes} 
+          {...listeners}
+          className="absolute top-2 left-2 z-10 p-1 rounded bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical className="h-4 w-4 text-white" />
+        </div>
+
+        <div className="relative aspect-[4/3] bg-muted">
+          {goal.vision_image_url ? (
+            <img
+              src={goal.vision_image_url}
+              alt={goal.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
+              {isGenerating ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Sparkles className="h-8 w-8 animate-pulse text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    {t.lifeOS?.visionBoard?.generating || 'Generating...'}
+                  </span>
+                </div>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRegenerate(goal);
+                  }}
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                >
+                  <ImageOff className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-sm">
+                    {t.lifeOS?.visionBoard?.generateImage || 'Generate Image'}
+                  </span>
+                </Button>
+              )}
+            </div>
+          )}
+          
+          {/* Overlay with area name */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <AreaIcon areaKey={goal.area_key} className="h-5 w-5 text-white" />
+              <span className="text-white font-semibold text-lg">{areaName}</span>
+            </div>
+            <p className="text-white/80 text-sm line-clamp-2">{goal.title}</p>
+            {goal.progress !== null && goal.progress !== undefined && (
+              <Badge variant="secondary" className="mt-2 text-xs">
+                {goal.progress}%
+              </Badge>
+            )}
+          </div>
+          
+          {/* Regenerate button on hover */}
+          {goal.vision_image_url && !isGenerating && (
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRegenerate(goal);
+              }}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// Simple VisionCard for compact mode (no drag-drop)
 function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: VisionCardProps) {
   const { t } = useI18n();
   
@@ -66,7 +193,6 @@ function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: Visi
           </div>
         )}
         
-        {/* Overlay with area name */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -81,7 +207,6 @@ function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: Visi
           )}
         </div>
         
-        {/* Regenerate button on hover */}
         {goal.vision_image_url && !isGenerating && (
           <Button
             size="icon"
@@ -169,6 +294,10 @@ function CollapsibleGoalsSection({
 }: CollapsibleGoalsSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
   
+  // Calculate progress
+  const totalProgress = goals.reduce((sum, g) => sum + (g.progress || 0), 0);
+  const averageProgress = goals.length > 0 ? Math.round(totalProgress / goals.length) : 0;
+  
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card>
@@ -185,6 +314,12 @@ function CollapsibleGoalsSection({
                 <Badge variant="secondary" className="ml-2">
                   {goals.length}
                 </Badge>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 min-w-[120px]">
+                  <Progress value={averageProgress} className="h-2 flex-1" />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{averageProgress}%</span>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -221,6 +356,7 @@ interface VisionBoardProps {
 export function VisionBoard({ compact = false }: VisionBoardProps) {
   const { t, locale } = useI18n();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: areas } = useLifeAreas();
   const { data: annualGoals, refetch: refetchAnnual } = useLifeGoals('annual', new Date().getFullYear().toString());
   const { data: quarterlyGoals } = useLifeGoals('quarterly');
@@ -229,6 +365,7 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
   const [generatingAreas, setGeneratingAreas] = useState<Set<string>>(new Set());
   const [editingGoal, setEditingGoal] = useState<LifeGoal | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [orderedGoals, setOrderedGoals] = useState<LifeGoal[]>([]);
 
   // Get unique areas and their first annual goal (one card per category)
   const uniqueAreaGoals = annualGoals?.reduce((acc, goal) => {
@@ -237,6 +374,38 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
     }
     return acc;
   }, [] as LifeGoal[]) || [];
+
+  // Sync orderedGoals with uniqueAreaGoals
+  useState(() => {
+    if (uniqueAreaGoals.length > 0 && orderedGoals.length === 0) {
+      setOrderedGoals(uniqueAreaGoals);
+    }
+  });
+
+  // Update ordered goals when uniqueAreaGoals changes
+  if (uniqueAreaGoals.length !== orderedGoals.length || 
+      uniqueAreaGoals.some((g, i) => orderedGoals[i]?.id !== g.id)) {
+    if (uniqueAreaGoals.length > 0) {
+      setOrderedGoals(uniqueAreaGoals);
+    }
+  }
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setOrderedGoals((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const handleRegenerateImage = async (goal: LifeGoal) => {
     if (!user) return;
@@ -375,33 +544,38 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          {uniqueAreaGoals.length ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {uniqueAreaGoals.map((goal) => (
-                <VisionCard
-                  key={goal.id}
-                  goal={goal}
-                  areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
-                  onRegenerate={handleRegenerateImage}
-                  onEdit={handleEditGoal}
-                  isGenerating={generatingAreas.has(goal.id)}
-                />
-              ))}
-              {/* Add new area card */}
-              <Card 
-                className="overflow-hidden cursor-pointer hover:border-primary/50 transition-colors border-dashed"
-                onClick={() => {/* Navigate to add area */}}
-              >
-                <div className="aspect-[4/3] flex items-center justify-center bg-muted/50">
-                  <div className="text-center">
-                    <Plus className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                    <span className="text-sm text-muted-foreground">
-                      {t.lifeOS?.visionBoard?.addArea || 'Add Area'}
-                    </span>
-                  </div>
+          {orderedGoals.length ? (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={orderedGoals.map(g => g.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {orderedGoals.map((goal) => (
+                    <SortableVisionCard
+                      key={goal.id}
+                      id={goal.id}
+                      goal={goal}
+                      areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
+                      onRegenerate={handleRegenerateImage}
+                      onEdit={handleEditGoal}
+                      isGenerating={generatingAreas.has(goal.id)}
+                    />
+                  ))}
+                  {/* Add new area card */}
+                  <Card 
+                    className="overflow-hidden cursor-pointer hover:border-primary/50 transition-colors border-dashed"
+                    onClick={() => navigate('/life-os/setup')}
+                  >
+                    <div className="aspect-[4/3] flex items-center justify-center bg-muted/50">
+                      <div className="text-center">
+                        <Plus className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                        <span className="text-sm text-muted-foreground">
+                          {t.lifeOS?.visionBoard?.addArea || 'Add Area'}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
                 </div>
-              </Card>
-            </div>
+              </SortableContext>
+            </DndContext>
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
