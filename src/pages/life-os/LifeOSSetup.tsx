@@ -15,6 +15,9 @@ import {
   Loader2,
   Target,
   Rocket,
+  RefreshCw,
+  MessageSquare,
+  X,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,6 +25,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,6 +72,8 @@ export default function LifeOSSetup() {
   const [annualVision, setAnnualVision] = useState<Record<string, { title: string; description: string; measurable_result: string }>>({});
   const [quarterlyMilestones, setQuarterlyMilestones] = useState<Array<{ area_key: string; title: string; measurable_result: string }>>([]);
   const [monthlyGoals, setMonthlyGoals] = useState<Array<{ area_key: string; title: string; measurable_result: string }>>([]);
+  const [regenerateInstructions, setRegenerateInstructions] = useState('');
+  const [showInstructionsPopover, setShowInstructionsPopover] = useState(false);
   
   const saveAreas = useSaveLifeAreas();
   const saveGoals = useSaveLifeGoals();
@@ -118,7 +129,7 @@ export default function LifeOSSetup() {
     };
   };
   
-  const generateWithAI = async (action: string, existingGoals?: any) => {
+  const generateWithAI = async (action: string, existingGoals?: any, customInstructions?: string) => {
     setIsGenerating(true);
     try {
       const context = await loadUserContext();
@@ -134,6 +145,7 @@ export default function LifeOSSetup() {
           existingGoals,
           currentPeriod: action === 'quarterly_milestones' ? currentQuarter : 
                          action === 'monthly_goals' ? currentMonth : currentYear.toString(),
+          customInstructions,
         },
       });
       
@@ -145,6 +157,23 @@ export default function LifeOSSetup() {
       return null;
     } finally {
       setIsGenerating(false);
+    }
+  };
+  
+  const handleRegenerate = async () => {
+    setShowInstructionsPopover(false);
+    const instructions = regenerateInstructions.trim() || undefined;
+    setRegenerateInstructions('');
+    
+    if (step === 1) {
+      const vision = await generateWithAI('annual_vision', undefined, instructions);
+      if (vision) setAnnualVision(vision);
+    } else if (step === 2) {
+      const milestones = await generateWithAI('quarterly_milestones', annualVision, instructions);
+      if (milestones) setQuarterlyMilestones(milestones);
+    } else if (step === 3) {
+      const goals = await generateWithAI('monthly_goals', quarterlyMilestones, instructions);
+      if (goals) setMonthlyGoals(goals);
     }
   };
   
@@ -324,11 +353,70 @@ export default function LifeOSSetup() {
               className="space-y-4"
             >
               <Card>
-                <CardHeader>
-                  <CardTitle>{t.lifeOS?.wizard?.annualVision || 'Annual Vision'}</CardTitle>
-                  <CardDescription>
-                    Your goals for {new Date().getFullYear()}. Edit as needed.
-                  </CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t.lifeOS?.wizard?.annualVision || 'Annual Vision'}</CardTitle>
+                    <CardDescription>
+                      Your goals for {new Date().getFullYear()}. Edit as needed.
+                    </CardDescription>
+                  </div>
+                  <Popover open={showInstructionsPopover} onOpenChange={setShowInstructionsPopover}>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        disabled={isGenerating}
+                        className="flex-shrink-0"
+                      >
+                        <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
+                        Regenerate
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="end">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">Regenerate with instructions</p>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6"
+                            onClick={() => setShowInstructionsPopover(false)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="e.g., Focus more on income goals..."
+                          value={regenerateInstructions}
+                          onChange={(e) => setRegenerateInstructions(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleRegenerate()}
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => {
+                              setRegenerateInstructions('');
+                              handleRegenerate();
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-1" />
+                            Quick
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={handleRegenerate}
+                            disabled={!regenerateInstructions.trim()}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            With Instructions
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {Object.entries(annualVision).map(([area, goal]) => {
@@ -370,11 +458,70 @@ export default function LifeOSSetup() {
               exit={{ opacity: 0, x: -20 }}
             >
               <Card>
-                <CardHeader>
-                  <CardTitle>{t.lifeOS?.wizard?.quarterlyMilestones || '90-Day Milestones'}</CardTitle>
-                  <CardDescription>
-                    Focus areas for Q{Math.ceil((new Date().getMonth() + 1) / 3)}
-                  </CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t.lifeOS?.wizard?.quarterlyMilestones || '90-Day Milestones'}</CardTitle>
+                    <CardDescription>
+                      Focus areas for Q{Math.ceil((new Date().getMonth() + 1) / 3)}
+                    </CardDescription>
+                  </div>
+                  <Popover open={showInstructionsPopover} onOpenChange={setShowInstructionsPopover}>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        disabled={isGenerating}
+                        className="flex-shrink-0"
+                      >
+                        <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
+                        Regenerate
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="end">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">Regenerate with instructions</p>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6"
+                            onClick={() => setShowInstructionsPopover(false)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="e.g., More challenging goals..."
+                          value={regenerateInstructions}
+                          onChange={(e) => setRegenerateInstructions(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleRegenerate()}
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => {
+                              setRegenerateInstructions('');
+                              handleRegenerate();
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-1" />
+                            Quick
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={handleRegenerate}
+                            disabled={!regenerateInstructions.trim()}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            With Instructions
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {quarterlyMilestones.map((milestone, index) => {
@@ -412,11 +559,70 @@ export default function LifeOSSetup() {
               exit={{ opacity: 0, x: -20 }}
             >
               <Card>
-                <CardHeader>
-                  <CardTitle>{t.lifeOS?.wizard?.monthlyGoals || 'Monthly Goals'}</CardTitle>
-                  <CardDescription>
-                    Focus for {new Date().toLocaleDateString(locale, { month: 'long' })}
-                  </CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t.lifeOS?.wizard?.monthlyGoals || 'Monthly Goals'}</CardTitle>
+                    <CardDescription>
+                      Focus for {new Date().toLocaleDateString(locale, { month: 'long' })}
+                    </CardDescription>
+                  </div>
+                  <Popover open={showInstructionsPopover} onOpenChange={setShowInstructionsPopover}>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        disabled={isGenerating}
+                        className="flex-shrink-0"
+                      >
+                        <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
+                        Regenerate
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="end">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">Regenerate with instructions</p>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6"
+                            onClick={() => setShowInstructionsPopover(false)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="e.g., Add more specific tasks..."
+                          value={regenerateInstructions}
+                          onChange={(e) => setRegenerateInstructions(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleRegenerate()}
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => {
+                              setRegenerateInstructions('');
+                              handleRegenerate();
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-1" />
+                            Quick
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={handleRegenerate}
+                            disabled={!regenerateInstructions.trim()}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            With Instructions
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {monthlyGoals.map((goal, index) => {
