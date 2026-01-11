@@ -819,6 +819,13 @@ export const ro = {
     generateDescription: 'Generează descriere profesională folosind AI',
     profileNotSynced: 'Profilul tău nu a fost încă sincronizat cu SwipeHire. Se va sincroniza automat la prima publicare.',
     syncNow: 'Sincronizează acum',
+    openSwipeHire: 'Deschide SwipeHire',
+    gigsLabel: 'gig-uri',
+    drafts: 'Drafturi',
+    jobsLabel: 'Job-uri',
+    total: 'total',
+    allListings: 'Total',
+    listings: 'anunțuri',
   },
 
   // Admin Panel
