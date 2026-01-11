@@ -101,10 +101,35 @@ High quality, detailed, cinematic lighting. 16:9 aspect ratio vision board style
     }
 
     const data = await response.json();
-    const imageDataUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    console.log("AI Response structure:", JSON.stringify(data, null, 2).substring(0, 500));
+    
+    // Try multiple paths to find the image
+    let imageDataUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    
+    // Alternative path: some models return content as array with image parts
+    if (!imageDataUrl && data.choices?.[0]?.message?.content) {
+      const content = data.choices[0].message.content;
+      if (Array.isArray(content)) {
+        const imagePart = content.find((part: any) => part.type === 'image_url' || part.type === 'image');
+        imageDataUrl = imagePart?.image_url?.url || imagePart?.url;
+      }
+    }
+    
+    // Try inline_data format (Gemini format)
+    if (!imageDataUrl && data.choices?.[0]?.message?.content) {
+      const content = data.choices[0].message.content;
+      if (Array.isArray(content)) {
+        const imagePart = content.find((part: any) => part.inline_data);
+        if (imagePart?.inline_data) {
+          const mimeType = imagePart.inline_data.mime_type || 'image/png';
+          imageDataUrl = `data:${mimeType};base64,${imagePart.inline_data.data}`;
+        }
+      }
+    }
 
     if (!imageDataUrl) {
-      throw new Error("No image generated");
+      console.error("Full response data:", JSON.stringify(data));
+      throw new Error("No image generated - check response format");
     }
 
     // Extract base64 data from data URL
