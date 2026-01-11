@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Package, Briefcase, Loader2, Sparkles, Rocket, Zap, Star, ArrowRight } from "lucide-react";
+import { Plus, Package, Briefcase, Loader2, Sparkles, Rocket, Zap, Star, ArrowRight, ExternalLink, TrendingUp, FileText, Eye } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -441,52 +441,89 @@ export function GigJobBuilder() {
         className="space-y-8"
       >
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-6 md:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
           <div className="relative z-10">
+            {/* Top Row: Title + SwipeHire Button */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-3 mb-4"
+              className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6"
             >
-              <div className="p-3 rounded-xl bg-primary/20 backdrop-blur-sm">
-                <Briefcase className="h-6 w-6 text-primary" />
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-xl bg-primary/20 backdrop-blur-sm">
+                  <Briefcase className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {t.gigs?.title || "Gig & Job Builder"}
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    {t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">
-                  {t.gigs?.title || "Gig & Job Builder"}
-                </h1>
-                <p className="text-muted-foreground">
-                  {t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}
-                </p>
-              </div>
+              
+              {/* SwipeHire External Button */}
+              <Button
+                variant="outline"
+                className="gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all group"
+                onClick={() => window.open("https://swipehire.app", "_blank")}
+              >
+                <Eye className="h-4 w-4 text-primary" />
+                <span>{t.gigs?.openSwipeHire || "Deschide SwipeHire"}</span>
+                <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+              </Button>
             </motion.div>
             
-            {/* Stats */}
+            {/* Stats Cards Row */}
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex flex-wrap gap-6 mt-6"
+              className="grid grid-cols-2 md:grid-cols-4 gap-3"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{gigs.filter(g => g.is_published).length}</span> Published Gigs
-                </span>
+              {/* Published Gigs */}
+              <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-green-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.gigs?.published || "Published"}</span>
+                </div>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{gigs.filter(g => g.is_published).length}</p>
+                <p className="text-xs text-muted-foreground">{t.gigs?.gigsLabel || "gigs"}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{gigs.filter(g => !g.is_published).length}</span> Draft Gigs
-                </span>
+              
+              {/* Draft Gigs */}
+              <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-amber-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.gigs?.drafts || "Drafts"}</span>
+                </div>
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{gigs.filter(g => !g.is_published).length}</p>
+                <p className="text-xs text-muted-foreground">{t.gigs?.gigsLabel || "gigs"}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{jobs.length}</span> Jobs
-                </span>
+              
+              {/* Jobs */}
+              <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-blue-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.gigs?.jobsLabel || "Jobs"}</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{jobs.length}</p>
+                <p className="text-xs text-muted-foreground">{t.gigs?.total || "total"}</p>
+              </div>
+              
+              {/* Total Listings */}
+              <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-3 h-3 text-primary" />
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.gigs?.allListings || "Total"}</span>
+                </div>
+                <p className="text-2xl font-bold text-primary">{gigsJobs.length}</p>
+                <p className="text-xs text-muted-foreground">{t.gigs?.listings || "listings"}</p>
               </div>
             </motion.div>
           </div>

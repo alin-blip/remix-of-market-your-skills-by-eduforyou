@@ -819,6 +819,13 @@ export const en = {
     generateDescription: 'Generate professional description using AI',
     profileNotSynced: 'Your profile hasn\'t been synced to SwipeHire yet. It will sync automatically on first publish.',
     syncNow: 'Sync Now',
+    openSwipeHire: 'Open SwipeHire',
+    gigsLabel: 'gigs',
+    drafts: 'Drafts',
+    jobsLabel: 'Jobs',
+    total: 'total',
+    allListings: 'Total',
+    listings: 'listings',
   },
 
   // Admin Panel
