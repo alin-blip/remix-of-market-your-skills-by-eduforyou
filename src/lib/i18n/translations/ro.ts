@@ -890,6 +890,10 @@ export const ro = {
       of: 'din',
       generating: 'AI generează sugestii...',
       generateSuggestions: 'Generează Sugestii AI',
+      regenerate: 'Regenerează',
+      regenerateWithInstructions: 'Regenerează cu instrucțiuni',
+      instructionsPlaceholder: 'Ex: Mai mult focus pe business...',
+      regenerating: 'Se regenerează...',
     },
     days: {
       MON: 'Luni',
