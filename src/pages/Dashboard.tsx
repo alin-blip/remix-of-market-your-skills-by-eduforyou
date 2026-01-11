@@ -3,10 +3,11 @@ import confetti from 'canvas-confetti';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Sparkles, 
@@ -17,29 +18,28 @@ import {
   CheckCircle2,
   ArrowRight,
   TrendingUp,
-  Lock,
   Loader2,
   Briefcase,
   Settings2,
-  ExternalLink
+  Zap,
+  Calendar,
 } from 'lucide-react';
 import { useSwipeHireIntegration } from '@/hooks/useSwipeHireIntegration';
 import { GigJobBuilder } from '@/components/gigs/GigJobBuilder';
 import { VisionBoard } from '@/components/life-os/VisionBoard';
-import { Link } from 'react-router-dom';
+import { AreaIcon } from '@/components/life-os/AreaIcon';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-interface PathStep {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  route: string;
-  completed: boolean;
-  current: boolean;
-  locked: boolean;
-  dataCount?: number;
-}
+import { format, startOfWeek, addDays, isToday, isSameDay } from 'date-fns';
+import { ro, enUS } from 'date-fns/locale';
+import { 
+  useWeeklySprint, 
+  useDailyTasks,
+  useUpdateDailyTask,
+  getCurrentWeekKey,
+} from '@/hooks/useLifeOS';
+import { DAYS_OF_WEEK, DAY_LABELS, DayOfWeek } from '@/types/lifeOS';
+import { cn } from '@/lib/utils';
 
 interface ProgressData {
   skillsCount: number;
@@ -50,7 +50,10 @@ interface ProgressData {
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const navigate = useNavigate();
+  const dateLocale = locale === 'ro' ? ro : enUS;
+  
   const [progressData, setProgressData] = useState<ProgressData>({
     skillsCount: 0,
     hasIkigai: false,
@@ -59,6 +62,56 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const confettiTriggered = useRef(false);
+
+  // Life OS data for tasks
+  const { data: sprint } = useWeeklySprint();
+  const { data: allTasks } = useDailyTasks(sprint?.id);
+  const updateTask = useUpdateDailyTask();
+  
+  const today = new Date();
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const [selectedDate, setSelectedDate] = useState(today);
+  
+  // Get tasks for selected date
+  const selectedDateStr = format(selectedDate, 'yyyy-MM-dd');
+  const tasksForDay = allTasks?.filter(t => t.day_date === selectedDateStr) || [];
+  const bigTask = tasksForDay.find(t => t.task_type === 'big');
+  const smallTasks = tasksForDay.filter(t => t.task_type === 'small');
+  
+  // Calculate progress
+  const completedToday = tasksForDay.filter(t => t.is_completed).length;
+  const totalToday = tasksForDay.length;
+  const progressToday = totalToday > 0 ? (completedToday / totalToday) * 100 : 0;
+
+  // Week days for navigation
+  const weekDays = DAYS_OF_WEEK.map((day, index) => {
+    const date = addDays(weekStart, index);
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayTasks = allTasks?.filter(t => t.day_date === dateStr) || [];
+    const completed = dayTasks.filter(t => t.is_completed).length;
+    const total = dayTasks.length;
+    
+    return {
+      day,
+      date,
+      dateStr,
+      isToday: isToday(date),
+      isSelected: isSameDay(date, selectedDate),
+      completed,
+      total,
+      status: total === 0 ? 'empty' : completed === total ? 'done' : 'partial',
+    };
+  });
+
+  const handleToggleTask = (taskId: string, isCompleted: boolean) => {
+    updateTask.mutate({
+      id: taskId,
+      updates: { 
+        is_completed: !isCompleted,
+        completed_at: !isCompleted ? new Date().toISOString() : undefined,
+      },
+    });
+  };
 
   useEffect(() => {
     if (user) {
@@ -97,79 +150,24 @@ export default function Dashboard() {
     progressData.hasOffer && 
     progressData.outreachCount > 0;
 
-  // Define the Freedom Path steps with correct routes
-  const pathSteps: PathStep[] = [
-    {
-      id: 'skills',
-      title: t.pathSteps.skills.title,
-      description: t.pathSteps.skills.description,
-      icon: <Sparkles className="w-6 h-6" />,
-      route: '/wizard/skill-scanner',
-      completed: progressData.skillsCount > 0,
-      current: progressData.skillsCount === 0,
-      locked: false,
-      dataCount: progressData.skillsCount,
-    },
-    {
-      id: 'ikigai',
-      title: t.pathSteps.ikigai.title,
-      description: t.pathSteps.ikigai.description,
-      icon: <Target className="w-6 h-6" />,
-      route: '/wizard/ikigai',
-      completed: progressData.hasIkigai,
-      current: progressData.skillsCount > 0 && !progressData.hasIkigai,
-      locked: progressData.skillsCount === 0,
-    },
-    {
-      id: 'offer',
-      title: t.pathSteps.offer.title,
-      description: t.pathSteps.offer.description,
-      icon: <Package className="w-6 h-6" />,
-      route: '/wizard/offer',
-      completed: progressData.hasOffer,
-      current: progressData.hasIkigai && !progressData.hasOffer,
-      locked: !progressData.hasIkigai,
-    },
-    {
-      id: 'outreach',
-      title: t.pathSteps.outreach.title,
-      description: t.pathSteps.outreach.description,
-      icon: <MessageSquare className="w-6 h-6" />,
-      route: '/wizard/outreach',
-      completed: progressData.outreachCount > 0,
-      current: progressData.hasOffer && progressData.outreachCount === 0,
-      locked: !progressData.hasOffer,
-      dataCount: progressData.outreachCount,
-    },
-    {
-      id: 'export',
-      title: t.pathSteps.export.title,
-      description: t.pathSteps.export.description,
-      icon: <FileText className="w-6 h-6" />,
-      route: '/wizard/export',
-      completed: allModulesCompleted,
-      current: progressData.outreachCount > 0 && !allModulesCompleted,
-      locked: progressData.outreachCount === 0,
-    },
-  ];
-
-  const currentStep = pathSteps.find(step => step.current);
-  const completedSteps = pathSteps.filter(step => step.completed).length;
-  const progressPercentage = (completedSteps / pathSteps.length) * 100;
-  
-  // Calculate freedom score dynamically based on completed steps
-  const freedomScore = Math.round((completedSteps / pathSteps.length) * 100);
-  const allStepsCompleted = completedSteps === pathSteps.length;
+  // Calculate freedom score
+  const completedSteps = [
+    progressData.skillsCount > 0,
+    progressData.hasIkigai,
+    progressData.hasOffer,
+    progressData.outreachCount > 0,
+    allModulesCompleted,
+  ].filter(Boolean).length;
+  const totalSteps = 5;
+  const freedomScore = Math.round((completedSteps / totalSteps) * 100);
 
   // Trigger confetti when all steps are completed
   useEffect(() => {
-    if (allStepsCompleted && !loading && !confettiTriggered.current) {
+    if (allModulesCompleted && !loading && !confettiTriggered.current) {
       confettiTriggered.current = true;
       
-      // Fire confetti from multiple angles
       const duration = 3000;
       const end = Date.now() + duration;
-
       const colors = ['#8B5CF6', '#EC4899', '#F59E0B', '#10B981'];
 
       (function frame() {
@@ -193,7 +191,6 @@ export default function Dashboard() {
         }
       }());
 
-      // Big burst in the center
       setTimeout(() => {
         confetti({
           particleCount: 100,
@@ -203,7 +200,7 @@ export default function Dashboard() {
         });
       }, 200);
     }
-  }, [allStepsCompleted, loading]);
+  }, [allModulesCompleted, loading]);
 
   return (
     <MainLayout>
@@ -251,17 +248,27 @@ export default function Dashboard() {
             <Progress value={freedomScore} className="mt-3 h-2" />
           </Card>
 
-          {/* Progress Card */}
+          {/* Freedom Path Progress - Simplified */}
           <Card className="glass border-white/10 p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground">{t.dashboard.stepsCompleted}</span>
-              <CheckCircle2 className="w-5 h-5 text-accent" />
+              <span className="text-muted-foreground">{t.dashboard.freedomPath}</span>
+              {allModulesCompleted ? (
+                <CheckCircle2 className="w-5 h-5 text-accent" />
+              ) : (
+                <Target className="w-5 h-5 text-primary" />
+              )}
             </div>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-foreground">{completedSteps}</span>
-              <span className="text-muted-foreground mb-1">/{pathSteps.length}</span>
+              <span className="text-muted-foreground mb-1">/{totalSteps}</span>
             </div>
-            <Progress value={progressPercentage} className="mt-3 h-2" />
+            {allModulesCompleted ? (
+              <Badge className="mt-3 bg-accent/20 text-accent">{t.common.completed} ✓</Badge>
+            ) : (
+              <Button asChild size="sm" variant="outline" className="mt-3">
+                <Link to="/wizard/skill-scanner">{t.dashboard.startNow || 'Continue'}</Link>
+              </Button>
+            )}
           </Card>
 
           {/* Domain Card */}
@@ -276,212 +283,184 @@ export default function Dashboard() {
           </Card>
         </motion.div>
 
-        {/* Next Action Card - show congratulations when all complete */}
+        {/* Today's Tasks Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {allStepsCompleted ? (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ 
-                type: "spring",
-                stiffness: 200,
-                damping: 15,
-                delay: 0.3
-              }}
-            >
-              <Card className="relative overflow-hidden glass border-accent/30 p-6 bg-gradient-to-r from-accent/10 via-primary/10 to-accent/10">
-                {/* Animated background glow */}
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-accent/20 via-primary/20 to-accent/20"
-                  animate={{ 
-                    opacity: [0.3, 0.6, 0.3],
-                    scale: [1, 1.02, 1]
-                  }}
-                  transition={{ 
-                    duration: 3, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <motion.div 
-                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center text-white shadow-lg shadow-accent/30"
-                      animate={{ 
-                        rotate: [0, 5, -5, 0],
-                        scale: [1, 1.05, 1]
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <CheckCircle2 className="w-8 h-8" />
-                    </motion.div>
-                    <div>
-                      <motion.p 
-                        className="text-lg text-accent font-bold mb-1"
-                        animate={{ scale: [1, 1.02, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        🎉 {t.common.completed}!
-                      </motion.p>
-                      <h3 className="text-xl font-bold text-foreground">{t.export.allCompletedDescription}</h3>
-                      <p className="text-muted-foreground">{t.export.planReadyDescription}</p>
-                    </div>
-                  </div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button asChild size="lg" className="gap-2 bg-gradient-to-r from-accent to-primary hover:opacity-90 shadow-lg shadow-primary/30">
-                      <Link to="/wizard/export">
-                        {t.export.downloadPdf}
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                  </motion.div>
-                </div>
-              </Card>
-            </motion.div>
-          ) : currentStep ? (
-            <Card className="glass border-primary/20 p-6 bg-gradient-to-r from-primary/5 to-accent/5">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-                    {currentStep.icon}
-                  </div>
-                  <div>
-                    <p className="text-sm text-primary font-medium mb-1">{t.dashboard.nextStep}</p>
-                    <h3 className="text-xl font-bold text-foreground">{currentStep.title}</h3>
-                    <p className="text-muted-foreground">{currentStep.description}</p>
-                  </div>
-                </div>
-                <Button asChild className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                  <Link to={currentStep.route}>
-                    {t.dashboard.startNow}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
-              </div>
-            </Card>
-          ) : null}
-        </motion.div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-foreground">
+              {t.lifeOS?.dashboard || "Today's Tasks"}
+            </h2>
+            <Button variant="outline" size="sm" onClick={() => navigate('/life-os')}>
+              <Calendar className="h-4 w-4 mr-2" />
+              {t.lifeOS?.title || 'Life OS'}
+            </Button>
+          </div>
 
-        {/* Freedom Path */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <h2 className="text-2xl font-bold text-foreground mb-6">{t.dashboard.freedomPath}</h2>
-          
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {pathSteps.map((step, index) => (
-                <motion.div
-                  key={step.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card
-                    className={`glass border-white/10 p-4 transition-all hover-lift ${
-                      step.current 
-                        ? 'border-primary/50 bg-primary/5 shadow-lg shadow-primary/10' 
-                        : step.completed 
-                        ? 'border-accent/30' 
-                        : step.locked
-                        ? 'opacity-40'
-                        : 'opacity-60'
-                    }`}
+          {/* Week Navigation - Compact */}
+          <Card className="mb-4">
+            <CardContent className="py-3">
+              <div className="flex gap-2 overflow-x-auto">
+                {weekDays.map(({ day, date, isToday: dayIsToday, isSelected, completed, total, status }) => (
+                  <button
+                    key={day}
+                    onClick={() => setSelectedDate(date)}
+                    className={cn(
+                      'flex-1 min-w-[60px] p-2 rounded-lg border text-center transition-all',
+                      isSelected && 'border-primary bg-primary/10',
+                      dayIsToday && !isSelected && 'border-primary/50',
+                      !isSelected && !dayIsToday && 'border-border hover:border-primary/30',
+                    )}
                   >
-                    <div className="flex items-center gap-4">
-                      {/* Step number/status */}
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-semibold transition-all ${
-                        step.completed 
-                          ? 'bg-accent text-accent-foreground' 
-                          : step.current 
-                          ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground' 
-                          : step.locked
-                          ? 'bg-muted/50 text-muted-foreground'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {step.completed ? (
-                          <CheckCircle2 className="w-6 h-6" />
-                        ) : step.locked ? (
-                          <Lock className="w-5 h-5" />
-                        ) : (
-                          step.icon
+                    <p className="text-xs text-muted-foreground">
+                      {DAY_LABELS[day][locale].slice(0, 3)}
+                    </p>
+                    <p className={cn(
+                      'text-sm font-semibold',
+                      dayIsToday && 'text-primary',
+                    )}>
+                      {format(date, 'd')}
+                    </p>
+                    {status === 'done' && (
+                      <CheckCircle2 className="h-3 w-3 mx-auto text-green-500 mt-1" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tasks Grid */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Big Task */}
+            <Card className="border-primary/20">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base">{t.lifeOS?.tasks?.bigTask || 'Big Task'}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {bigTask ? (
+                  <div 
+                    className={cn(
+                      'p-3 rounded-lg border-2 transition-all',
+                      bigTask.is_completed 
+                        ? 'border-green-500/50 bg-green-500/10' 
+                        : 'border-primary/30 bg-card'
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={bigTask.is_completed}
+                        onCheckedChange={() => handleToggleTask(bigTask.id, bigTask.is_completed || false)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <p className={cn(
+                          'font-medium text-sm',
+                          bigTask.is_completed && 'line-through text-muted-foreground'
+                        )}>
+                          {bigTask.title}
+                        </p>
+                        {bigTask.area_key && (
+                          <Badge variant="secondary" className="mt-1 text-xs">
+                            <AreaIcon areaKey={bigTask.area_key} className="h-3 w-3 mr-1" />
+                            {t.lifeOS?.areas?.[bigTask.area_key] || bigTask.area_key}
+                          </Badge>
                         )}
                       </div>
-
-                      {/* Step info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className={`font-semibold ${step.current || step.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {step.title}
-                          </h3>
-                          {step.completed && step.dataCount !== undefined && step.dataCount > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                              {step.dataCount} {step.dataCount === 1 ? t.common.item : t.common.items}
-                            </Badge>
-                          )}
-                          {step.completed && !step.dataCount && (
-                            <Badge className="bg-accent/20 text-accent text-xs">{t.common.completed}</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">{step.description}</p>
-                      </div>
-
-                      {/* Action */}
-                      {step.completed && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="shrink-0 gap-1"
-                        >
-                          <Link to={step.route}>
-                            {t.common.review}
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                      )}
-
-                      {step.current && (
-                        <Button
-                          size="sm"
-                          asChild
-                          className="shrink-0 gap-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                        >
-                          <Link to={step.route}>
-                            {t.common.start}
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                      )}
-
-                      {step.locked && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Lock className="w-3 h-3" />
-                          {t.common.locked}
-                        </div>
-                      )}
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                  </div>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-16 border-dashed"
+                    onClick={() => navigate('/life-os/sprint')}
+                  >
+                    {t.lifeOS?.tasks?.addTask || 'Add Task'}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Small Tasks */}
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <CardTitle className="text-base">{t.lifeOS?.tasks?.smallTasks || 'Small Tasks'}</CardTitle>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {smallTasks.filter(t => t.is_completed).length}/{smallTasks.length}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {smallTasks.length > 0 ? (
+                  <div className="space-y-2">
+                    {smallTasks.slice(0, 3).map((task) => (
+                      <div 
+                        key={task.id}
+                        className={cn(
+                          'flex items-center gap-3 p-2 rounded-lg border transition-all',
+                          task.is_completed 
+                            ? 'border-green-500/30 bg-green-500/5' 
+                            : 'border-border'
+                        )}
+                      >
+                        <Checkbox
+                          checked={task.is_completed}
+                          onCheckedChange={() => handleToggleTask(task.id, task.is_completed || false)}
+                        />
+                        <span className={cn(
+                          'flex-1 text-sm',
+                          task.is_completed && 'line-through text-muted-foreground'
+                        )}>
+                          {task.title}
+                        </span>
+                      </div>
+                    ))}
+                    {smallTasks.length > 3 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => navigate('/life-os')}
+                      >
+                        +{smallTasks.length - 3} {t.lifeOS?.visionBoard?.more || 'more'}
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-16 border-dashed"
+                    onClick={() => navigate('/life-os/sprint')}
+                  >
+                    {t.lifeOS?.tasks?.addTask || 'Add Task'}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Progress for the day */}
+          {totalToday > 0 && (
+            <Card className="mt-4">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">
+                    {'Progress'} • {format(selectedDate, 'EEEE', { locale: dateLocale })}
+                  </span>
+                  <span className="text-sm font-medium">{Math.round(progressToday)}%</span>
+                </div>
+                <Progress value={progressToday} className="h-2" />
+              </CardContent>
+            </Card>
           )}
         </motion.div>
 
@@ -490,7 +469,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
