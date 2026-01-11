@@ -37,175 +37,175 @@ const App = () => (
       <AuthProvider>
         <I18nProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/auth/login" element={<Login />} />
-              <Route path="/auth/register" element={<Register />} />
-              <Route 
-                path="/onboard" 
-                element={
-                  <ProtectedRoute requireOnboarding={false}>
-                    <Onboarding />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/skill-scanner" 
-                element={
-                  <ProtectedRoute>
-                    <SkillScanner />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/ikigai" 
-                element={
-                  <ProtectedRoute>
-                    <IkigaiBuilder />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/offer" 
-                element={
-                  <ProtectedRoute>
-                    <OfferBuilder />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/offer-builder" 
-                element={
-                  <ProtectedRoute>
-                    <OfferBuilder />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/profile" 
-                element={
-                  <ProtectedRoute>
-                    <ProfileBuilder />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/outreach" 
-                element={
-                  <ProtectedRoute>
-                    <OutreachGenerator />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/export" 
-                element={
-                  <ProtectedRoute>
-                    <FreedomPlanExport />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/gig-job-builder" 
-                element={
-                  <ProtectedRoute>
-                    <GigJobBuilderPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wizard/path" 
-                element={
-                  <ProtectedRoute>
-                    <DefineYourPath />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/outreach-generator" 
-                element={
-                  <ProtectedRoute>
-                    <OutreachGenerator />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                } 
-              />
-              {/* Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/verifications" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <VerificationsManager />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/users" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <UsersManager />
-              </ProtectedRoute>
-                } 
-              />
-              {/* Life OS Routes */}
-              <Route 
-                path="/life-os" 
-                element={
-                  <ProtectedRoute>
-                    <LifeOSDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/life-os/setup" 
-                element={
-                  <ProtectedRoute>
-                    <LifeOSSetup />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/life-os/sprint" 
-                element={
-                  <ProtectedRoute>
-                    <WeeklySprintPage />
-                  </ProtectedRoute>
-                } 
-              />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </I18nProvider>
-    </AuthProvider>
-  </ThemeProvider>
+            <BrowserRouter>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth/login" element={<Login />} />
+                <Route path="/auth/register" element={<Register />} />
+                <Route 
+                  path="/onboard" 
+                  element={
+                    <ProtectedRoute requireOnboarding={false}>
+                      <Onboarding />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/skill-scanner" 
+                  element={
+                    <ProtectedRoute>
+                      <SkillScanner />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/ikigai" 
+                  element={
+                    <ProtectedRoute>
+                      <IkigaiBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/offer" 
+                  element={
+                    <ProtectedRoute>
+                      <OfferBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/offer-builder" 
+                  element={
+                    <ProtectedRoute>
+                      <OfferBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <ProfileBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/outreach" 
+                  element={
+                    <ProtectedRoute>
+                      <OutreachGenerator />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/export" 
+                  element={
+                    <ProtectedRoute>
+                      <FreedomPlanExport />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/gig-job-builder" 
+                  element={
+                    <ProtectedRoute>
+                      <GigJobBuilderPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wizard/path" 
+                  element={
+                    <ProtectedRoute>
+                      <DefineYourPath />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/outreach-generator" 
+                  element={
+                    <ProtectedRoute>
+                      <OutreachGenerator />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* Admin Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/verifications" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <VerificationsManager />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <UsersManager />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* Life OS Routes */}
+                <Route 
+                  path="/life-os" 
+                  element={
+                    <ProtectedRoute>
+                      <LifeOSDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/life-os/setup" 
+                  element={
+                    <ProtectedRoute>
+                      <LifeOSSetup />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/life-os/sprint" 
+                  element={
+                    <ProtectedRoute>
+                      <WeeklySprintPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </I18nProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
