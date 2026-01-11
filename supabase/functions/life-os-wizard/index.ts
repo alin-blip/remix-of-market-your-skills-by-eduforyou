@@ -34,7 +34,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, areas, context, existingGoals, currentPeriod } = await req.json();
+    const { action, areas, context, existingGoals, currentPeriod, customInstructions } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -43,6 +43,9 @@ serve(async (req) => {
 
     let systemPrompt = "";
     let userPrompt = "";
+    const instructionsAddendum = customInstructions 
+      ? `\n\nADDITIONAL USER INSTRUCTIONS: ${customInstructions}` 
+      : "";
 
     const contextSummary = buildContextSummary(context);
 
@@ -57,7 +60,7 @@ User context:
 ${contextSummary}
 
 Return a JSON object where each key is an area and value has: title, description, measurable_result.
-Focus on ambitious but achievable goals that leverage the user's strengths.`;
+Focus on ambitious but achievable goals that leverage the user's strengths.${instructionsAddendum}`;
         break;
 
       case "quarterly_milestones":
@@ -70,7 +73,7 @@ Areas: ${areas.join(", ")}
 Period: ${currentPeriod || "Q1"}
 
 Return a JSON array with objects having: area_key, title, measurable_result.
-Each milestone should be achievable in 90 days.`;
+Each milestone should be achievable in 90 days.${instructionsAddendum}`;
         break;
 
       case "monthly_goals":
@@ -81,7 +84,7 @@ ${JSON.stringify(existingGoals, null, 2)}
 Areas: ${areas.join(", ")}
 
 Return a JSON array with objects having: area_key, title, measurable_result.
-Goals should be specific weekly-trackable objectives.`;
+Goals should be specific weekly-trackable objectives.${instructionsAddendum}`;
         break;
 
       case "weekly_sprint":
