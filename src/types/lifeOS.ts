@@ -27,6 +27,7 @@ export interface LifeGoal {
   status: GoalStatus;
   progress: number;
   position: number;
+  vision_image_url?: string;
   created_at: string;
   updated_at: string;
 }

@@ -908,5 +908,17 @@ export const ro = {
     goalsCompleted: 'obiective completate',
     viewAllGoals: 'Vezi Toate Obiectivele',
     planWeek: 'Planifică Săptămâna',
+    visionBoard: {
+      title: 'Vision Board',
+      generating: 'Se generează...',
+      generateImage: 'Generează Imagine',
+      imageGenerated: 'Imaginea viziunii a fost generată!',
+      imageError: 'Eroare la generarea imaginii',
+      regenerateAll: 'Regenerează Toate',
+      addArea: 'Adaugă Arie',
+      more: 'mai multe',
+      ninetyDays: '90 Zile',
+      annual: 'Anual',
+    },
   },
 };
