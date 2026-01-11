@@ -13,6 +13,9 @@ import {
   LogOut,
   Target,
   Rocket,
+  Wallet,
+  BookOpen,
+  CreditCard,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -177,12 +180,12 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Real Start-up Section */}
+        {/* Tools Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
             <div className="px-3 py-2">
               <span className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
-                {t.sidebar?.realStartup || 'Real Start-up'}
+                Tools
               </span>
             </div>
           )}
@@ -190,20 +193,60 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={currentPath === '/startup'}
-                tooltip={t.sidebar?.realStartup || 'Real Start-up'}
+                isActive={currentPath === '/income-tracker'}
+                tooltip="Income Tracker"
                 className="h-10 rounded-lg"
               >
                 <NavLink
-                  to="/startup"
+                  to="/income-tracker"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/startup' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/income-tracker' && "bg-primary/10 text-primary font-medium"
                   )}
                   activeClassName=""
                 >
-                  <Rocket className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.realStartup || 'Real Start-up'}</span>}
+                  <Wallet className="h-5 w-5" />
+                  {!collapsed && <span>Income Tracker</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/learning-hub'}
+                tooltip="Learning Hub"
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/learning-hub"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <BookOpen className="h-5 w-5" />
+                  {!collapsed && <span>Learning Hub</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/pricing'}
+                tooltip="Pricing"
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/pricing"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/pricing' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <CreditCard className="h-5 w-5" />
+                  {!collapsed && <span>Pricing</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
