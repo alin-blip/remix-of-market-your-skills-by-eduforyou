@@ -49,6 +49,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { Separator } from '@/components/ui/separator';
 
 interface AppSidebarProps {
   completedSteps?: number;
@@ -96,7 +97,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        {/* Dashboard Link */}
+        {/* Main Navigation */}
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -128,22 +129,6 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <Target className="h-4 w-4" />
                   {!collapsed && <span>{t.lifeOS?.title || "Life OS"}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/settings'}
-                tooltip={t.sidebar?.settings || "Settings"}
-              >
-                <NavLink
-                  to="/settings"
-                  className="flex items-center gap-3"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                >
-                  <Settings className="h-4 w-4" />
-                  {!collapsed && <span>{t.sidebar?.settings || "Settings"}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -229,43 +214,59 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
-
-        {/* Admin Panel - Only visible for admins */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={currentPath.startsWith('/admin')}
-                  tooltip={t.admin?.title || 'Admin Panel'}
-                >
-                  <NavLink
-                    to="/admin"
-                    className="flex items-center gap-3"
-                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                  >
-                    <Shield className="h-4 w-4" />
-                    {!collapsed && <span>{t.admin?.title || 'Admin Panel'}</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
-      {/* Footer with Progress and Language/Theme Selectors */}
-      <SidebarFooter className="p-4 border-t border-sidebar-border space-y-3">
+      {/* Footer with Admin, Settings, Progress and Language/Theme Selectors */}
+      <SidebarFooter className="p-3 border-t border-sidebar-border space-y-2">
+        {/* Admin & Settings Links */}
+        <SidebarMenu>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath.startsWith('/admin')}
+                tooltip={t.admin?.title || 'Admin Panel'}
+              >
+                <NavLink
+                  to="/admin"
+                  className="flex items-center gap-3"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <Shield className="h-4 w-4" />
+                  {!collapsed && <span>{t.admin?.title || 'Admin Panel'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={currentPath === '/settings'}
+              tooltip={t.sidebar?.settings || "Settings"}
+            >
+              <NavLink
+                to="/settings"
+                className="flex items-center gap-3"
+                activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+              >
+                <Settings className="h-4 w-4" />
+                {!collapsed && <span>{t.sidebar?.settings || "Settings"}</span>}
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <Separator className="my-2" />
+
         {/* Language and Theme Selectors */}
-        <div className={cn("flex gap-2", collapsed ? "flex-col items-center" : "flex-row")}>
+        <div className={cn("flex gap-2", collapsed ? "flex-col items-center" : "flex-row justify-center")}>
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground h-8 w-8"
               >
                 <Globe className="h-4 w-4" />
               </Button>
@@ -292,7 +293,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground h-8 w-8"
               >
                 {theme === 'light' ? (
                   <Sun className="h-4 w-4" />
@@ -331,7 +332,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
 
         {/* Progress */}
         {!collapsed && (
-          <div className="space-y-2">
+          <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs text-sidebar-foreground/70">
               <span>{t.sidebar.progressLabel}</span>
               <span className="font-medium">{completedSteps}/{totalSteps}</span>
