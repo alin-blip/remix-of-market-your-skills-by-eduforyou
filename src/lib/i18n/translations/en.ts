@@ -890,6 +890,10 @@ export const en = {
       of: 'of',
       generating: 'AI is generating suggestions...',
       generateSuggestions: 'Generate AI Suggestions',
+      regenerate: 'Regenerate',
+      regenerateWithInstructions: 'Regenerate with instructions',
+      instructionsPlaceholder: 'E.g., More focus on business...',
+      regenerating: 'Regenerating...',
     },
     days: {
       MON: 'Monday',
