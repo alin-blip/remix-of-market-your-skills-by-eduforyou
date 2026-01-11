@@ -18,8 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, X } from "lucide-react";
+import { Loader2, Sparkles, X, Briefcase, Zap, Globe, Building2, MapPin, DollarSign, Tag, FileText } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface GigJobFormData {
   id?: string;
@@ -49,12 +50,12 @@ interface GigJobDialogProps {
 }
 
 const categories = [
-  { value: "webDevelopment", label: "Web Development" },
-  { value: "design", label: "Design" },
-  { value: "marketing", label: "Marketing" },
-  { value: "writing", label: "Writing" },
-  { value: "videoEditing", label: "Video Editing" },
-  { value: "other", label: "Other" },
+  { value: "webDevelopment", label: "Web Development", icon: "💻" },
+  { value: "design", label: "Design", icon: "🎨" },
+  { value: "marketing", label: "Marketing", icon: "📈" },
+  { value: "writing", label: "Writing", icon: "✍️" },
+  { value: "videoEditing", label: "Video Editing", icon: "🎬" },
+  { value: "other", label: "Other", icon: "📦" },
 ];
 
 export function GigJobDialog({
@@ -130,42 +131,87 @@ export function GigJobDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {initialData?.id ? (t.gigs?.edit || "Edit") : (t.gigs?.createGig || "Create Gig")}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        {/* Header with gradient */}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b px-6 py-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-xl">
+              <div className={`p-2 rounded-lg ${formData.type === "gig" ? "bg-purple-500/20" : "bg-blue-500/20"}`}>
+                {formData.type === "gig" ? (
+                  <Zap className="h-5 w-5 text-purple-500" />
+                ) : (
+                  <Briefcase className="h-5 w-5 text-blue-500" />
+                )}
+              </div>
+              {initialData?.id ? (t.gigs?.edit || "Edit") : (t.gigs?.createGig || "Create")} {formData.type === "gig" ? "Gig" : "Job"}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 py-4">
+        <div className="px-6 py-4 space-y-6">
+          {/* Type Selector */}
           <div className="space-y-2">
-            <Label>Type</Label>
-            <Select value={formData.type} onValueChange={(v) => handleChange("type", v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gig">{t.gigs?.type?.gig || "Gig (one-time project)"}</SelectItem>
-                <SelectItem value="job">{t.gigs?.type?.job || "Full-time Job"}</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              Type
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: "gig", label: t.gigs?.type?.gig || "Gig (one-time project)", icon: Zap, color: "purple" },
+                { value: "job", label: t.gigs?.type?.job || "Full-time Job", icon: Briefcase, color: "blue" },
+              ].map((option) => (
+                <motion.button
+                  key={option.value}
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleChange("type", option.value)}
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                    formData.type === option.value
+                      ? `border-${option.color}-500 bg-${option.color}-500/10`
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <option.icon className={`h-5 w-5 ${formData.type === option.value ? `text-${option.color}-500` : "text-muted-foreground"}`} />
+                  <span className={`text-sm font-medium ${formData.type === option.value ? "" : "text-muted-foreground"}`}>
+                    {option.label}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
           </div>
 
+          {/* Title */}
           <div className="space-y-2">
-            <Label>{t.gigs?.form?.title || "Title"}</Label>
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              {t.gigs?.form?.title || "Title"}
+            </Label>
             <Input
               placeholder={t.gigs?.form?.titlePlaceholder || "e.g.: Web Development for Startups"}
               value={formData.title}
               onChange={(e) => handleChange("title", e.target.value)}
+              className="h-11"
             />
           </div>
 
+          {/* Description */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>{t.gigs?.form?.description || "Description"}</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                {t.gigs?.form?.description || "Description"}
+              </Label>
               {onGenerateDescription && (
-                <Button type="button" variant="ghost" size="sm" onClick={handleGenerate} disabled={isGenerating}>
-                  {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="mr-1 h-3 w-3" />}
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleGenerate} 
+                  disabled={isGenerating}
+                  className="text-primary hover:text-primary hover:bg-primary/10"
+                >
+                  {isGenerating ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
                   {t.gigs?.form?.generateWithAI || "Generate with AI"}
                 </Button>
               )}
@@ -175,92 +221,187 @@ export function GigJobDialog({
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               rows={4}
+              className="resize-none"
             />
           </div>
 
+          {/* Category */}
           <div className="space-y-2">
-            <Label>{t.gigs?.form?.category || "Category"}</Label>
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              {t.gigs?.form?.category || "Category"}
+            </Label>
             <Select value={formData.category} onValueChange={(v) => handleChange("category", v)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                  <SelectItem key={cat.value} value={cat.value}>
+                    <span className="flex items-center gap-2">
+                      <span>{cat.icon}</span>
+                      {cat.label}
+                    </span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label>{t.gigs?.form?.skills || "Skills"}</Label>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {formData.skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="gap-1">
-                  {skill}
-                  <button onClick={() => removeSkill(skill)}><X className="h-3 w-3" /></button>
-                </Badge>
-              ))}
-            </div>
+          {/* Skills */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+              {t.gigs?.form?.skills || "Skills"}
+            </Label>
+            
+            <AnimatePresence>
+              {formData.skills.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex flex-wrap gap-2"
+                >
+                  {formData.skills.map((skill) => (
+                    <motion.div
+                      key={skill}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                    >
+                      <Badge variant="secondary" className="gap-1.5 px-3 py-1.5 text-sm">
+                        {skill}
+                        <button 
+                          onClick={() => removeSkill(skill)}
+                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="flex gap-2">
               <Input
                 placeholder="Add skill..."
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(skillInput); } }}
+                className="h-10"
               />
-              <Button type="button" variant="outline" onClick={() => addSkill(skillInput)}>Add</Button>
+              <Button type="button" variant="secondary" onClick={() => addSkill(skillInput)} className="shrink-0">
+                Add
+              </Button>
             </div>
+
             {availableSkills.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {availableSkills.filter((s) => !formData.skills.includes(s)).slice(0, 5).map((skill) => (
-                  <Badge key={skill} variant="outline" className="cursor-pointer hover:bg-secondary" onClick={() => addSkill(skill)}>+ {skill}</Badge>
+              <div className="flex flex-wrap gap-1.5">
+                {availableSkills.filter((s) => !formData.skills.includes(s)).slice(0, 6).map((skill) => (
+                  <Badge 
+                    key={skill} 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-primary/10 hover:border-primary/30 transition-colors" 
+                    onClick={() => addSkill(skill)}
+                  >
+                    + {skill}
+                  </Badge>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t.gigs?.form?.priceType || "Price Type"}</Label>
-              <Select value={formData.priceType} onValueChange={(v) => handleChange("priceType", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fixed">{t.gigs?.priceType?.fixed || "Fixed"}</SelectItem>
-                  <SelectItem value="hourly">{t.gigs?.priceType?.hourly || "Hourly"}</SelectItem>
-                  <SelectItem value="monthly">{t.gigs?.priceType?.monthly || "Monthly"}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{t.gigs?.form?.priceAmount || "Amount"}</Label>
-              <Input type="number" value={formData.priceMin || ""} onChange={(e) => handleChange("priceMin", Number(e.target.value))} placeholder="Min" />
-            </div>
-            <div className="space-y-2">
-              <Label>Max</Label>
-              <Input type="number" value={formData.priceMax || ""} onChange={(e) => handleChange("priceMax", Number(e.target.value))} placeholder="Max" />
+          {/* Pricing Section */}
+          <div className="space-y-3 p-4 rounded-xl bg-muted/30 border">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              Pricing
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">{t.gigs?.form?.priceType || "Type"}</Label>
+                <Select value={formData.priceType} onValueChange={(v) => handleChange("priceType", v)}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fixed">{t.gigs?.priceType?.fixed || "Fixed"}</SelectItem>
+                    <SelectItem value="hourly">{t.gigs?.priceType?.hourly || "Hourly"}</SelectItem>
+                    <SelectItem value="monthly">{t.gigs?.priceType?.monthly || "Monthly"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Min</Label>
+                <Input 
+                  type="number" 
+                  value={formData.priceMin || ""} 
+                  onChange={(e) => handleChange("priceMin", Number(e.target.value))} 
+                  placeholder="0"
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Max</Label>
+                <Input 
+                  type="number" 
+                  value={formData.priceMax || ""} 
+                  onChange={(e) => handleChange("priceMax", Number(e.target.value))} 
+                  placeholder="0"
+                  className="h-10"
+                />
+              </div>
             </div>
           </div>
 
+          {/* Location */}
           <div className="space-y-2">
-            <Label>{t.gigs?.form?.locationType || "Location Type"}</Label>
-            <Select value={formData.locationType} onValueChange={(v) => handleChange("locationType", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="remote">{t.gigs?.location?.remote || "Remote"}</SelectItem>
-                <SelectItem value="onsite">{t.gigs?.location?.onsite || "On-site"}</SelectItem>
-                <SelectItem value="hybrid">{t.gigs?.location?.hybrid || "Hybrid"}</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              {t.gigs?.form?.locationType || "Location Type"}
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "remote", label: t.gigs?.location?.remote || "Remote", icon: Globe },
+                { value: "onsite", label: t.gigs?.location?.onsite || "On-site", icon: Building2 },
+                { value: "hybrid", label: t.gigs?.location?.hybrid || "Hybrid", icon: MapPin },
+              ].map((option) => (
+                <motion.button
+                  key={option.value}
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleChange("locationType", option.value)}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                    formData.locationType === option.value
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <option.icon className={`h-5 w-5 ${formData.locationType === option.value ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className={`text-xs font-medium ${formData.locationType === option.value ? "" : "text-muted-foreground"}`}>
+                    {option.label}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button variant="secondary" onClick={() => handleSave(false)} disabled={isSaving}>{t.gigs?.form?.save || "Save"}</Button>
+        {/* Footer */}
+        <DialogFooter className="sticky bottom-0 bg-background border-t px-6 py-4 gap-2">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="secondary" onClick={() => handleSave(false)} disabled={isSaving}>
+            {t.gigs?.form?.save || "Save Draft"}
+          </Button>
           {onSaveAndPublish && (
-            <Button onClick={() => handleSave(true)} disabled={isSaving}>
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <Button onClick={() => handleSave(true)} disabled={isSaving} className="gap-2">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {t.gigs?.form?.saveAndPublish || "Save & Publish"}
             </Button>
           )}
