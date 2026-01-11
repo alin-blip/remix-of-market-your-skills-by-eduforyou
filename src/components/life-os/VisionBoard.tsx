@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Eye, RefreshCw, Plus, Sparkles, ImageOff } from 'lucide-react';
+import { Eye, RefreshCw, Plus, Sparkles, ImageOff, ChevronDown, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { useLifeAreas, useLifeGoals } from '@/hooks/useLifeOS';
@@ -150,6 +150,70 @@ function GoalCard({ goal, areaName, areaColor, onEdit }: GoalCardProps) {
   );
 }
 
+interface CollapsibleGoalsSectionProps {
+  title: string;
+  goals: LifeGoal[];
+  getAreaName: (key: LifeAreaKey) => string;
+  getAreaColor: (key: LifeAreaKey) => string;
+  onEdit: (goal: LifeGoal) => void;
+  emptyMessage: string;
+}
+
+function CollapsibleGoalsSection({ 
+  title, 
+  goals, 
+  getAreaName, 
+  getAreaColor, 
+  onEdit, 
+  emptyMessage 
+}: CollapsibleGoalsSectionProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isOpen ? (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                )}
+                <CardTitle className="text-base font-medium">{title}</CardTitle>
+                <Badge variant="secondary" className="ml-2">
+                  {goals.length}
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {goals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  areaName={getAreaName(goal.area_key)}
+                  areaColor={getAreaColor(goal.area_key)}
+                  onEdit={onEdit}
+                />
+              ))}
+              {!goals.length && (
+                <p className="col-span-full text-center text-muted-foreground py-4">
+                  {emptyMessage}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
+  );
+}
+
 interface VisionBoardProps {
   compact?: boolean;
 }
@@ -163,9 +227,16 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
   const { data: monthlyGoals } = useLifeGoals('monthly', format(new Date(), 'yyyy-MM'));
   
   const [generatingAreas, setGeneratingAreas] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<GoalType | 'annual'>('monthly');
   const [editingGoal, setEditingGoal] = useState<LifeGoal | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  // Get unique areas and their first annual goal (one card per category)
+  const uniqueAreaGoals = annualGoals?.reduce((acc, goal) => {
+    if (!acc.find(g => g.area_key === goal.area_key)) {
+      acc.push(goal);
+    }
+    return acc;
+  }, [] as LifeGoal[]) || [];
 
   const handleRegenerateImage = async (goal: LifeGoal) => {
     if (!user) return;
@@ -229,20 +300,6 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
     return colors[areaKey] || 'hsl(var(--primary))';
   };
 
-  const getGoalsForTab = () => {
-    switch (activeTab) {
-      case 'annual':
-        return annualGoals;
-      case 'quarterly':
-        return quarterlyGoals;
-      case 'monthly':
-      default:
-        return monthlyGoals;
-    }
-  };
-
-  const currentGoals = getGoalsForTab();
-
   if (!areas?.length) {
     return null;
   }
@@ -261,9 +318,9 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
             </div>
           </CardHeader>
           <CardContent>
-            {annualGoals?.length ? (
+            {uniqueAreaGoals.length ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {annualGoals.slice(0, 4).map((goal) => (
+                {uniqueAreaGoals.slice(0, 4).map((goal) => (
                   <VisionCard
                     key={goal.id}
                     goal={goal}
@@ -318,9 +375,9 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          {annualGoals?.length ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {annualGoals.map((goal) => (
+          {uniqueAreaGoals.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {uniqueAreaGoals.map((goal) => (
                 <VisionCard
                   key={goal.id}
                   goal={goal}
@@ -355,49 +412,38 @@ export function VisionBoard({ compact = false }: VisionBoardProps) {
         </CardContent>
       </Card>
 
-      {/* Goals Tabs */}
-      <Card>
-        <CardContent className="pt-6">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as GoalType)}>
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="monthly" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                {t.lifeOS?.timeframes?.monthly || 'Monthly'}
-              </TabsTrigger>
-              <TabsTrigger value="quarterly">
-                {t.lifeOS?.visionBoard?.ninetyDays || '90 Days'}
-              </TabsTrigger>
-              <TabsTrigger value="annual">
-                {t.lifeOS?.visionBoard?.annual || 'Annual'}
-              </TabsTrigger>
-            </TabsList>
+      {/* Collapsible Goals Sections */}
+      <div className="space-y-3">
+        {/* Monthly Goals */}
+        <CollapsibleGoalsSection
+          title={`${t.lifeOS?.timeframes?.monthly || 'Monthly Goals'} • ${format(new Date(), 'MMMM yyyy')}`}
+          goals={monthlyGoals || []}
+          getAreaName={(key) => t.lifeOS?.areas?.[key] || key}
+          getAreaColor={getAreaColor}
+          onEdit={handleEditGoal}
+          emptyMessage={t.lifeOS?.noAreasDescription || 'No goals set for this period'}
+        />
 
-            <div className="mb-4">
-              <h3 className="text-lg font-medium">
-                {activeTab === 'monthly' && `${t.lifeOS?.timeframes?.monthly || 'Monthly Goals'} • ${format(new Date(), 'MMMM yyyy')}`}
-                {activeTab === 'quarterly' && `${t.lifeOS?.timeframes?.quarterly || 'Quarterly Milestones'}`}
-                {activeTab === 'annual' && `${t.lifeOS?.timeframes?.annual || 'Annual Vision'} ${new Date().getFullYear()}`}
-              </h3>
-            </div>
+        {/* 90 Days / Quarterly Goals */}
+        <CollapsibleGoalsSection
+          title={t.lifeOS?.visionBoard?.ninetyDays || '90 Days'}
+          goals={quarterlyGoals || []}
+          getAreaName={(key) => t.lifeOS?.areas?.[key] || key}
+          getAreaColor={getAreaColor}
+          onEdit={handleEditGoal}
+          emptyMessage={t.lifeOS?.noAreasDescription || 'No goals set for this period'}
+        />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {currentGoals?.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  goal={goal}
-                  areaName={t.lifeOS?.areas?.[goal.area_key] || goal.area_key}
-                  areaColor={getAreaColor(goal.area_key)}
-                  onEdit={handleEditGoal}
-                />
-              ))}
-              {!currentGoals?.length && (
-                <p className="col-span-full text-center text-muted-foreground py-8">
-                  {t.lifeOS?.noAreasDescription || 'No goals set for this period'}
-                </p>
-              )}
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
+        {/* Annual Goals */}
+        <CollapsibleGoalsSection
+          title={`${t.lifeOS?.visionBoard?.annual || 'Annual'} ${new Date().getFullYear()}`}
+          goals={annualGoals || []}
+          getAreaName={(key) => t.lifeOS?.areas?.[key] || key}
+          getAreaColor={getAreaColor}
+          onEdit={handleEditGoal}
+          emptyMessage={t.lifeOS?.noAreasDescription || 'No goals set for this period'}
+        />
+      </div>
 
       <GoalEditDialog
         goal={editingGoal}
