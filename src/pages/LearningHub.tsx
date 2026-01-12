@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n';
 import { 
   BookOpen, 
   Play, 
@@ -55,74 +56,6 @@ interface CoursePurchase {
   status: string;
 }
 
-// Smart Start-Up modules (based on Y Combinator Startup School curriculum)
-const smartStartupModules = [
-  {
-    number: 1,
-    title: "Deciding to Start a Startup",
-    description: "Află dacă antreprenoriatul este pentru tine",
-    duration: "2h 30min",
-    lessons: 4,
-    locked: false
-  },
-  {
-    number: 2,
-    title: "Getting & Evaluating Ideas",
-    description: "Găsește și validează idei de startup",
-    duration: "3h 15min",
-    lessons: 5,
-    locked: false
-  },
-  {
-    number: 3,
-    title: "Building Your Founding Team",
-    description: "Găsește co-fondatori și construiește echipa",
-    duration: "2h 45min",
-    lessons: 4,
-    locked: false
-  },
-  {
-    number: 4,
-    title: "Planning & Building Your MVP",
-    description: "Construiește un MVP care rezolvă probleme reale",
-    duration: "4h",
-    lessons: 5,
-    locked: true
-  },
-  {
-    number: 5,
-    title: "Launching & First Customers",
-    description: "Strategii pentru a atrage primii clienți",
-    duration: "3h",
-    lessons: 4,
-    locked: true
-  },
-  {
-    number: 6,
-    title: "Growth & Monetization",
-    description: "Scalează și monetizează startup-ul",
-    duration: "4h 30min",
-    lessons: 5,
-    locked: true
-  },
-  {
-    number: 7,
-    title: "Fundraising & Company Building",
-    description: "Atrage investiții și construiește compania",
-    duration: "3h 30min",
-    lessons: 4,
-    locked: true
-  },
-  {
-    number: 8,
-    title: "Stories from Great Founders",
-    description: "Învață de la fondatori de succes",
-    duration: "4h",
-    lessons: 5,
-    locked: true
-  }
-];
-
 const certifications = [
   { name: 'Google Digital Marketing', provider: 'Google', free: true, url: 'https://grow.google/certificates/digital-marketing-ecommerce/' },
   { name: 'HubSpot Content Marketing', provider: 'HubSpot', free: true, url: 'https://academy.hubspot.com/courses/content-marketing' },
@@ -154,10 +87,79 @@ const formatDuration = (minutes: number) => {
 
 export default function LearningHub() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Smart Start-Up modules with translations
+  const smartStartupModules = [
+    {
+      number: 1,
+      title: t.learningHub?.modules?.module1?.title || "Deciding to Start a Startup",
+      description: t.learningHub?.modules?.module1?.description || "Află dacă antreprenoriatul este pentru tine",
+      duration: "2h 30min",
+      lessons: 4,
+      locked: false
+    },
+    {
+      number: 2,
+      title: t.learningHub?.modules?.module2?.title || "Getting & Evaluating Ideas",
+      description: t.learningHub?.modules?.module2?.description || "Găsește și validează idei de startup",
+      duration: "3h 15min",
+      lessons: 5,
+      locked: false
+    },
+    {
+      number: 3,
+      title: t.learningHub?.modules?.module3?.title || "Building Your Founding Team",
+      description: t.learningHub?.modules?.module3?.description || "Găsește co-fondatori și construiește echipa",
+      duration: "2h 45min",
+      lessons: 4,
+      locked: false
+    },
+    {
+      number: 4,
+      title: t.learningHub?.modules?.module4?.title || "Planning & Building Your MVP",
+      description: t.learningHub?.modules?.module4?.description || "Construiește un MVP care rezolvă probleme reale",
+      duration: "4h",
+      lessons: 5,
+      locked: true
+    },
+    {
+      number: 5,
+      title: t.learningHub?.modules?.module5?.title || "Launching & First Customers",
+      description: t.learningHub?.modules?.module5?.description || "Strategii pentru a atrage primii clienți",
+      duration: "3h",
+      lessons: 4,
+      locked: true
+    },
+    {
+      number: 6,
+      title: t.learningHub?.modules?.module6?.title || "Growth & Monetization",
+      description: t.learningHub?.modules?.module6?.description || "Scalează și monetizează startup-ul",
+      duration: "4h 30min",
+      lessons: 5,
+      locked: true
+    },
+    {
+      number: 7,
+      title: t.learningHub?.modules?.module7?.title || "Fundraising & Company Building",
+      description: t.learningHub?.modules?.module7?.description || "Atrage investiții și construiește compania",
+      duration: "3h 30min",
+      lessons: 4,
+      locked: true
+    },
+    {
+      number: 8,
+      title: t.learningHub?.modules?.module8?.title || "Stories from Great Founders",
+      description: t.learningHub?.modules?.module8?.description || "Învață de la fondatori de succes",
+      duration: "4h",
+      lessons: 5,
+      locked: true
+    }
+  ];
 
   // Fetch courses
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery({
@@ -221,11 +223,11 @@ export default function LearningHub() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['course-purchases'] });
-      toast.success('Curs cumpărat cu succes!');
+      toast.success(t.learningHub?.messages?.purchaseSuccess || 'Curs cumpărat cu succes!');
       setSelectedCourse(null);
     },
     onError: () => {
-      toast.error('Eroare la achiziție');
+      toast.error(t.learningHub?.messages?.purchaseError || 'Eroare la achiziție');
     },
   });
 
@@ -273,7 +275,7 @@ export default function LearningHub() {
           courseId: course.id, 
           percent: Math.min(currentProgress + 25, 100) 
         });
-        toast.success(`Progres actualizat: ${Math.min(currentProgress + 25, 100)}%`);
+        toast.success(`${t.learningHub?.progress?.updated || 'Progres actualizat'}: ${Math.min(currentProgress + 25, 100)}%`);
       }
     }
   };
@@ -282,7 +284,7 @@ export default function LearningHub() {
     if (module.locked) {
       navigate('/upgrade');
     } else {
-      toast.success(`Începe modulul: ${module.title}`);
+      toast.success(`${t.learningHub?.messages?.startModule || 'Începe modulul'}: ${module.title}`);
     }
   };
 
@@ -296,16 +298,16 @@ export default function LearningHub() {
               <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
                 <BookOpen className="h-7 w-7 text-amber-500" />
               </div>
-              Learning Hub
+              {t.learningHub?.title || 'Learning Hub'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Cursuri premium pentru freelanceri • Prețuri de la £49 la £499
+              {t.learningHub?.subtitle || 'Cursuri premium pentru freelanceri • Prețuri de la £49 la £499'}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="secondary" className="gap-2 py-1.5 px-3">
               <Trophy className="h-4 w-4 text-amber-500" />
-              {completedCourses} cursuri completate
+              {completedCourses} {t.learningHub?.coursesCompleted || 'cursuri completate'}
             </Badge>
           </div>
         </div>
@@ -321,23 +323,22 @@ export default function LearningHub() {
               <div className="flex-1 text-center md:text-left">
                 <Badge className="mb-2 bg-amber-500/20 text-amber-500 border-amber-500/30">
                   <Sparkles className="h-3 w-3 mr-1" />
-                  Program Premium
+                  {t.learningHub?.premiumBadge || 'Program Premium'}
                 </Badge>
-                <h3 className="text-xl font-bold mb-1">Founder Accelerator</h3>
+                <h3 className="text-xl font-bold mb-1">{t.learningHub?.founderAccelerator?.title || 'Founder Accelerator'}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes.
-                  36+ ore de conținut bazat pe curriculum-ul Y Combinator.
+                  {t.learningHub?.founderAccelerator?.description || 'Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes. 36+ ore de conținut bazat pe curriculum-ul Y Combinator.'}
                 </p>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-amber-500 mb-1">£997</div>
-                <p className="text-xs text-muted-foreground mb-2">acces pe viață</p>
+                <p className="text-xs text-muted-foreground mb-2">{t.learningHub?.lifetimeAccess || 'acces pe viață'}</p>
                 <Button 
                   className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
                   onClick={() => navigate('/upgrade')}
                 >
                   <Rocket className="h-4 w-4" />
-                  Vezi Detalii
+                  {t.learningHub?.viewDetails || 'Vezi Detalii'}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -353,9 +354,9 @@ export default function LearningHub() {
                 <GraduationCap className="h-8 w-8 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold mb-1">Progresul tău de învățare</h3>
+                <h3 className="font-semibold mb-1">{t.learningHub?.progress?.title || 'Progresul tău de învățare'}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Ai completat {completedCourses} din {courses.length} cursuri disponibile
+                  {t.learningHub?.progress?.completed || 'Ai completat'} {completedCourses} {t.learningHub?.progress?.of || 'din'} {courses.length} {t.learningHub?.progress?.available || 'cursuri disponibile'}
                 </p>
                 <div className="flex items-center gap-4">
                   <Progress value={totalProgress} className="flex-1 h-2" />
@@ -370,15 +371,15 @@ export default function LearningHub() {
           <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="smart-startup" className="gap-2">
               <Rocket className="h-4 w-4" />
-              Smart Start-Up
+              {t.learningHub?.tabs?.smartStartup || 'Smart Start-Up'}
             </TabsTrigger>
             <TabsTrigger value="courses" className="gap-2">
               <Play className="h-4 w-4" />
-              Cursuri ({courses.length})
+              {t.learningHub?.tabs?.courses || 'Cursuri'} ({courses.length})
             </TabsTrigger>
             <TabsTrigger value="certifications" className="gap-2">
               <Trophy className="h-4 w-4" />
-              Certificări
+              {t.learningHub?.tabs?.certifications || 'Certificări'}
             </TabsTrigger>
           </TabsList>
 
@@ -386,9 +387,9 @@ export default function LearningHub() {
           <TabsContent value="smart-startup" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Smart Start-Up Curriculum</h2>
+                <h2 className="text-xl font-semibold">{t.learningHub?.smartStartup?.title || 'Smart Start-Up Curriculum'}</h2>
                 <p className="text-sm text-muted-foreground">
-                  Module 1-3 gratuite • Module 4-8 disponibile în Founder Accelerator
+                  {t.learningHub?.smartStartup?.subtitle || 'Module 1-3 gratuite • Module 4-8 disponibile în Founder Accelerator'}
                 </p>
               </div>
               <Button 
@@ -397,7 +398,7 @@ export default function LearningHub() {
                 onClick={() => navigate('/upgrade')}
               >
                 <Crown className="h-4 w-4" />
-                Upgrade la Full Access
+                {t.learningHub?.upgradeButton || 'Upgrade la Full Access'}
               </Button>
             </div>
 
@@ -436,12 +437,12 @@ export default function LearningHub() {
                             {module.locked ? (
                               <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-500 border-0">
                                 <Lock className="h-3 w-3 mr-1" />
-                                Premium
+                                {t.learningHub?.badges?.premium || 'Premium'}
                               </Badge>
                             ) : (
                               <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-500 border-0">
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Gratuit
+                                {t.learningHub?.badges?.free || 'Gratuit'}
                               </Badge>
                             )}
                           </div>
@@ -449,7 +450,7 @@ export default function LearningHub() {
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Play className="h-3 w-3" />
-                              {module.lessons} lecții
+                              {module.lessons} {t.learningHub?.lessons || 'lecții'}
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -469,9 +470,9 @@ export default function LearningHub() {
             <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
               <CardContent className="py-8 text-center">
                 <Crown className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Deblochează Toate Modulele</h3>
+                <h3 className="text-xl font-bold mb-2">{t.learningHub?.unlockAll?.title || 'Deblochează Toate Modulele'}</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Obține acces la toate cele 8 module, comunitatea privată și suport prioritar cu Founder Accelerator.
+                  {t.learningHub?.unlockAll?.description || 'Obține acces la toate cele 8 module, comunitatea privată și suport prioritar cu Founder Accelerator.'}
                 </p>
                 <Button 
                   size="lg"
@@ -479,7 +480,7 @@ export default function LearningHub() {
                   onClick={() => navigate('/upgrade')}
                 >
                   <Rocket className="h-5 w-5" />
-                  Upgrade Acum - £997
+                  {t.learningHub?.unlockAll?.button || 'Upgrade Acum - £997'}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </CardContent>
@@ -517,7 +518,7 @@ export default function LearningHub() {
                           <div className="absolute top-3 right-3">
                             {isFree ? (
                               <Badge className="bg-green-500/90 text-white border-0">
-                                Gratuit
+                                {t.learningHub?.badges?.free || 'Gratuit'}
                               </Badge>
                             ) : (
                               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
@@ -536,14 +537,14 @@ export default function LearningHub() {
                           {/* Video icon */}
                           <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs text-muted-foreground bg-background/80 rounded-full px-2 py-1">
                             <Video className="h-3 w-3" />
-                            {course.lessons_count} lecții
+                            {course.lessons_count} {t.learningHub?.lessons || 'lecții'}
                           </div>
 
                           {isPurchased && (
                             <div className="absolute bottom-3 right-3">
                               <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-0 gap-1">
                                 <CheckCircle2 className="h-3 w-3" />
-                                Achiziționat
+                                {t.learningHub?.badges?.purchased || 'Achiziționat'}
                               </Badge>
                             </div>
                           )}
@@ -569,7 +570,7 @@ export default function LearningHub() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">
-                                  Progres
+                                  {t.learningHub?.progress?.label || 'Progres'}
                                 </span>
                                 <span className="font-medium">
                                   {courseProgress}%
@@ -582,7 +583,7 @@ export default function LearningHub() {
                                 onClick={() => handleStartCourse(course)}
                               >
                                 <Play className="h-4 w-4" />
-                                Continuă
+                                {t.learningHub?.buttons?.continue || 'Continuă'}
                               </Button>
                             </div>
                           ) : (
@@ -594,12 +595,12 @@ export default function LearningHub() {
                               {isPurchased || isFree ? (
                                 <>
                                   <Play className="h-4 w-4" />
-                                  Începe cursul
+                                  {t.learningHub?.buttons?.startCourse || 'Începe cursul'}
                                 </>
                               ) : (
                                 <>
                                   <ShoppingCart className="h-4 w-4" />
-                                  Cumpără - £{course.price}
+                                  {t.learningHub?.buttons?.buy || 'Cumpără'} - £{course.price}
                                 </>
                               )}
                             </Button>
@@ -634,7 +635,7 @@ export default function LearningHub() {
                             {cert.provider}
                             {cert.free && (
                               <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
-                                Gratuit
+                                {t.learningHub?.badges?.free || 'Gratuit'}
                               </Badge>
                             )}
                           </p>
@@ -654,9 +655,9 @@ export default function LearningHub() {
             <Card className="bg-muted/30">
               <CardContent className="py-6 text-center">
                 <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h3 className="font-semibold mb-1">Mai multe certificări în curând!</h3>
+                <h3 className="font-semibold mb-1">{t.learningHub?.moreCertifications?.title || 'Mai multe certificări în curând!'}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Adăugăm constant noi certificări gratuite pentru studenți.
+                  {t.learningHub?.moreCertifications?.description || 'Adăugăm constant noi certificări gratuite pentru studenți.'}
                 </p>
               </CardContent>
             </Card>
@@ -671,7 +672,7 @@ export default function LearningHub() {
                 <div className="p-2 rounded-lg bg-amber-500/20">
                   <ShoppingCart className="h-5 w-5 text-amber-500" />
                 </div>
-                Achiziționează curs
+                {t.learningHub?.purchaseDialog?.title || 'Achiziționează curs'}
               </DialogTitle>
             </DialogHeader>
             
@@ -687,19 +688,19 @@ export default function LearningHub() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Video className="h-4 w-4" />
-                      {selectedCourse.lessons_count} lecții
+                      {selectedCourse.lessons_count} {t.learningHub?.lessons || 'lecții'}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg">
-                  <span className="font-medium">Total</span>
+                  <span className="font-medium">{t.learningHub?.purchaseDialog?.total || 'Total'}</span>
                   <span className="text-2xl font-bold text-amber-500">£{selectedCourse.price}</span>
                 </div>
 
                 <div className="flex gap-3">
                   <Button variant="outline" className="flex-1" onClick={() => setSelectedCourse(null)}>
-                    Anulează
+                    {t.learningHub?.purchaseDialog?.cancel || 'Anulează'}
                   </Button>
                   <Button 
                     className="flex-1 gap-2"
@@ -707,12 +708,14 @@ export default function LearningHub() {
                     disabled={purchaseMutation.isPending}
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    {purchaseMutation.isPending ? 'Se procesează...' : 'Cumpără acum'}
+                    {purchaseMutation.isPending 
+                      ? (t.learningHub?.purchaseDialog?.processing || 'Se procesează...') 
+                      : (t.learningHub?.purchaseDialog?.buyNow || 'Cumpără acum')}
                   </Button>
                 </div>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  * Acesta este un demo. În producție, va fi integrat Stripe.
+                  {t.learningHub?.purchaseDialog?.demo || '* Acesta este un demo. În producție, va fi integrat Stripe.'}
                 </p>
               </div>
             )}
