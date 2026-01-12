@@ -69,14 +69,28 @@ function SortableVisionCard({ id, goal, areaName, onRegenerate, onEdit, isGenera
         className="overflow-hidden group relative cursor-pointer hover:shadow-lg transition-all"
         onClick={() => onEdit(goal)}
       >
+        {/* Header with category and goal above image */}
+        <div className="p-3 border-b">
+          <div className="flex items-center gap-2 mb-1">
+            <AreaIcon areaKey={goal.area_key} className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">{areaName}</span>
+            {goal.progress !== null && goal.progress !== undefined && (
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {goal.progress}%
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-foreground line-clamp-2">{goal.title}</p>
+        </div>
+
         {/* Drag handle */}
         <div 
           {...attributes} 
           {...listeners}
-          className="absolute top-2 left-2 z-10 p-1 rounded bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          className="absolute top-2 right-2 z-10 p-1 rounded bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
           onClick={(e) => e.stopPropagation()}
         >
-          <GripVertical className="h-4 w-4 text-white" />
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
         <div className="relative aspect-[4/3] bg-muted">
@@ -114,27 +128,12 @@ function SortableVisionCard({ id, goal, areaName, onRegenerate, onEdit, isGenera
             </div>
           )}
           
-          {/* Overlay with area name */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <AreaIcon areaKey={goal.area_key} className="h-5 w-5 text-white" />
-              <span className="text-white font-semibold text-lg">{areaName}</span>
-            </div>
-            <p className="text-white/80 text-sm line-clamp-2">{goal.title}</p>
-            {goal.progress !== null && goal.progress !== undefined && (
-              <Badge variant="secondary" className="mt-2 text-xs">
-                {goal.progress}%
-              </Badge>
-            )}
-          </div>
-          
           {/* Regenerate button on hover */}
           {goal.vision_image_url && !isGenerating && (
             <Button
               size="icon"
               variant="secondary"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={(e) => {
                 e.stopPropagation();
                 onRegenerate(goal);
@@ -158,6 +157,20 @@ function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: Visi
       className="overflow-hidden group relative cursor-pointer hover:shadow-lg transition-all"
       onClick={() => onEdit(goal)}
     >
+      {/* Header with category and goal above image */}
+      <div className="p-3 border-b">
+        <div className="flex items-center gap-2 mb-1">
+          <AreaIcon areaKey={goal.area_key} className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-primary">{areaName}</span>
+          {goal.progress !== null && goal.progress !== undefined && (
+            <Badge variant="secondary" className="ml-auto text-xs">
+              {goal.progress}%
+            </Badge>
+          )}
+        </div>
+        <p className="text-sm text-foreground line-clamp-2">{goal.title}</p>
+      </div>
+
       <div className="relative aspect-[4/3] bg-muted">
         {goal.vision_image_url ? (
           <img
@@ -193,25 +206,11 @@ function VisionCard({ goal, areaName, onRegenerate, onEdit, isGenerating }: Visi
           </div>
         )}
         
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <AreaIcon areaKey={goal.area_key} className="h-5 w-5 text-white" />
-            <span className="text-white font-semibold text-lg">{areaName}</span>
-          </div>
-          <p className="text-white/80 text-sm line-clamp-2">{goal.title}</p>
-          {goal.progress !== null && goal.progress !== undefined && (
-            <Badge variant="secondary" className="mt-2 text-xs">
-              {goal.progress}%
-            </Badge>
-          )}
-        </div>
-        
         {goal.vision_image_url && !isGenerating && (
           <Button
             size="icon"
             variant="secondary"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={(e) => {
               e.stopPropagation();
               onRegenerate(goal);
