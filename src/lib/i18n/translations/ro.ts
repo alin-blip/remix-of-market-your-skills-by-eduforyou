@@ -1248,4 +1248,15 @@ export const ro = {
     goalSaved: 'Obiectivul a fost salvat!',
     goalSaveError: 'Eroare la salvarea obiectivului',
   },
+
+  // Tools Hub
+  toolsHub: {
+    title: 'Instrumente & Resurse',
+    subtitle: 'Toate instrumentele de care ai nevoie pentru a construi și crește afacerea ta de freelancing.',
+    incomeTrackerDesc: 'Urmărește veniturile tale de freelancing, gestionează plățile și analizează câștigurile în timp.',
+    learningHubDesc: 'Accesează cursuri, tutoriale și resurse pentru a-ți îmbunătăți abilitățile de freelancing.',
+    clientCRMDesc: 'Gestionează-ți clienții, urmărește proiectele și nu rata niciodată un follow-up.',
+    pricingDesc: 'Vezi și gestionează planurile tale de abonament și facturarea.',
+    openTool: 'Deschide',
+  },
 };
