@@ -9,8 +9,6 @@ import {
   MessageSquare, 
   ArrowRight,
   CheckCircle2,
-  Zap,
-  Play,
   Globe,
   Sun,
   Moon,
@@ -23,6 +21,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+
+// Import new landing sections
+import { HeroSection } from '@/components/landing/HeroSection';
+import { ForWhomSection } from '@/components/landing/ForWhomSection';
+import { PartnersSection } from '@/components/landing/PartnersSection';
+import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
+import { PricingPreview } from '@/components/landing/PricingPreview';
+import { LandingFooter } from '@/components/landing/LandingFooter';
 
 export default function Landing() {
   const { t, locale, setLocale } = useI18n();
@@ -53,12 +59,6 @@ export default function Landing() {
       description: t.landing.features.outreachGenerator.description,
       color: 'from-pink-500 to-rose-400',
     },
-  ];
-
-  const stats = [
-    { value: '500+', label: t.landing.stats.activeStudents },
-    { value: '€12K', label: t.landing.stats.revenueGenerated },
-    { value: '89%', label: t.landing.stats.successRate },
   ];
 
   const steps = [
@@ -135,61 +135,14 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-32">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm mb-8 animate-fade-in">
-              <Zap className="h-4 w-4 text-accent" />
-              <span className="text-muted-foreground">{t.landing.badge}</span>
-              <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-            </div>
-            
-            {/* Headline */}
-            <h1 className="font-display text-5xl md:text-7xl font-extrabold mb-8 leading-[1.1] tracking-tight animate-slide-up">
-              {t.landing.headline}{' '}
-              <span className="text-gradient">{t.landing.headlineHighlight}</span>
-            </h1>
-            
-            {/* Subheadline */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed animate-slide-up delay-100">
-              {t.landing.subheadline}
-              <span className="text-foreground font-medium"> {t.landing.subheadlineBold} </span>
-              {t.landing.subheadlineEnd}
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up delay-200">
-              <Button size="lg" asChild className="gradient-accent text-accent-foreground font-semibold text-lg px-8 h-14 glow-accent hover:scale-105 transition-transform">
-                <Link to="/auth/register">
-                  {t.landing.ctaStart}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-border hover:bg-secondary group">
-                <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                {t.landing.ctaDemo}
-              </Button>
-            </div>
-            
-            {/* Stats */}
-            <div className="flex flex-wrap justify-center gap-12 animate-fade-in delay-300">
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="font-display text-4xl font-bold text-gradient mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* New Hero Section */}
+      <HeroSection />
+
+      {/* For Whom Section */}
+      <ForWhomSection />
 
       {/* Features Section */}
-      <section className="py-32 relative">
+      <section id="features" className="py-32 relative">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
@@ -248,7 +201,16 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Partners Section */}
+      <PartnersSection />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+
+      {/* Pricing Preview */}
+      <PricingPreview />
+
+      {/* Benefits / CTA Section */}
       <section className="py-32">
         <div className="container">
           <div className="max-w-4xl mx-auto">
@@ -285,19 +247,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg gradient-accent flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-accent-foreground" />
-            </div>
-            <span className="font-display font-semibold">Student Freedom OS</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Eduforyou. {t.landing.footer}
-          </p>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
