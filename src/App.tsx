@@ -33,6 +33,7 @@ import Pricing from "./pages/Pricing";
 import IncomeTracker from "./pages/IncomeTracker";
 import LearningHub from "./pages/LearningHub";
 import ClientCRM from "./pages/ClientCRM";
+import ToolsHub from "./pages/ToolsHub";
 
 const queryClient = new QueryClient();
 
@@ -241,6 +242,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ClientCRM />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/tools" 
+                  element={
+                    <ProtectedRoute>
+                      <ToolsHub />
                     </ProtectedRoute>
                   } 
                 />

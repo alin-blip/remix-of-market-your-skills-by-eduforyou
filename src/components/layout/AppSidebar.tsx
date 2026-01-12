@@ -12,11 +12,7 @@ import {
   Shield,
   LogOut,
   Target,
-  Rocket,
-  Wallet,
-  BookOpen,
-  CreditCard,
-  Users,
+  Wrench,
   GraduationCap,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -179,99 +175,8 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
 
-        {/* Tools Section */}
-        <SidebarGroup className="gap-1">
-          {!collapsed && (
-            <div className="px-3 py-2">
-              <span className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
-                {t.sidebar?.tools || 'Tools'}
-              </span>
-            </div>
-          )}
-          <SidebarMenu className="gap-1">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/income-tracker'}
-                tooltip={t.sidebar?.incomeTracker || 'Income Tracker'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/income-tracker"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/income-tracker' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <Wallet className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.incomeTracker || 'Income Tracker'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/learning-hub'}
-                tooltip={t.sidebar?.learningHub || 'Learning Hub'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/learning-hub"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <BookOpen className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.learningHub || 'Learning Hub'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/client-crm'}
-                tooltip={t.sidebar?.clientCRM || 'Client CRM'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/client-crm"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/client-crm' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <Users className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.clientCRM || 'Client CRM'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/pricing'}
-                tooltip={t.sidebar?.pricing || 'Pricing'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/pricing"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/pricing' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <CreditCard className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.pricing || 'Pricing'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {/* Founder Accelerator - Orange */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -283,12 +188,36 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/upgrade"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/upgrade' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/upgrade' 
+                      ? "bg-orange-500/10 text-orange-500 font-medium" 
+                      : "text-orange-500 hover:bg-orange-500/10"
                   )}
                   activeClassName=""
                 >
                   <GraduationCap className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.founderAccelerator || 'Founder Accelerator'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Tools - Opens Tools Page */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/tools' || currentPath === '/income-tracker' || currentPath === '/learning-hub' || currentPath === '/client-crm' || currentPath === '/pricing'}
+                tooltip={t.sidebar?.tools || 'Tools'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/tools"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    (currentPath === '/tools' || currentPath === '/income-tracker' || currentPath === '/learning-hub' || currentPath === '/client-crm' || currentPath === '/pricing') && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Wrench className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.tools || 'Tools'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

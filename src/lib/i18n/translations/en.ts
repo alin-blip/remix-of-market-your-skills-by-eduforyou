@@ -1248,4 +1248,15 @@ export const en = {
     goalSaved: 'Goal saved successfully!',
     goalSaveError: 'Failed to save goal',
   },
+
+  // Tools Hub
+  toolsHub: {
+    title: 'Tools & Resources',
+    subtitle: 'All the tools you need to build and grow your freelance business.',
+    incomeTrackerDesc: 'Track your freelance income, manage payments, and analyze your earnings over time.',
+    learningHubDesc: 'Access courses, tutorials, and resources to level up your freelancing skills.',
+    clientCRMDesc: 'Manage your clients, track projects, and never miss a follow-up.',
+    pricingDesc: 'View and manage your subscription plans and billing.',
+    openTool: 'Open Tool',
+  },
 };
