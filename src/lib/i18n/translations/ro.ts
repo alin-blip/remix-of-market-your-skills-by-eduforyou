@@ -338,6 +338,10 @@ export const ro = {
     progressLabel: 'Progres',
     stepsCompleted: 'pași completați din',
     allCompleted: 'Ai completat toate etapele! 🎉',
+    pathTitle: 'Freedom Path',
+    completedTitle: 'Felicitări! Ai completat toate modulele și poți exporta planul tău.',
+    completedDescription: 'Documentul include toate informațiile din cele 5 module: competențe, Ikigai, oferte de servicii, profiluri sociale și template-uri de outreach.',
+    downloadPdf: 'Descarcă PDF',
     steps: {
       skillScanner: {
         title: 'Skill Scanner',

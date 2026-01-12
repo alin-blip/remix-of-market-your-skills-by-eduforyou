@@ -338,6 +338,10 @@ export const en = {
     progressLabel: 'Progress',
     stepsCompleted: 'steps completed of',
     allCompleted: 'You completed all steps! 🎉',
+    pathTitle: 'Freedom Path',
+    completedTitle: 'Congratulations! You completed all modules and can export your plan.',
+    completedDescription: 'The document includes all information from the 5 modules: skills, Ikigai, service offers, social profiles, and outreach templates.',
+    downloadPdf: 'Download PDF',
     steps: {
       skillScanner: {
         title: 'Skill Scanner',
