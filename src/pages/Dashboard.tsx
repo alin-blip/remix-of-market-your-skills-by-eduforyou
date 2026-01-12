@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,10 @@ import {
   TrendingUp,
   Zap,
   Calendar,
+  ArrowRight,
+  Compass,
+  Briefcase,
+  BookOpen,
 } from 'lucide-react';
 import { VisionBoard } from '@/components/life-os/VisionBoard';
 import { AreaIcon } from '@/components/life-os/AreaIcon';
@@ -27,9 +31,8 @@ import {
   useWeeklySprint, 
   useDailyTasks,
   useUpdateDailyTask,
-  getCurrentWeekKey,
 } from '@/hooks/useLifeOS';
-import { DAYS_OF_WEEK, DAY_LABELS, DayOfWeek } from '@/types/lifeOS';
+import { DAYS_OF_WEEK, DAY_LABELS } from '@/types/lifeOS';
 import { cn } from '@/lib/utils';
 
 interface ProgressData {
@@ -37,6 +40,18 @@ interface ProgressData {
   hasIkigai: boolean;
   hasOffer: boolean;
   outreachCount: number;
+  hasLifeOS: boolean;
+  hasGigs: boolean;
+}
+
+// Next Steps configuration
+interface NextStep {
+  id: string;
+  title: string;
+  description: string;
+  path: string;
+  icon: React.ReactNode;
+  priority: number;
 }
 
 export default function Dashboard() {
@@ -50,6 +65,8 @@ export default function Dashboard() {
     hasIkigai: false,
     hasOffer: false,
     outreachCount: 0,
+    hasLifeOS: false,
+    hasGigs: false,
   });
   const [loading, setLoading] = useState(true);
   const confettiTriggered = useRef(false);
@@ -114,11 +131,13 @@ export default function Dashboard() {
     if (!user) return;
 
     try {
-      const [skillsRes, ikigaiRes, offerRes, outreachRes] = await Promise.all([
+      const [skillsRes, ikigaiRes, offerRes, outreachRes, lifeAreasRes, gigsRes] = await Promise.all([
         supabase.from('skill_entries').select('id', { count: 'exact' }).eq('user_id', user.id),
         supabase.from('ikigai_results').select('id').eq('user_id', user.id).maybeSingle(),
         supabase.from('offers').select('id').eq('user_id', user.id).maybeSingle(),
         supabase.from('outreach_templates').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('life_areas').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('gigs_jobs').select('id', { count: 'exact' }).eq('user_id', user.id),
       ]);
 
       setProgressData({
@@ -126,6 +145,8 @@ export default function Dashboard() {
         hasIkigai: !!ikigaiRes.data,
         hasOffer: !!offerRes.data,
         outreachCount: outreachRes.count || 0,
+        hasLifeOS: (lifeAreasRes.count || 0) > 0,
+        hasGigs: (gigsRes.count || 0) > 0,
       });
     } catch (error) {
       console.error('Error loading progress:', error);
@@ -151,6 +172,71 @@ export default function Dashboard() {
   ].filter(Boolean).length;
   const totalSteps = 5;
   const freedomScore = Math.round((completedSteps / totalSteps) * 100);
+
+  // Get dynamic next steps based on progress
+  const getNextSteps = (): NextStep[] => {
+    const steps: NextStep[] = [];
+    
+    // Priority 1: Complete Freedom Path if not done
+    if (!allModulesCompleted) {
+      steps.push({
+        id: 'freedom-path',
+        title: locale === 'ro' ? 'Continuă Freedom Path' : 'Continue Freedom Path',
+        description: locale === 'ro' 
+          ? 'Descoperă-ți competențele și creează-ți oferta' 
+          : 'Discover your skills and create your offer',
+        path: '/wizard/path',
+        icon: <Compass className="h-5 w-5" />,
+        priority: 1,
+      });
+    }
+    
+    // Priority 2: Set up Life OS if wizard complete but no Life OS
+    if (allModulesCompleted && !progressData.hasLifeOS) {
+      steps.push({
+        id: 'life-os',
+        title: locale === 'ro' ? 'Configurează Life OS' : 'Set up Life OS',
+        description: locale === 'ro' 
+          ? 'Organizează-ți obiectivele și task-urile' 
+          : 'Organize your goals and tasks',
+        path: '/life-os/setup',
+        icon: <Target className="h-5 w-5" />,
+        priority: 2,
+      });
+    }
+    
+    // Priority 3: Create first gig if offer exists but no gigs
+    if (progressData.hasOffer && !progressData.hasGigs) {
+      steps.push({
+        id: 'first-gig',
+        title: locale === 'ro' ? 'Publică primul gig' : 'Publish your first gig',
+        description: locale === 'ro' 
+          ? 'Transformă oferta ta în gig-uri pe platforme' 
+          : 'Transform your offer into platform gigs',
+        path: '/wizard/gig-job-builder',
+        icon: <Briefcase className="h-5 w-5" />,
+        priority: 3,
+      });
+    }
+    
+    // Priority 4: Learn more
+    if (allModulesCompleted) {
+      steps.push({
+        id: 'learn',
+        title: locale === 'ro' ? 'Explorează cursurile' : 'Explore courses',
+        description: locale === 'ro' 
+          ? 'Continuă să înveți cu Learning Hub' 
+          : 'Continue learning with Learning Hub',
+        path: '/learning-hub',
+        icon: <BookOpen className="h-5 w-5" />,
+        priority: 4,
+      });
+    }
+    
+    return steps.sort((a, b) => a.priority - b.priority).slice(0, 3);
+  };
+
+  const nextSteps = getNextSteps();
 
   // Trigger confetti when all steps are completed
   useEffect(() => {
@@ -210,6 +296,52 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
+        {/* Next Steps Section - Dynamic CTA */}
+        {nextSteps.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+          >
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-lg">
+                    {locale === 'ro' ? 'Următorii pași' : 'Next Steps'}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-3">
+                  {nextSteps.map((step, index) => (
+                    <button
+                      key={step.id}
+                      onClick={() => navigate(step.path)}
+                      className={cn(
+                        'flex items-start gap-3 p-4 rounded-xl border text-left transition-all hover:border-primary/50 hover:bg-primary/5',
+                        index === 0 ? 'border-primary/30 bg-primary/10' : 'border-border'
+                      )}
+                    >
+                      <div className={cn(
+                        'p-2 rounded-lg',
+                        index === 0 ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                      )}>
+                        {step.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-foreground">{step.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{step.description}</p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Vision Board Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -257,7 +389,7 @@ export default function Dashboard() {
               <Badge className="mt-3 bg-accent/20 text-accent">{t.common.completed} ✓</Badge>
             ) : (
               <Button asChild size="sm" variant="outline" className="mt-3">
-                <Link to="/wizard/skill-scanner">{t.dashboard.startNow || 'Continue'}</Link>
+                <Link to="/wizard/path">{t.dashboard.startNow || 'Continue'}</Link>
               </Button>
             )}
           </Card>
@@ -294,7 +426,7 @@ export default function Dashboard() {
           <Card className="mb-4">
             <CardContent className="py-3">
               <div className="flex gap-2 overflow-x-auto">
-                {weekDays.map(({ day, date, isToday: dayIsToday, isSelected, completed, total, status }) => (
+                {weekDays.map(({ day, date, isToday: dayIsToday, isSelected, status }) => (
                   <button
                     key={day}
                     onClick={() => setSelectedDate(date)}

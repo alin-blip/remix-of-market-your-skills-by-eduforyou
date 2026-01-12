@@ -696,6 +696,8 @@ export const en = {
     clientCRM: 'Client CRM',
     pricing: 'Pricing',
     founderAccelerator: 'Founder Accelerator',
+    learn: 'Learn',
+    businessTools: 'Business',
   },
 
   // Founder Accelerator

@@ -696,6 +696,8 @@ export const ro = {
     clientCRM: 'Client CRM',
     pricing: 'Prețuri',
     founderAccelerator: 'Founder Accelerator',
+    learn: 'Învață',
+    businessTools: 'Business',
   },
 
   // Founder Accelerator
