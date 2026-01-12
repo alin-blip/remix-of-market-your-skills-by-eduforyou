@@ -317,12 +317,12 @@ export default function DefineYourPath() {
           </motion.div>
         </div>
 
-        {/* Steps Grid */}
+        {/* Steps List */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="flex flex-col gap-4 max-w-2xl mx-auto"
         >
           {pathSteps.map((step, index) => {
             const Icon = step.icon;
