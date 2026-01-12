@@ -802,20 +802,102 @@ export const ro = {
     },
   },
 
-  // Learning Hub Smart Start-Up modules
+  // Learning Hub
   learningHub: {
-    premiumBanner: {
-      badge: 'Completează acceleratorul complet',
-      title: 'Founder Accelerator',
-      subtitle: 'Acces la toate cele 8 module + Comunitate Privată + Certificat',
-      cta: 'Vezi Detalii',
+    title: 'Learning Hub',
+    subtitle: 'Cursuri premium pentru freelanceri • Prețuri de la £49 la £499',
+    coursesCompleted: 'cursuri completate',
+    premiumBadge: 'Program Premium',
+    lifetimeAccess: 'acces pe viață',
+    viewDetails: 'Vezi Detalii',
+    lessons: 'lecții',
+    tabs: {
+      smartStartup: 'Smart Start-Up',
+      courses: 'Cursuri',
+      certifications: 'Certificări',
     },
     smartStartup: {
-      title: 'Smart Start-Up',
-      subtitle: 'Module esențiale pentru antreprenorii aspiranți',
-      freeBadge: 'Gratuit',
-      lockedBadge: 'Premium',
-      lockedMessage: 'Acest modul face parte din programul Founder Accelerator',
+      title: 'Smart Start-Up Curriculum',
+      subtitle: 'Module 1-3 gratuite • Module 4-8 disponibile în Founder Accelerator',
+    },
+    founderAccelerator: {
+      title: 'Founder Accelerator',
+      description: 'Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes. 36+ ore de conținut bazat pe curriculum-ul Y Combinator.',
+    },
+    progress: {
+      title: 'Progresul tău de învățare',
+      completed: 'Ai completat',
+      of: 'din',
+      available: 'cursuri disponibile',
+      label: 'Progres',
+      updated: 'Progres actualizat',
+    },
+    badges: {
+      premium: 'Premium',
+      free: 'Gratuit',
+      purchased: 'Achiziționat',
+    },
+    buttons: {
+      continue: 'Continuă',
+      startCourse: 'Începe cursul',
+      buy: 'Cumpără',
+    },
+    upgradeButton: 'Upgrade la Full Access',
+    unlockAll: {
+      title: 'Deblochează Toate Modulele',
+      description: 'Obține acces la toate cele 8 module, comunitatea privată și suport prioritar cu Founder Accelerator.',
+      button: 'Upgrade Acum - £997',
+    },
+    moreCertifications: {
+      title: 'Mai multe certificări în curând!',
+      description: 'Adăugăm constant noi certificări gratuite pentru studenți.',
+    },
+    purchaseDialog: {
+      title: 'Achiziționează curs',
+      total: 'Total',
+      cancel: 'Anulează',
+      processing: 'Se procesează...',
+      buyNow: 'Cumpără acum',
+      demo: '* Acesta este un demo. În producție, va fi integrat Stripe.',
+    },
+    messages: {
+      purchaseSuccess: 'Curs cumpărat cu succes!',
+      purchaseError: 'Eroare la achiziție',
+      startModule: 'Începe modulul',
+    },
+    modules: {
+      module1: {
+        title: 'Deciding to Start a Startup',
+        description: 'Află dacă antreprenoriatul este pentru tine',
+      },
+      module2: {
+        title: 'Getting & Evaluating Ideas',
+        description: 'Găsește și validează idei de startup',
+      },
+      module3: {
+        title: 'Building Your Founding Team',
+        description: 'Găsește co-fondatori și construiește echipa',
+      },
+      module4: {
+        title: 'Planning & Building Your MVP',
+        description: 'Construiește un MVP care rezolvă probleme reale',
+      },
+      module5: {
+        title: 'Launching & First Customers',
+        description: 'Strategii pentru a atrage primii clienți',
+      },
+      module6: {
+        title: 'Growth & Monetization',
+        description: 'Scalează și monetizează startup-ul',
+      },
+      module7: {
+        title: 'Fundraising & Company Building',
+        description: 'Atrage investiții și construiește compania',
+      },
+      module8: {
+        title: 'Stories from Great Founders',
+        description: 'Învață de la fondatori de succes',
+      },
     },
   },
 

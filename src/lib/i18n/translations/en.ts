@@ -802,20 +802,102 @@ export const en = {
     },
   },
 
-  // Learning Hub Smart Start-Up modules
+  // Learning Hub
   learningHub: {
-    premiumBanner: {
-      badge: 'Complete the full accelerator',
-      title: 'Founder Accelerator',
-      subtitle: 'Access all 8 modules + Private Community + Certificate',
-      cta: 'See Details',
+    title: 'Learning Hub',
+    subtitle: 'Premium courses for freelancers • Prices from £49 to £499',
+    coursesCompleted: 'courses completed',
+    premiumBadge: 'Premium Program',
+    lifetimeAccess: 'lifetime access',
+    viewDetails: 'See Details',
+    lessons: 'lessons',
+    tabs: {
+      smartStartup: 'Smart Start-Up',
+      courses: 'Courses',
+      certifications: 'Certifications',
     },
     smartStartup: {
-      title: 'Smart Start-Up',
-      subtitle: 'Essential modules for aspiring entrepreneurs',
-      freeBadge: 'Free',
-      lockedBadge: 'Premium',
-      lockedMessage: 'This module is part of the Founder Accelerator program',
+      title: 'Smart Start-Up Curriculum',
+      subtitle: 'Modules 1-3 free • Modules 4-8 available in Founder Accelerator',
+    },
+    founderAccelerator: {
+      title: 'Founder Accelerator',
+      description: 'The complete 8-module program to transform your idea into a successful startup. 36+ hours of content based on Y Combinator curriculum.',
+    },
+    progress: {
+      title: 'Your learning progress',
+      completed: 'You completed',
+      of: 'of',
+      available: 'courses available',
+      label: 'Progress',
+      updated: 'Progress updated',
+    },
+    badges: {
+      premium: 'Premium',
+      free: 'Free',
+      purchased: 'Purchased',
+    },
+    buttons: {
+      continue: 'Continue',
+      startCourse: 'Start course',
+      buy: 'Buy',
+    },
+    upgradeButton: 'Upgrade to Full Access',
+    unlockAll: {
+      title: 'Unlock All Modules',
+      description: 'Get access to all 8 modules, private community and priority support with Founder Accelerator.',
+      button: 'Upgrade Now - £997',
+    },
+    moreCertifications: {
+      title: 'More certifications coming soon!',
+      description: 'We are constantly adding new free certifications for students.',
+    },
+    purchaseDialog: {
+      title: 'Purchase course',
+      total: 'Total',
+      cancel: 'Cancel',
+      processing: 'Processing...',
+      buyNow: 'Buy now',
+      demo: '* This is a demo. In production, Stripe will be integrated.',
+    },
+    messages: {
+      purchaseSuccess: 'Course purchased successfully!',
+      purchaseError: 'Purchase error',
+      startModule: 'Start module',
+    },
+    modules: {
+      module1: {
+        title: 'Deciding to Start a Startup',
+        description: 'Find out if entrepreneurship is for you',
+      },
+      module2: {
+        title: 'Getting & Evaluating Ideas',
+        description: 'Find and validate startup ideas',
+      },
+      module3: {
+        title: 'Building Your Founding Team',
+        description: 'Find co-founders and build the team',
+      },
+      module4: {
+        title: 'Planning & Building Your MVP',
+        description: 'Build an MVP that solves real problems',
+      },
+      module5: {
+        title: 'Launching & First Customers',
+        description: 'Strategies to attract first customers',
+      },
+      module6: {
+        title: 'Growth & Monetization',
+        description: 'Scale and monetize the startup',
+      },
+      module7: {
+        title: 'Fundraising & Company Building',
+        description: 'Attract investments and build the company',
+      },
+      module8: {
+        title: 'Stories from Great Founders',
+        description: 'Learn from successful founders',
+      },
     },
   },
 
