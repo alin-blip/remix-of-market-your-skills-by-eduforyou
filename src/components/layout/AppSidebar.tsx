@@ -16,6 +16,7 @@ import {
   Wallet,
   BookOpen,
   CreditCard,
+  Users,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -185,7 +186,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           {!collapsed && (
             <div className="px-3 py-2">
               <span className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
-                Tools
+                {t.sidebar?.tools || 'Tools'}
               </span>
             </div>
           )}
@@ -194,7 +195,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/income-tracker'}
-                tooltip="Income Tracker"
+                tooltip={t.sidebar?.incomeTracker || 'Income Tracker'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -206,7 +207,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName=""
                 >
                   <Wallet className="h-5 w-5" />
-                  {!collapsed && <span>Income Tracker</span>}
+                  {!collapsed && <span>{t.sidebar?.incomeTracker || 'Income Tracker'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -214,7 +215,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/learning-hub'}
-                tooltip="Learning Hub"
+                tooltip={t.sidebar?.learningHub || 'Learning Hub'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -226,7 +227,27 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName=""
                 >
                   <BookOpen className="h-5 w-5" />
-                  {!collapsed && <span>Learning Hub</span>}
+                  {!collapsed && <span>{t.sidebar?.learningHub || 'Learning Hub'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/client-crm'}
+                tooltip={t.sidebar?.clientCRM || 'Client CRM'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/client-crm"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/client-crm' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Users className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.clientCRM || 'Client CRM'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -234,7 +255,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/pricing'}
-                tooltip="Pricing"
+                tooltip={t.sidebar?.pricing || 'Pricing'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -246,7 +267,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName=""
                 >
                   <CreditCard className="h-5 w-5" />
-                  {!collapsed && <span>Pricing</span>}
+                  {!collapsed && <span>{t.sidebar?.pricing || 'Pricing'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
