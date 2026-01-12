@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { 
   BookOpen, 
@@ -24,7 +25,10 @@ import {
   GraduationCap,
   ShoppingCart,
   PlayCircle,
-  Video
+  Video,
+  Crown,
+  Rocket,
+  ArrowRight
 } from 'lucide-react';
 
 interface Course {
@@ -50,6 +54,74 @@ interface CoursePurchase {
   course_id: string;
   status: string;
 }
+
+// Smart Start-Up modules (based on Y Combinator Startup School curriculum)
+const smartStartupModules = [
+  {
+    number: 1,
+    title: "Deciding to Start a Startup",
+    description: "Află dacă antreprenoriatul este pentru tine",
+    duration: "2h 30min",
+    lessons: 4,
+    locked: false
+  },
+  {
+    number: 2,
+    title: "Getting & Evaluating Ideas",
+    description: "Găsește și validează idei de startup",
+    duration: "3h 15min",
+    lessons: 5,
+    locked: false
+  },
+  {
+    number: 3,
+    title: "Building Your Founding Team",
+    description: "Găsește co-fondatori și construiește echipa",
+    duration: "2h 45min",
+    lessons: 4,
+    locked: false
+  },
+  {
+    number: 4,
+    title: "Planning & Building Your MVP",
+    description: "Construiește un MVP care rezolvă probleme reale",
+    duration: "4h",
+    lessons: 5,
+    locked: true
+  },
+  {
+    number: 5,
+    title: "Launching & First Customers",
+    description: "Strategii pentru a atrage primii clienți",
+    duration: "3h",
+    lessons: 4,
+    locked: true
+  },
+  {
+    number: 6,
+    title: "Growth & Monetization",
+    description: "Scalează și monetizează startup-ul",
+    duration: "4h 30min",
+    lessons: 5,
+    locked: true
+  },
+  {
+    number: 7,
+    title: "Fundraising & Company Building",
+    description: "Atrage investiții și construiește compania",
+    duration: "3h 30min",
+    lessons: 4,
+    locked: true
+  },
+  {
+    number: 8,
+    title: "Stories from Great Founders",
+    description: "Învață de la fondatori de succes",
+    duration: "4h",
+    lessons: 5,
+    locked: true
+  }
+];
 
 const certifications = [
   { name: 'Google Digital Marketing', provider: 'Google', free: true, url: 'https://grow.google/certificates/digital-marketing-ecommerce/' },
@@ -82,6 +154,7 @@ const formatDuration = (minutes: number) => {
 
 export default function LearningHub() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -141,7 +214,7 @@ export default function LearningHub() {
           user_id: user.id,
           course_id: course.id,
           amount: course.price,
-          currency: 'EUR',
+          currency: 'GBP',
           status: 'completed', // Simplified for demo
         });
       if (error) throw error;
@@ -205,6 +278,14 @@ export default function LearningHub() {
     }
   };
 
+  const handleModuleClick = (module: typeof smartStartupModules[0]) => {
+    if (module.locked) {
+      navigate('/upgrade');
+    } else {
+      toast.success(`Începe modulul: ${module.title}`);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="container mx-auto py-8 px-4 space-y-8">
@@ -218,7 +299,7 @@ export default function LearningHub() {
               Learning Hub
             </h1>
             <p className="text-muted-foreground mt-1">
-              Cursuri premium pentru freelanceri • Prețuri de la 49€ la 499€
+              Cursuri premium pentru freelanceri • Prețuri de la £49 la £499
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -228,6 +309,41 @@ export default function LearningHub() {
             </Badge>
           </div>
         </div>
+
+        {/* Founder Accelerator Premium Banner */}
+        <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border-amber-500/30 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-2xl" />
+          <CardContent className="py-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="hidden md:flex h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 items-center justify-center shrink-0">
+                <Crown className="h-8 w-8 text-white" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <Badge className="mb-2 bg-amber-500/20 text-amber-500 border-amber-500/30">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Program Premium
+                </Badge>
+                <h3 className="text-xl font-bold mb-1">Founder Accelerator</h3>
+                <p className="text-sm text-muted-foreground">
+                  Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes.
+                  36+ ore de conținut bazat pe curriculum-ul Y Combinator.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-500 mb-1">£997</div>
+                <p className="text-xs text-muted-foreground mb-2">acces pe viață</p>
+                <Button 
+                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                  onClick={() => navigate('/upgrade')}
+                >
+                  <Rocket className="h-4 w-4" />
+                  Vezi Detalii
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Progress Overview */}
         <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-background border-amber-500/20">
@@ -250,8 +366,12 @@ export default function LearningHub() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+        <Tabs defaultValue="smart-startup" className="space-y-6">
+          <TabsList className="grid w-full max-w-lg grid-cols-3">
+            <TabsTrigger value="smart-startup" className="gap-2">
+              <Rocket className="h-4 w-4" />
+              Smart Start-Up
+            </TabsTrigger>
             <TabsTrigger value="courses" className="gap-2">
               <Play className="h-4 w-4" />
               Cursuri ({courses.length})
@@ -261,6 +381,110 @@ export default function LearningHub() {
               Certificări
             </TabsTrigger>
           </TabsList>
+
+          {/* Smart Start-Up Tab */}
+          <TabsContent value="smart-startup" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Smart Start-Up Curriculum</h2>
+                <p className="text-sm text-muted-foreground">
+                  Module 1-3 gratuite • Module 4-8 disponibile în Founder Accelerator
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                className="gap-2 border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                onClick={() => navigate('/upgrade')}
+              >
+                <Crown className="h-4 w-4" />
+                Upgrade la Full Access
+              </Button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {smartStartupModules.map((module, index) => (
+                <motion.div
+                  key={module.number}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      module.locked 
+                        ? 'opacity-75 hover:border-amber-500/50' 
+                        : 'hover:border-primary/50'
+                    }`}
+                    onClick={() => handleModuleClick(module)}
+                  >
+                    <CardContent className="py-4">
+                      <div className="flex items-start gap-4">
+                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
+                          module.locked 
+                            ? 'bg-muted text-muted-foreground' 
+                            : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
+                        }`}>
+                          {module.locked ? (
+                            <Lock className="h-5 w-5" />
+                          ) : (
+                            <span className="font-bold">{module.number}</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-sm">{module.title}</h3>
+                            {module.locked ? (
+                              <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-500 border-0">
+                                <Lock className="h-3 w-3 mr-1" />
+                                Premium
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-500 border-0">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Gratuit
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">{module.description}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Play className="h-3 w-3" />
+                              {module.lessons} lecții
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {module.duration}
+                            </span>
+                          </div>
+                        </div>
+                        <ArrowRight className={`h-5 w-5 shrink-0 ${module.locked ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Upgrade CTA */}
+            <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+              <CardContent className="py-8 text-center">
+                <Crown className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">Deblochează Toate Modulele</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Obține acces la toate cele 8 module, comunitatea privată și suport prioritar cu Founder Accelerator.
+                </p>
+                <Button 
+                  size="lg"
+                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                  onClick={() => navigate('/upgrade')}
+                >
+                  <Rocket className="h-5 w-5" />
+                  Upgrade Acum - £997
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="courses" className="space-y-6">
             {/* Courses Grid */}
@@ -297,7 +521,7 @@ export default function LearningHub() {
                               </Badge>
                             ) : (
                               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
-                                {course.price}€
+                                £{course.price}
                               </Badge>
                             )}
                           </div>
@@ -375,7 +599,7 @@ export default function LearningHub() {
                               ) : (
                                 <>
                                   <ShoppingCart className="h-4 w-4" />
-                                  Cumpără - {course.price}€
+                                  Cumpără - £{course.price}
                                 </>
                               )}
                             </Button>
@@ -470,7 +694,7 @@ export default function LearningHub() {
 
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg">
                   <span className="font-medium">Total</span>
-                  <span className="text-2xl font-bold text-amber-500">{selectedCourse.price}€</span>
+                  <span className="text-2xl font-bold text-amber-500">£{selectedCourse.price}</span>
                 </div>
 
                 <div className="flex gap-3">
