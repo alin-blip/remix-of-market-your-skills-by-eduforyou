@@ -37,6 +37,7 @@ import ToolsHub from "./pages/ToolsHub";
 
 const queryClient = new QueryClient();
 
+// App component with providers
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
