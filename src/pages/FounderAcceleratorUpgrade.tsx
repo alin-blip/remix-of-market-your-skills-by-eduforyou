@@ -29,99 +29,99 @@ import {
   Play
 } from 'lucide-react';
 
-const modules = [
+const getModules = (t: any) => [
   {
     number: 1,
-    title: "Deciding to Start a Startup",
-    description: "Află dacă antreprenoriatul este pentru tine și cum să te pregătești pentru călătoria ta.",
+    title: t?.founderAccelerator?.modules?.m1?.title || "Deciding to Start a Startup",
+    description: t?.founderAccelerator?.modules?.m1?.description || "Find out if entrepreneurship is for you and how to prepare for your journey.",
     lessons: 4,
     duration: "2h 30min",
     topics: ["Should You Start A Startup?", "Why to Not Not Start", "Before the Startup", "Founder Mindset"]
   },
   {
     number: 2,
-    title: "Getting & Evaluating Startup Ideas",
-    description: "Învață cum să găsești și să evaluezi idei de startup care pot deveni business-uri de milioane.",
+    title: t?.founderAccelerator?.modules?.m2?.title || "Getting & Evaluating Startup Ideas",
+    description: t?.founderAccelerator?.modules?.m2?.description || "Learn how to find and evaluate startup ideas that can become million-dollar businesses.",
     lessons: 5,
     duration: "3h 15min",
     topics: ["How to Get Startup Ideas", "Idea Validation Framework", "All About Pivoting", "Market Research", "Competitive Analysis"]
   },
   {
     number: 3,
-    title: "Building Your Founding Team",
-    description: "Găsește co-fondatorii potriviți și construiește o echipă câștigătoare.",
+    title: t?.founderAccelerator?.modules?.m3?.title || "Building Your Founding Team",
+    description: t?.founderAccelerator?.modules?.m3?.description || "Find the right co-founders and build a winning team.",
     lessons: 4,
     duration: "2h 45min",
     topics: ["All About Co-Founders", "How to Split Equity", "Avoiding Founder Conflicts", "Team Dynamics"]
   },
   {
     number: 4,
-    title: "Planning & Building Your MVP",
-    description: "Construiește un MVP care rezolvă probleme reale și atrage primii utilizatori.",
+    title: t?.founderAccelerator?.modules?.m4?.title || "Planning & Building Your MVP",
+    description: t?.founderAccelerator?.modules?.m4?.description || "Build an MVP that solves real problems and attracts first users.",
     lessons: 5,
     duration: "4h",
     topics: ["How to Talk to Users", "How to Build an MVP", "Product Development Cycle", "Feature Prioritization", "Launch Checklist"]
   },
   {
     number: 5,
-    title: "Launching & Getting First Customers",
-    description: "Strategii dovedite pentru a lansa și a atrage primii clienți plătitori.",
+    title: t?.founderAccelerator?.modules?.m5?.title || "Launching & Getting First Customers",
+    description: t?.founderAccelerator?.modules?.m5?.description || "Proven strategies to launch and attract first paying customers.",
     lessons: 4,
     duration: "3h",
     topics: ["How to Launch (Again and Again)", "Getting First Customers", "Do Things That Don't Scale", "Early Traction Tactics"]
   },
   {
     number: 6,
-    title: "Growth & Monetization",
-    description: "Scalează-ți startup-ul și monetizează eficient.",
+    title: t?.founderAccelerator?.modules?.m6?.title || "Growth & Monetization",
+    description: t?.founderAccelerator?.modules?.m6?.description || "Scale your startup and monetize effectively.",
     lessons: 5,
     duration: "4h 30min",
     topics: ["Setting KPIs & Prioritization", "Business Models & Pricing", "Growth for Startups", "Retention Strategies", "Product-Market Fit"]
   },
   {
     number: 7,
-    title: "Fundraising & Company Building",
-    description: "Atrage investiții și construiește o companie durabilă.",
+    title: t?.founderAccelerator?.modules?.m7?.title || "Fundraising & Company Building",
+    description: t?.founderAccelerator?.modules?.m7?.description || "Attract investments and build a lasting company.",
     lessons: 4,
     duration: "3h 30min",
     topics: ["How Startup Fundraising Works", "Pitch Deck Mastery", "Negotiating with Investors", "Building Company Culture"]
   },
   {
     number: 8,
-    title: "Stories from Great Founders",
-    description: "Învață de la fondatorii celor mai de succes companii din lume.",
+    title: t?.founderAccelerator?.modules?.m8?.title || "Stories from Great Founders",
+    description: t?.founderAccelerator?.modules?.m8?.description || "Learn from the founders of the most successful companies in the world.",
     lessons: 5,
     duration: "4h",
     topics: ["The Facebook Story", "The Airbnb Story", "The Stripe Story", "Lessons from Unicorns", "Founder Q&A Sessions"]
   }
 ];
 
-const benefits = [
-  { icon: Video, title: "36+ ore de conținut video", description: "Lecții HD cu experți și fondatori de succes" },
-  { icon: FileText, title: "Materiale descărcabile", description: "Templates, worksheets și checklist-uri" },
-  { icon: MessageSquare, title: "Comunitate privată", description: "Acces la grupul de fondatori" },
-  { icon: Award, title: "Certificat de absolvire", description: "Certificat personalizat la finalizare" },
-  { icon: Clock, title: "Acces pe viață", description: "Învață în ritmul tău, oricând" },
-  { icon: Shield, title: "Garanție 30 zile", description: "Banii înapoi fără întrebări" },
+const getBenefits = (t: any) => [
+  { icon: Video, title: t?.founderAccelerator?.benefits?.videoContent?.title || "36+ hours of video content", description: t?.founderAccelerator?.benefits?.videoContent?.description || "HD lessons with experts and successful founders" },
+  { icon: FileText, title: t?.founderAccelerator?.benefits?.materials?.title || "Downloadable materials", description: t?.founderAccelerator?.benefits?.materials?.description || "Templates, worksheets and checklists" },
+  { icon: MessageSquare, title: t?.founderAccelerator?.benefits?.community?.title || "Private community", description: t?.founderAccelerator?.benefits?.community?.description || "Access to the founders group" },
+  { icon: Award, title: t?.founderAccelerator?.benefits?.certificate?.title || "Completion certificate", description: t?.founderAccelerator?.benefits?.certificate?.description || "Personalized certificate upon completion" },
+  { icon: Clock, title: t?.founderAccelerator?.benefits?.lifetime?.title || "Lifetime access", description: t?.founderAccelerator?.benefits?.lifetime?.description || "Learn at your own pace, anytime" },
+  { icon: Shield, title: t?.founderAccelerator?.benefits?.guarantee?.title || "30-day guarantee", description: t?.founderAccelerator?.benefits?.guarantee?.description || "Money back no questions asked" },
 ];
 
-const testimonials = [
+const getTestimonials = (t: any) => [
   {
-    name: "Alexandru P.",
-    role: "Fondator, TechStartup",
-    content: "Acest program mi-a schimbat complet perspectiva. Am lansat MVP-ul în 6 săptămâni și am primii 50 de clienți plătitori!",
+    name: t?.founderAccelerator?.testimonials?.t1?.name || "Alexander P.",
+    role: t?.founderAccelerator?.testimonials?.t1?.role || "Founder, TechStartup",
+    content: t?.founderAccelerator?.testimonials?.t1?.content || "This program completely changed my perspective. I launched my MVP in 6 weeks and got my first 50 paying customers!",
     image: null
   },
   {
-    name: "Maria D.",
-    role: "Co-fondator, HealthApp",
-    content: "Modulele de fundraising m-au ajutat să strâng £200k în primele 3 luni. Recomand tuturor aspiranților antreprenori.",
+    name: t?.founderAccelerator?.testimonials?.t2?.name || "Maria D.",
+    role: t?.founderAccelerator?.testimonials?.t2?.role || "Co-founder, HealthApp",
+    content: t?.founderAccelerator?.testimonials?.t2?.content || "The fundraising modules helped me raise £200k in the first 3 months. I recommend it to all aspiring entrepreneurs.",
     image: null
   },
   {
-    name: "Andrei R.",
-    role: "CEO, SaaS Platform",
-    content: "De la idee la £10k MRR în 4 luni. Strategiile din acest curs funcționează, garantat.",
+    name: t?.founderAccelerator?.testimonials?.t3?.name || "Andrew R.",
+    role: t?.founderAccelerator?.testimonials?.t3?.role || "CEO, SaaS Platform",
+    content: t?.founderAccelerator?.testimonials?.t3?.content || "From idea to £10k MRR in 4 months. The strategies in this course work, guaranteed.",
     image: null
   }
 ];
@@ -132,16 +132,20 @@ export default function FounderAcceleratorUpgrade() {
   const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
 
+  const modules = getModules(t);
+  const benefits = getBenefits(t);
+  const testimonials = getTestimonials(t);
+
   const handlePurchase = async () => {
     if (!user) {
-      toast.error('Trebuie să fii autentificat pentru a achiziționa');
+      toast.error(t?.founderAccelerator?.messages?.needAuth || 'You need to be logged in to purchase');
       navigate('/auth/login');
       return;
     }
 
     setIsLoading(true);
     // TODO: Integrate with Stripe for real payments
-    toast.success('Vom implementa plata cu Stripe în curând!');
+    toast.success(t?.founderAccelerator?.messages?.stripeComingSoon || 'Stripe payment coming soon!');
     setIsLoading(false);
   };
 
@@ -161,34 +165,33 @@ export default function FounderAcceleratorUpgrade() {
             >
               <Badge className="mb-6 py-2 px-4 bg-amber-500/20 text-amber-500 border-amber-500/30">
                 <Crown className="h-4 w-4 mr-2" />
-                Program Premium • Acces Nelimitat
+                {t?.founderAccelerator?.badge || 'Premium Program • Unlimited Access'}
               </Badge>
               
               <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-amber-500 bg-clip-text text-transparent">
-                Founder Accelerator
+                {t?.founderAccelerator?.title || 'Founder Accelerator'}
               </h1>
               
               <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-                Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes.
-                Bazat pe curriculum-ul Y Combinator.
+                {t?.founderAccelerator?.subtitle || 'The complete 8-module program to transform your idea into a successful startup. Based on Y Combinator curriculum.'}
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Video className="h-5 w-5 text-primary" />
-                  <span>36+ ore video</span>
+                  <span>{t?.founderAccelerator?.stats?.videoHours || '36+ video hours'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <FileText className="h-5 w-5 text-primary" />
-                  <span>8 module complete</span>
+                  <span>{t?.founderAccelerator?.stats?.modules || '8 complete modules'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Users className="h-5 w-5 text-primary" />
-                  <span>Comunitate privată</span>
+                  <span>{t?.founderAccelerator?.stats?.community || 'Private community'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-5 w-5 text-primary" />
-                  <span>Acces pe viață</span>
+                  <span>{t?.founderAccelerator?.stats?.lifetime || 'Lifetime access'}</span>
                 </div>
               </div>
 
@@ -200,17 +203,17 @@ export default function FounderAcceleratorUpgrade() {
                   disabled={isLoading}
                 >
                   <Rocket className="h-5 w-5" />
-                  Începe Acum - £997
+                  {t?.founderAccelerator?.cta?.startNow || 'Start Now - £997'}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  sau 3 x £349/lună
+                  {t?.founderAccelerator?.cta?.or || 'or 3 x £349/month'}
                 </p>
               </div>
 
               <p className="mt-6 text-sm text-muted-foreground flex items-center justify-center gap-2">
                 <Shield className="h-4 w-4" />
-                Garanție 30 zile - banii înapoi fără întrebări
+                {t?.founderAccelerator?.cta?.guarantee || '30-day guarantee - money back no questions asked'}
               </p>
             </motion.div>
           </div>
@@ -220,12 +223,12 @@ export default function FounderAcceleratorUpgrade() {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4">Curriculum Complet</Badge>
+              <Badge variant="outline" className="mb-4">{t?.founderAccelerator?.curriculum?.badge || 'Complete Curriculum'}</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                8 Module Care Îți Transformă Startup-ul
+                {t?.founderAccelerator?.curriculum?.title || '8 Modules That Transform Your Startup'}
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Fiecare modul este creat de experți cu experiență în Y Combinator și startup-uri de succes
+                {t?.founderAccelerator?.curriculum?.subtitle || 'Each module is created by experts with Y Combinator experience and successful startups'}
               </p>
             </div>
 
@@ -250,7 +253,7 @@ export default function FounderAcceleratorUpgrade() {
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                               <span className="flex items-center gap-1">
                                 <Play className="h-3 w-3" />
-                                {module.lessons} lecții
+                                {module.lessons} {t?.founderAccelerator?.curriculum?.lessons || 'lessons'}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
@@ -261,7 +264,7 @@ export default function FounderAcceleratorUpgrade() {
                         </div>
                         {index < 3 && (
                           <Badge variant="secondary" className="bg-green-500/20 text-green-500 border-0 text-xs">
-                            Preview gratuit
+                            {t?.founderAccelerator?.curriculum?.freePreview || 'Free preview'}
                           </Badge>
                         )}
                       </div>
@@ -292,9 +295,9 @@ export default function FounderAcceleratorUpgrade() {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4">Ce Primești</Badge>
+              <Badge variant="outline" className="mb-4">{t?.founderAccelerator?.benefits?.badge || 'What You Get'}</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Tot Ce Ai Nevoie Pentru Succes
+                {t?.founderAccelerator?.benefits?.title || 'Everything You Need For Success'}
               </h2>
             </div>
 
@@ -326,9 +329,9 @@ export default function FounderAcceleratorUpgrade() {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4">Povești de Succes</Badge>
+              <Badge variant="outline" className="mb-4">{t?.founderAccelerator?.testimonials?.badge || 'Success Stories'}</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Ce Spun Absolvenții Noștri
+                {t?.founderAccelerator?.testimonials?.title || 'What Our Graduates Say'}
               </h2>
             </div>
 
@@ -376,21 +379,21 @@ export default function FounderAcceleratorUpgrade() {
               <CardContent className="py-12 text-center relative">
                 <Badge className="mb-6 py-2 px-4 bg-amber-500/20 text-amber-500 border-amber-500/30">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Ofertă Limitată
+                  {t?.founderAccelerator?.finalCta?.badge || 'Limited Offer'}
                 </Badge>
                 
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Ești Gata Să Îți Lansezi Startup-ul?
+                  {t?.founderAccelerator?.finalCta?.title || 'Are You Ready To Launch Your Startup?'}
                 </h2>
                 
                 <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-                  Alătură-te celor peste 500 de fondatori care și-au transformat ideile în business-uri profitabile.
+                  {t?.founderAccelerator?.finalCta?.subtitle || 'Join over 500 founders who have transformed their ideas into profitable businesses.'}
                 </p>
 
                 <div className="mb-8">
-                  <div className="text-5xl font-bold text-amber-500 mb-2">£997</div>
-                  <p className="text-muted-foreground">plată unică • acces pe viață</p>
-                  <p className="text-sm text-muted-foreground mt-1">sau 3 x £349/lună</p>
+                  <div className="text-5xl font-bold text-amber-500 mb-2">{t?.founderAccelerator?.finalCta?.price || '£997'}</div>
+                  <p className="text-muted-foreground">{t?.founderAccelerator?.finalCta?.priceNote || 'one-time payment • lifetime access'}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t?.founderAccelerator?.cta?.or || 'or 3 x £349/month'}</p>
                 </div>
 
                 <Button 
@@ -400,22 +403,22 @@ export default function FounderAcceleratorUpgrade() {
                   disabled={isLoading}
                 >
                   <Rocket className="h-5 w-5" />
-                  Începe Transformarea Acum
+                  {t?.founderAccelerator?.cta?.startTransformation || 'Start Your Transformation Now'}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
 
                 <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Garanție 30 zile
+                    {t?.founderAccelerator?.finalCta?.securePayment || 'Secure payment'}
                   </span>
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Acces instant
+                    {t?.founderAccelerator?.finalCta?.instantAccess || 'Instant access'}
                   </span>
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    Suport prioritar
+                    {t?.founderAccelerator?.finalCta?.moneyBack || '30-day money back'}
                   </span>
                 </div>
               </CardContent>

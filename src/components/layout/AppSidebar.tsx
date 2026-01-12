@@ -17,6 +17,7 @@ import {
   BookOpen,
   CreditCard,
   Users,
+  GraduationCap,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -268,6 +269,26 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <CreditCard className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.pricing || 'Pricing'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/upgrade'}
+                tooltip={t.sidebar?.founderAccelerator || 'Founder Accelerator'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/upgrade"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/upgrade' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <GraduationCap className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.founderAccelerator || 'Founder Accelerator'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

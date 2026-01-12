@@ -690,12 +690,133 @@ export const en = {
     gigJobBuilder: 'Gig & Job Builder',
     progressLabel: 'Freedom Path Progress',
     settings: 'Settings',
-    realStartup: 'Real Start-up',
     tools: 'Tools',
     incomeTracker: 'Income Tracker',
     learningHub: 'Learning Hub',
     clientCRM: 'Client CRM',
     pricing: 'Pricing',
+    founderAccelerator: 'Founder Accelerator',
+  },
+
+  // Founder Accelerator
+  founderAccelerator: {
+    badge: 'Premium Program • Unlimited Access',
+    title: 'Founder Accelerator',
+    subtitle: 'The complete 8-module program to transform your idea into a successful startup. Based on Y Combinator curriculum.',
+    stats: {
+      videoHours: '36+ video hours',
+      modules: '8 complete modules',
+      community: 'Private community',
+      lifetime: 'Lifetime access',
+    },
+    cta: {
+      startNow: 'Start Now - £997',
+      or: 'or 3 x £349/month',
+      guarantee: '30-day guarantee - money back no questions asked',
+      startTransformation: 'Start Your Transformation Now',
+    },
+    curriculum: {
+      badge: 'Complete Curriculum',
+      title: '8 Modules That Transform Your Startup',
+      subtitle: 'Each module is created by experts with Y Combinator experience and successful startups',
+      lessons: 'lessons',
+      freePreview: 'Free preview',
+      more: '+{count} more',
+    },
+    modules: {
+      m1: {
+        title: 'Deciding to Start a Startup',
+        description: 'Find out if entrepreneurship is for you and how to prepare for your journey.',
+      },
+      m2: {
+        title: 'Getting & Evaluating Startup Ideas',
+        description: 'Learn how to find and evaluate startup ideas that can become million-dollar businesses.',
+      },
+      m3: {
+        title: 'Building Your Founding Team',
+        description: 'Find the right co-founders and build a winning team.',
+      },
+      m4: {
+        title: 'Planning & Building Your MVP',
+        description: 'Build an MVP that solves real problems and attracts first users.',
+      },
+      m5: {
+        title: 'Launching & Getting First Customers',
+        description: 'Proven strategies to launch and attract first paying customers.',
+      },
+      m6: {
+        title: 'Growth & Monetization',
+        description: 'Scale your startup and monetize effectively.',
+      },
+      m7: {
+        title: 'Fundraising & Company Building',
+        description: 'Attract investments and build a lasting company.',
+      },
+      m8: {
+        title: 'Stories from Great Founders',
+        description: 'Learn from the founders of the most successful companies in the world.',
+      },
+    },
+    benefits: {
+      badge: 'What You Get',
+      title: 'Everything You Need For Success',
+      videoContent: { title: '36+ hours of video content', description: 'HD lessons with experts and successful founders' },
+      materials: { title: 'Downloadable materials', description: 'Templates, worksheets and checklists' },
+      community: { title: 'Private community', description: 'Access to the founders group' },
+      certificate: { title: 'Completion certificate', description: 'Personalized certificate upon completion' },
+      lifetime: { title: 'Lifetime access', description: 'Learn at your own pace, anytime' },
+      guarantee: { title: '30-day guarantee', description: 'Money back no questions asked' },
+    },
+    testimonials: {
+      badge: 'Success Stories',
+      title: 'What Our Graduates Say',
+      t1: {
+        name: 'Alexander P.',
+        role: 'Founder, TechStartup',
+        content: 'This program completely changed my perspective. I launched my MVP in 6 weeks and got my first 50 paying customers!',
+      },
+      t2: {
+        name: 'Maria D.',
+        role: 'Co-founder, HealthApp',
+        content: 'The fundraising modules helped me raise £200k in the first 3 months. I recommend it to all aspiring entrepreneurs.',
+      },
+      t3: {
+        name: 'Andrew R.',
+        role: 'CEO, SaaS Platform',
+        content: 'From idea to £10k MRR in 4 months. The strategies in this course work, guaranteed.',
+      },
+    },
+    finalCta: {
+      badge: 'Limited Offer',
+      title: 'Are You Ready To Launch Your Startup?',
+      subtitle: 'Join over 500 founders who have transformed their ideas into profitable businesses.',
+      price: '£997',
+      priceNote: 'one-time payment • lifetime access',
+      securePayment: 'Secure payment',
+      instantAccess: 'Instant access',
+      moneyBack: '30-day money back',
+    },
+    messages: {
+      needAuth: 'You need to be logged in to purchase',
+      stripeComingSoon: 'Stripe payment coming soon!',
+    },
+  },
+
+  // Learning Hub Smart Start-Up modules
+  learningHub: {
+    premiumBanner: {
+      badge: 'Complete the full accelerator',
+      title: 'Founder Accelerator',
+      subtitle: 'Access all 8 modules + Private Community + Certificate',
+      cta: 'See Details',
+    },
+    smartStartup: {
+      title: 'Smart Start-Up',
+      subtitle: 'Essential modules for aspiring entrepreneurs',
+      freeBadge: 'Free',
+      lockedBadge: 'Premium',
+      lockedMessage: 'This module is part of the Founder Accelerator program',
+    },
   },
 
   // Client CRM
