@@ -13,9 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { format, formatDistanceToNow, isPast, isToday } from 'date-fns';
-import { ro } from 'date-fns/locale';
+import { ro, enUS } from 'date-fns/locale';
 import {
   Users,
   Plus,
@@ -81,17 +82,20 @@ const statusColors: Record<string, { bg: string; text: string }> = {
   lost: { bg: 'bg-red-500/10', text: 'text-red-500' },
 };
 
-const statusLabels: Record<string, string> = {
-  lead: 'Lead',
-  prospect: 'Prospect',
-  active: 'Client Activ',
-  inactive: 'Inactiv',
-  lost: 'Pierdut',
-};
-
 export default function ClientCRM() {
   const { user } = useAuth();
+  const { t, locale } = useI18n();
   const queryClient = useQueryClient();
+  const dateLocale = locale === 'ro' ? ro : enUS;
+  
+  // Status labels from translations
+  const statusLabels: Record<string, string> = {
+    lead: t.clientCRM?.status?.lead || 'Lead',
+    prospect: t.clientCRM?.status?.prospect || 'Prospect',
+    active: t.clientCRM?.status?.active || 'Active Client',
+    inactive: t.clientCRM?.status?.inactive || 'Inactive',
+    lost: t.clientCRM?.status?.lost || 'Lost',
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [showClientDialog, setShowClientDialog] = useState(false);
@@ -211,10 +215,10 @@ export default function ClientCRM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
-      toast.success(editingClient ? 'Client actualizat!' : 'Client adăugat!');
+      toast.success(editingClient ? (t.clientCRM?.messages?.clientUpdated || 'Client updated!') : (t.clientCRM?.messages?.clientAdded || 'Client added!'));
       resetClientForm();
     },
-    onError: () => toast.error('Eroare la salvare'),
+    onError: () => toast.error(t.clientCRM?.messages?.saveError || 'Error saving'),
   });
 
   // Delete client
@@ -228,10 +232,10 @@ export default function ClientCRM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
-      toast.success('Client șters!');
+      toast.success(t.clientCRM?.messages?.clientDeleted || 'Client deleted!');
       setSelectedClient(null);
     },
-    onError: () => toast.error('Eroare la ștergere'),
+    onError: () => toast.error(t.clientCRM?.messages?.deleteError || 'Error deleting'),
   });
 
   // Create project
@@ -254,11 +258,11 @@ export default function ClientCRM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client-projects'] });
-      toast.success('Proiect adăugat!');
+      toast.success(t.clientCRM?.messages?.projectAdded || 'Project added!');
       setShowProjectDialog(false);
       setProjectForm({ title: '', description: '', status: 'active', value: '', start_date: '', end_date: '' });
     },
-    onError: () => toast.error('Eroare la salvare'),
+    onError: () => toast.error(t.clientCRM?.messages?.saveError || 'Error saving'),
   });
 
   // Create reminder
@@ -278,11 +282,11 @@ export default function ClientCRM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['followup-reminders'] });
-      toast.success('Reminder adăugat!');
+      toast.success(t.clientCRM?.messages?.reminderAdded || 'Reminder added!');
       setShowReminderDialog(false);
       setReminderForm({ title: '', notes: '', reminder_date: '' });
     },
-    onError: () => toast.error('Eroare la salvare'),
+    onError: () => toast.error(t.clientCRM?.messages?.saveError || 'Error saving'),
   });
 
   // Complete reminder
@@ -296,7 +300,7 @@ export default function ClientCRM() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['followup-reminders'] });
-      toast.success('Reminder completat!');
+      toast.success(t.clientCRM?.messages?.reminderCompleted || 'Reminder completed!');
     },
   });
 
@@ -343,15 +347,15 @@ export default function ClientCRM() {
               <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
                 <Users className="h-7 w-7 text-blue-500" />
               </div>
-              Client CRM
+              {t.clientCRM?.title || 'Client CRM'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Gestionează clienții, proiectele și follow-up-urile
+              {t.clientCRM?.subtitle || 'Manage clients, projects and follow-ups'}
             </p>
           </div>
           <Button onClick={() => setShowClientDialog(true)} className="gap-2">
             <UserPlus className="h-4 w-4" />
-            Adaugă Client
+            {t.clientCRM?.addClient || 'Add Client'}
           </Button>
         </div>
 
@@ -365,7 +369,7 @@ export default function ClientCRM() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{clients.length}</p>
-                  <p className="text-xs text-muted-foreground">Total Clienți</p>
+                  <p className="text-xs text-muted-foreground">{t.clientCRM?.totalClients || 'Total Clients'}</p>
                 </div>
               </div>
             </CardContent>
@@ -378,7 +382,7 @@ export default function ClientCRM() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{clients.filter(c => c.status === 'active').length}</p>
-                  <p className="text-xs text-muted-foreground">Clienți Activi</p>
+                  <p className="text-xs text-muted-foreground">{t.clientCRM?.activeClients || 'Active Clients'}</p>
                 </div>
               </div>
             </CardContent>
@@ -391,7 +395,7 @@ export default function ClientCRM() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{reminders.length}</p>
-                  <p className="text-xs text-muted-foreground">Follow-up-uri</p>
+                  <p className="text-xs text-muted-foreground">{t.clientCRM?.followUps || 'Follow-ups'}</p>
                 </div>
               </div>
             </CardContent>
@@ -404,7 +408,7 @@ export default function ClientCRM() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{clients.filter(c => c.status === 'lead').length}</p>
-                  <p className="text-xs text-muted-foreground">Lead-uri Noi</p>
+                  <p className="text-xs text-muted-foreground">{t.clientCRM?.newLeads || 'New Leads'}</p>
                 </div>
               </div>
             </CardContent>
@@ -419,10 +423,10 @@ export default function ClientCRM() {
                 <AlertTriangle className="h-5 w-5 text-red-500" />
                 <div className="flex-1">
                   <p className="font-medium text-red-500">
-                    {overdueReminders.length} follow-up-uri restante
+                    {overdueReminders.length} {t.clientCRM?.overdueReminders || 'overdue follow-ups'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Ai reminder-uri care au trecut de data limită
+                    {t.clientCRM?.overdueDescription || 'You have reminders past their due date'}
                   </p>
                 </div>
               </div>
@@ -438,7 +442,7 @@ export default function ClientCRM() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Caută clienți..."
+                  placeholder={t.clientCRM?.searchPlaceholder || 'Search clients...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -449,12 +453,12 @@ export default function ClientCRM() {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toate</SelectItem>
-                  <SelectItem value="lead">Lead</SelectItem>
-                  <SelectItem value="prospect">Prospect</SelectItem>
-                  <SelectItem value="active">Activ</SelectItem>
-                  <SelectItem value="inactive">Inactiv</SelectItem>
-                  <SelectItem value="lost">Pierdut</SelectItem>
+                  <SelectItem value="all">{t.clientCRM?.filterAll || 'All'}</SelectItem>
+                  <SelectItem value="lead">{statusLabels.lead}</SelectItem>
+                  <SelectItem value="prospect">{statusLabels.prospect}</SelectItem>
+                  <SelectItem value="active">{statusLabels.active}</SelectItem>
+                  <SelectItem value="inactive">{statusLabels.inactive}</SelectItem>
+                  <SelectItem value="lost">{statusLabels.lost}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -521,13 +525,13 @@ export default function ClientCRM() {
                 <Card className="bg-muted/30">
                   <CardContent className="py-12 text-center">
                     <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-semibold mb-2">Niciun client găsit</h3>
+                    <h3 className="font-semibold mb-2">{locale === 'ro' ? 'Niciun client găsit' : 'No clients found'}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Adaugă primul tău client pentru a începe
+                      {locale === 'ro' ? 'Adaugă primul tău client pentru a începe' : 'Add your first client to get started'}
                     </p>
                     <Button onClick={() => setShowClientDialog(true)} className="gap-2">
                       <Plus className="h-4 w-4" />
-                      Adaugă Client
+                      {t.clientCRM?.addClient || 'Add Client'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -543,7 +547,7 @@ export default function ClientCRM() {
                 <Card>
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">Detalii Client</CardTitle>
+                      <CardTitle className="text-lg">{t.clientCRM?.clientDetails || 'Client Details'}</CardTitle>
                       <Button variant="ghost" size="icon" onClick={() => deleteClientMutation.mutate(selectedClient.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -584,11 +588,11 @@ export default function ClientCRM() {
                     <div className="flex gap-2">
                       <Button variant="secondary" className="flex-1 gap-2" onClick={() => setShowProjectDialog(true)}>
                         <Briefcase className="h-4 w-4" />
-                        Proiect
+                        {t.clientCRM?.addProject || 'Add Project'}
                       </Button>
                       <Button variant="secondary" className="flex-1 gap-2" onClick={() => setShowReminderDialog(true)}>
                         <Bell className="h-4 w-4" />
-                        Reminder
+                        {t.clientCRM?.addReminder || 'Add Reminder'}
                       </Button>
                     </div>
                   </CardContent>
@@ -599,7 +603,7 @@ export default function ClientCRM() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Briefcase className="h-4 w-4" />
-                      Proiecte ({projects.length})
+                      {t.clientCRM?.projects || 'Projects'} ({projects.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -621,13 +625,13 @@ export default function ClientCRM() {
                           </div>
                         ))}
                         <div className="pt-2 border-t flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Total valoare</span>
+                          <span className="text-sm text-muted-foreground">{t.clientCRM?.totalValue || 'Total Value'}</span>
                           <span className="font-bold text-green-500">{totalProjectValue}€</span>
                         </div>
                       </div>
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">
-                        Niciun proiect încă
+                        {t.clientCRM?.noProjectsYet || 'No projects yet'}
                       </p>
                     )}
                   </CardContent>
@@ -639,7 +643,7 @@ export default function ClientCRM() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Bell className="h-4 w-4" />
-                    Follow-up Reminders
+                    {t.clientCRM?.reminders || 'Reminders'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -662,7 +666,7 @@ export default function ClientCRM() {
                                 </p>
                                 <p className={`text-xs mt-1 ${isOverdue ? 'text-red-500' : 'text-muted-foreground'}`}>
                                   <Clock className="h-3 w-3 inline mr-1" />
-                                  {formatDistanceToNow(new Date(reminder.reminder_date), { addSuffix: true, locale: ro })}
+                                  {formatDistanceToNow(new Date(reminder.reminder_date), { addSuffix: true, locale: dateLocale })}
                                 </p>
                               </div>
                               <Button 
@@ -680,7 +684,7 @@ export default function ClientCRM() {
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                      Niciun reminder activ
+                      {locale === 'ro' ? 'Niciun reminder activ' : 'No active reminders'}
                     </p>
                   )}
                 </CardContent>
