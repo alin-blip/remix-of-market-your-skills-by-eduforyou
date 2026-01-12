@@ -690,12 +690,133 @@ export const ro = {
     gigJobBuilder: 'Gig & Job Builder',
     progressLabel: 'Progres Freedom Path',
     settings: 'Setări',
-    realStartup: 'Real Start-up',
     tools: 'Instrumente',
     incomeTracker: 'Tracking Venituri',
     learningHub: 'Centru Învățare',
     clientCRM: 'Client CRM',
     pricing: 'Prețuri',
+    founderAccelerator: 'Founder Accelerator',
+  },
+
+  // Founder Accelerator
+  founderAccelerator: {
+    badge: 'Program Premium • Acces Nelimitat',
+    title: 'Founder Accelerator',
+    subtitle: 'Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes. Bazat pe curriculum-ul Y Combinator.',
+    stats: {
+      videoHours: '36+ ore video',
+      modules: '8 module complete',
+      community: 'Comunitate privată',
+      lifetime: 'Acces pe viață',
+    },
+    cta: {
+      startNow: 'Începe Acum - £997',
+      or: 'sau 3 x £349/lună',
+      guarantee: 'Garanție 30 zile - banii înapoi fără întrebări',
+      startTransformation: 'Începe Transformarea Acum',
+    },
+    curriculum: {
+      badge: 'Curriculum Complet',
+      title: '8 Module Care Îți Transformă Startup-ul',
+      subtitle: 'Fiecare modul este creat de experți cu experiență în Y Combinator și startup-uri de succes',
+      lessons: 'lecții',
+      freePreview: 'Preview gratuit',
+      more: '+{count} mai multe',
+    },
+    modules: {
+      m1: {
+        title: 'Deciding to Start a Startup',
+        description: 'Află dacă antreprenoriatul este pentru tine și cum să te pregătești pentru călătoria ta.',
+      },
+      m2: {
+        title: 'Getting & Evaluating Startup Ideas',
+        description: 'Învață cum să găsești și să evaluezi idei de startup care pot deveni business-uri de milioane.',
+      },
+      m3: {
+        title: 'Building Your Founding Team',
+        description: 'Găsește co-fondatorii potriviți și construiește o echipă câștigătoare.',
+      },
+      m4: {
+        title: 'Planning & Building Your MVP',
+        description: 'Construiește un MVP care rezolvă probleme reale și atrage primii utilizatori.',
+      },
+      m5: {
+        title: 'Launching & Getting First Customers',
+        description: 'Strategii dovedite pentru a lansa și a atrage primii clienți plătitori.',
+      },
+      m6: {
+        title: 'Growth & Monetization',
+        description: 'Scalează-ți startup-ul și monetizează eficient.',
+      },
+      m7: {
+        title: 'Fundraising & Company Building',
+        description: 'Atrage investiții și construiește o companie durabilă.',
+      },
+      m8: {
+        title: 'Stories from Great Founders',
+        description: 'Învață de la fondatorii celor mai de succes companii din lume.',
+      },
+    },
+    benefits: {
+      badge: 'Ce Primești',
+      title: 'Tot Ce Ai Nevoie Pentru Succes',
+      videoContent: { title: '36+ ore de conținut video', description: 'Lecții HD cu experți și fondatori de succes' },
+      materials: { title: 'Materiale descărcabile', description: 'Templates, worksheets și checklist-uri' },
+      community: { title: 'Comunitate privată', description: 'Acces la grupul de fondatori' },
+      certificate: { title: 'Certificat de absolvire', description: 'Certificat personalizat la finalizare' },
+      lifetime: { title: 'Acces pe viață', description: 'Învață în ritmul tău, oricând' },
+      guarantee: { title: 'Garanție 30 zile', description: 'Banii înapoi fără întrebări' },
+    },
+    testimonials: {
+      badge: 'Povești de Succes',
+      title: 'Ce Spun Absolvenții Noștri',
+      t1: {
+        name: 'Alexandru P.',
+        role: 'Fondator, TechStartup',
+        content: 'Acest program mi-a schimbat complet perspectiva. Am lansat MVP-ul în 6 săptămâni și am primii 50 de clienți plătitori!',
+      },
+      t2: {
+        name: 'Maria D.',
+        role: 'Co-fondator, HealthApp',
+        content: 'Modulele de fundraising m-au ajutat să strâng £200k în primele 3 luni. Recomand tuturor aspiranților antreprenori.',
+      },
+      t3: {
+        name: 'Andrei R.',
+        role: 'CEO, SaaS Platform',
+        content: 'De la idee la £10k MRR în 4 luni. Strategiile din acest curs funcționează, garantat.',
+      },
+    },
+    finalCta: {
+      badge: 'Ofertă Limitată',
+      title: 'Ești Gata Să Îți Lansezi Startup-ul?',
+      subtitle: 'Alătură-te celor peste 500 de fondatori care și-au transformat ideile în business-uri profitabile.',
+      price: '£997',
+      priceNote: 'plată unică • acces pe viață',
+      securePayment: 'Plată securizată',
+      instantAccess: 'Acces instant',
+      moneyBack: '30 zile banii înapoi',
+    },
+    messages: {
+      needAuth: 'Trebuie să fii autentificat pentru a achiziționa',
+      stripeComingSoon: 'Vom implementa plata cu Stripe în curând!',
+    },
+  },
+
+  // Learning Hub Smart Start-Up modules
+  learningHub: {
+    premiumBanner: {
+      badge: 'Completează acceleratorul complet',
+      title: 'Founder Accelerator',
+      subtitle: 'Acces la toate cele 8 module + Comunitate Privată + Certificat',
+      cta: 'Vezi Detalii',
+    },
+    smartStartup: {
+      title: 'Smart Start-Up',
+      subtitle: 'Module esențiale pentru antreprenorii aspiranți',
+      freeBadge: 'Gratuit',
+      lockedBadge: 'Premium',
+      lockedMessage: 'Acest modul face parte din programul Founder Accelerator',
+    },
   },
 
   // Client CRM
