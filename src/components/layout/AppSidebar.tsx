@@ -12,8 +12,10 @@ import {
   Shield,
   LogOut,
   Target,
-  Wrench,
   GraduationCap,
+  DollarSign,
+  Users,
+  BookOpen,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -26,6 +28,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
   useSidebar,
+  SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -59,6 +62,8 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
 
   // Check if user is on any wizard path
   const isOnWizardPath = currentPath.startsWith('/wizard');
+  const isOnLearnPath = currentPath === '/learning-hub' || currentPath === '/upgrade';
+  const isOnBusinessPath = currentPath === '/income-tracker' || currentPath === '/client-crm';
 
   const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
   const isComplete = completedSteps >= totalSteps;
@@ -111,7 +116,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               </SidebarMenuButton>
             </SidebarMenuItem>
 
-            {/* Define Your Path - First after Dashboard */}
+            {/* Define Your Path - Main entry point */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -175,8 +180,39 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
 
-            {/* Founder Accelerator - Orange */}
+        {/* Learn Section */}
+        <SidebarGroup className="gap-1">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+              {t.sidebar?.learn || 'Learn'}
+            </SidebarGroupLabel>
+          )}
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/learning-hub'}
+                tooltip={t.sidebar?.learningHub || 'Learning Hub'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/learning-hub"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <BookOpen className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.learningHub || 'Learning Hub'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Founder Accelerator - Premium */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -199,25 +235,55 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
 
-            {/* Tools - Opens Tools Page */}
+        {/* Business Tools Section */}
+        <SidebarGroup className="gap-1">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+              {t.sidebar?.businessTools || 'Business'}
+            </SidebarGroupLabel>
+          )}
+          <SidebarMenu className="gap-1">
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={currentPath === '/tools' || currentPath === '/income-tracker' || currentPath === '/learning-hub' || currentPath === '/client-crm' || currentPath === '/pricing'}
-                tooltip={t.sidebar?.tools || 'Tools'}
+                isActive={currentPath === '/income-tracker'}
+                tooltip={t.sidebar?.incomeTracker || 'Income Tracker'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
-                  to="/tools"
+                  to="/income-tracker"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    (currentPath === '/tools' || currentPath === '/income-tracker' || currentPath === '/learning-hub' || currentPath === '/client-crm' || currentPath === '/pricing') && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/income-tracker' && "bg-primary/10 text-primary font-medium"
                   )}
                   activeClassName=""
                 >
-                  <Wrench className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.tools || 'Tools'}</span>}
+                  <DollarSign className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.incomeTracker || 'Income Tracker'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/client-crm'}
+                tooltip={t.sidebar?.clientCRM || 'Client CRM'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/client-crm"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/client-crm' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Users className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.clientCRM || 'Client CRM'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

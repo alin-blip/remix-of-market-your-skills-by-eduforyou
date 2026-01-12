@@ -92,14 +92,6 @@ const App = () => (
                   } 
                 />
                 <Route 
-                  path="/offer-builder" 
-                  element={
-                    <ProtectedRoute>
-                      <OfferBuilder />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
                   path="/wizard/profile" 
                   element={
                     <ProtectedRoute>
@@ -136,14 +128,6 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <DefineYourPath />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/outreach-generator" 
-                  element={
-                    <ProtectedRoute>
-                      <OutreachGenerator />
                     </ProtectedRoute>
                   } 
                 />
