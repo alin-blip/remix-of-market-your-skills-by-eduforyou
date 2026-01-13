@@ -306,45 +306,72 @@ export type Database = {
       }
       courses: {
         Row: {
+          certificate: string | null
+          course_type: string | null
           created_at: string | null
           description: string | null
           duration_minutes: number | null
+          external_url: string | null
           id: string
           is_published: boolean | null
+          language: string | null
           lessons_count: number | null
           level: string
           platform: string
+          prerequisites: string | null
           price: number
+          provider: string | null
+          recommended_for: string | null
+          requires_pro: boolean | null
+          tags: Json | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
           video_url: string | null
         }
         Insert: {
+          certificate?: string | null
+          course_type?: string | null
           created_at?: string | null
           description?: string | null
           duration_minutes?: number | null
+          external_url?: string | null
           id?: string
           is_published?: boolean | null
+          language?: string | null
           lessons_count?: number | null
           level?: string
           platform?: string
+          prerequisites?: string | null
           price?: number
+          provider?: string | null
+          recommended_for?: string | null
+          requires_pro?: boolean | null
+          tags?: Json | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
           video_url?: string | null
         }
         Update: {
+          certificate?: string | null
+          course_type?: string | null
           created_at?: string | null
           description?: string | null
           duration_minutes?: number | null
+          external_url?: string | null
           id?: string
           is_published?: boolean | null
+          language?: string | null
           lessons_count?: number | null
           level?: string
           platform?: string
+          prerequisites?: string | null
           price?: number
+          provider?: string | null
+          recommended_for?: string | null
+          requires_pro?: boolean | null
+          tags?: Json | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
@@ -626,6 +653,81 @@ export type Database = {
           what_you_can_be_paid_for?: Json | null
           what_you_love?: Json | null
           what_youre_good_at?: Json | null
+        }
+        Relationships: []
+      }
+      learning_path_courses: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          id: string
+          path_id: string
+          position: number | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          id?: string
+          path_id: string
+          position?: number | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          path_id?: string
+          position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_courses_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_published: boolean | null
+          position: number | null
+          title: string
+        }
+        Insert: {
+          category: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean | null
+          position?: number | null
+          title: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean | null
+          position?: number | null
+          title?: string
         }
         Relationships: []
       }
