@@ -29,6 +29,7 @@ import LifeOSSetup from "./pages/life-os/LifeOSSetup";
 import WeeklySprintPage from "./pages/life-os/WeeklySprintPage";
 import VerificationsManager from "./pages/admin/VerificationsManager";
 import UsersManager from "./pages/admin/UsersManager";
+import CoursesManager from "./pages/admin/CoursesManager";
 import CourseAnalytics from "./pages/admin/CourseAnalytics";
 import Pricing from "./pages/Pricing";
 import IncomeTracker from "./pages/IncomeTracker";
@@ -258,9 +259,17 @@ const App = () => (
                   } 
                 />
                 <Route 
+                  path="/admin/courses" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <CoursesManager />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/admin/course-analytics" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireAdmin>
                       <CourseAnalytics />
                     </ProtectedRoute>
                   } 
