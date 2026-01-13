@@ -38,6 +38,7 @@ import ClientCRM from "./pages/ClientCRM";
 import ToolsHub from "./pages/ToolsHub";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import CourseViewer from "./pages/CourseViewer";
+import PartnerCourses from "./pages/PartnerCourses";
 
 const queryClient = new QueryClient();
 
@@ -271,6 +272,14 @@ const App = () => (
                   element={
                     <ProtectedRoute requireAdmin>
                       <CourseAnalytics />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/partners/:partnerId" 
+                  element={
+                    <ProtectedRoute>
+                      <PartnerCourses />
                     </ProtectedRoute>
                   } 
                 />
