@@ -18,6 +18,9 @@ import { CourseDialog } from '@/components/courses/CourseDialog';
 import { LessonManagerDialog } from '@/components/admin/LessonManagerDialog';
 import { useStripeCheckout } from '@/hooks/useStripeCheckout';
 import { useCoursesAccess } from '@/hooks/useCourseAccess';
+import { useSubscription } from '@/hooks/useSubscription';
+import { ExternalCourseCard } from '@/components/courses/ExternalCourseCard';
+import { LearningPathCard } from '@/components/courses/LearningPathCard';
 import { 
   BookOpen, 
   Play, 
@@ -37,7 +40,9 @@ import {
   ArrowRight,
   Plus,
   Edit,
-  Loader2
+  Loader2,
+  Globe,
+  Filter
 } from 'lucide-react';
 
 interface Course {
@@ -51,6 +56,16 @@ interface Course {
   lessons_count: number;
   thumbnail_url?: string;
   video_url?: string;
+  // External course fields
+  provider?: string;
+  external_url?: string;
+  tags?: string[];
+  certificate?: string;
+  language?: string;
+  recommended_for?: string;
+  prerequisites?: string;
+  course_type?: string;
+  requires_pro?: boolean;
 }
 
 interface CourseProgress {
@@ -62,6 +77,16 @@ interface CourseProgress {
 interface CoursePurchase {
   course_id: string;
   status: string;
+}
+
+interface LearningPath {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  icon: string;
+  color: string;
+  position: number;
 }
 
 const certifications = [
@@ -101,6 +126,7 @@ export default function LearningHub() {
   const { isAdmin } = useAdminRole();
   const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
   const { hasAccessToCourse, isFounder, isLoading: isAccessLoading } = useCoursesAccess();
+  const { plan } = useSubscription();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);
@@ -108,6 +134,7 @@ export default function LearningHub() {
   const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
   const [showLessonManager, setShowLessonManager] = useState(false);
   const [lessonManagerCourse, setLessonManagerCourse] = useState<Course | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   // Smart Start-Up modules with translations
   const smartStartupModules = [
@@ -188,6 +215,46 @@ export default function LearningHub() {
       const { data, error } = await query;
       if (error) throw error;
       return data as Course[];
+    },
+  });
+
+  // Separate internal and external courses
+  const internalCourses = courses.filter(c => c.course_type !== 'external');
+  const externalCourses = courses.filter(c => c.course_type === 'external');
+
+  // Filter external courses by category
+  const filteredExternalCourses = categoryFilter === 'all' 
+    ? externalCourses 
+    : externalCourses.filter(c => c.recommended_for === categoryFilter);
+
+  // Fetch learning paths
+  const { data: learningPaths = [] } = useQuery({
+    queryKey: ['learning-paths'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('learning_paths')
+        .select('*')
+        .eq('is_published', true)
+        .order('position');
+      if (error) throw error;
+      return data as LearningPath[];
+    },
+  });
+
+  // Fetch learning path courses count
+  const { data: pathCourseCounts = {} } = useQuery({
+    queryKey: ['learning-path-courses-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('learning_path_courses')
+        .select('path_id, course_id');
+      if (error) throw error;
+      
+      const counts: Record<string, number> = {};
+      data.forEach((item: any) => {
+        counts[item.path_id] = (counts[item.path_id] || 0) + 1;
+      });
+      return counts;
     },
   });
 
@@ -420,18 +487,28 @@ export default function LearningHub() {
         </Card>
 
         <Tabs defaultValue="smart-startup" className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="smart-startup" className="gap-2">
               <Rocket className="h-4 w-4" />
-              {t.learningHub?.tabs?.smartStartup || 'Smart Start-Up'}
+              <span className="hidden sm:inline">{t.learningHub?.tabs?.smartStartup || 'Smart Start-Up'}</span>
+              <span className="sm:hidden">Start-Up</span>
             </TabsTrigger>
             <TabsTrigger value="courses" className="gap-2">
               <Play className="h-4 w-4" />
-              {t.learningHub?.tabs?.courses || 'Cursuri'} ({courses.length})
+              <span className="hidden sm:inline">{t.learningHub?.tabs?.courses || 'Cursuri'}</span>
+              <span className="sm:hidden">Cursuri</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{internalCourses.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="pro-courses" className="gap-2">
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">Cursuri Pro</span>
+              <span className="sm:hidden">Pro</span>
+              <Badge className="ml-1 text-xs bg-amber-500/20 text-amber-500 border-0">{externalCourses.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="certifications" className="gap-2">
               <Trophy className="h-4 w-4" />
-              {t.learningHub?.tabs?.certifications || 'Certificări'}
+              <span className="hidden sm:inline">{t.learningHub?.tabs?.certifications || 'Certificări'}</span>
+              <span className="sm:hidden">Cert.</span>
             </TabsTrigger>
           </TabsList>
 
@@ -557,7 +634,7 @@ export default function LearningHub() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course, index) => {
+                {internalCourses.map((course, index) => {
                   const courseProgress = getCourseProgress(course.id);
                   const hasAccess = checkAccess(course.id, course.price);
                   const isFree = course.price === 0;
@@ -682,6 +759,123 @@ export default function LearningHub() {
                   );
                 })}
               </div>
+            )}
+          </TabsContent>
+
+          {/* Pro Courses Tab - External Courses from Top Providers */}
+          <TabsContent value="pro-courses" className="space-y-6">
+            {/* Header with PRO Badge */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-xl font-semibold">Cursuri Pro</h2>
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                    {plan === 'pro' || plan === 'founder' ? 'Acces Complet' : 'PRO'}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  20+ cursuri de la provideri de top: Google, Microsoft, AWS, Harvard și alții
+                </p>
+              </div>
+              {plan !== 'pro' && plan !== 'founder' && (
+                <Button 
+                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                  onClick={() => navigate('/pricing')}
+                >
+                  <Crown className="h-4 w-4" />
+                  Upgrade la Pro
+                </Button>
+              )}
+            </div>
+
+            {/* Learning Paths */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                Trasee de Învățare
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {learningPaths.map((path, index) => (
+                  <LearningPathCard 
+                    key={path.id} 
+                    path={{
+                      ...path,
+                      coursesCount: pathCourseCounts[path.id] || 0,
+                    }} 
+                    index={index} 
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
+              {[
+                { value: 'all', label: 'Toate' },
+                { value: 'computing', label: 'Computing & AI' },
+                { value: 'cybersecurity', label: 'Cybersecurity' },
+                { value: 'business', label: 'Marketing & Business' },
+              ].map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={categoryFilter === cat.value ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setCategoryFilter(cat.value)}
+                  className="h-8"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+
+            {/* External Courses Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredExternalCourses.map((course, index) => (
+                <ExternalCourseCard 
+                  key={course.id} 
+                  course={{
+                    ...course,
+                    tags: Array.isArray(course.tags) ? course.tags : [],
+                  } as any} 
+                  index={index} 
+                />
+              ))}
+            </div>
+
+            {filteredExternalCourses.length === 0 && (
+              <Card className="bg-muted/30">
+                <CardContent className="py-8 text-center">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există cursuri în această categorie</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Selectează o altă categorie pentru a vedea cursuri disponibile.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Upgrade CTA for non-Pro users */}
+            {plan !== 'pro' && plan !== 'founder' && (
+              <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+                <CardContent className="py-8 text-center">
+                  <Globe className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Deblochează Toate Cursurile Pro</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Obține acces la 20+ cursuri de la Google, Microsoft, AWS, Harvard și alți provideri de top cu abonamentul Pro.
+                  </p>
+                  <Button 
+                    size="lg"
+                    className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                    onClick={() => navigate('/pricing')}
+                  >
+                    <Rocket className="h-5 w-5" />
+                    Upgrade la Pro
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 

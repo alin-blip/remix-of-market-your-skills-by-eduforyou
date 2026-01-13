@@ -24,6 +24,7 @@ export const PLAN_LIMITS = {
     hasExport: false,
     hasPrioritySupport: false,
     hasAllCourses: false,
+    hasExternalCourses: false,
   },
   starter: {
     platforms: 3,
@@ -35,6 +36,7 @@ export const PLAN_LIMITS = {
     hasExport: true,
     hasPrioritySupport: false,
     hasAllCourses: false,
+    hasExternalCourses: false,
   },
   pro: {
     platforms: Infinity,
@@ -46,6 +48,7 @@ export const PLAN_LIMITS = {
     hasExport: true,
     hasPrioritySupport: true,
     hasAllCourses: false,
+    hasExternalCourses: true,
   },
   founder: {
     platforms: Infinity,
@@ -57,6 +60,7 @@ export const PLAN_LIMITS = {
     hasExport: true,
     hasPrioritySupport: true,
     hasAllCourses: true,
+    hasExternalCourses: true,
   },
 } as const;
 
