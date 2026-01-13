@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/lib/i18n';
-import { Loader2, PoundSterling } from 'lucide-react';
+import { Loader2, PoundSterling, Tag } from 'lucide-react';
 
 interface Course {
   id?: string;
@@ -21,6 +21,10 @@ interface Course {
   thumbnail_url?: string;
   video_url?: string;
   is_published?: boolean;
+  category?: string;
+  course_type?: string;
+  certificate?: string;
+  recommended_for?: string;
 }
 
 interface CourseDialogProps {
@@ -44,6 +48,10 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
     thumbnail_url: '',
     video_url: '',
     is_published: false,
+    category: 'skills',
+    course_type: 'internal',
+    certificate: 'No',
+    recommended_for: '',
   });
 
   useEffect(() => {
@@ -59,6 +67,10 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
         thumbnail_url: course.thumbnail_url || '',
         video_url: course.video_url || '',
         is_published: course.is_published || false,
+        category: course.category || 'skills',
+        course_type: course.course_type || 'internal',
+        certificate: course.certificate || 'No',
+        recommended_for: course.recommended_for || '',
       });
     } else {
       setFormData({
@@ -72,6 +84,10 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
         thumbnail_url: '',
         video_url: '',
         is_published: false,
+        category: 'skills',
+        course_type: 'internal',
+        certificate: 'No',
+        recommended_for: '',
       });
     }
   }, [course, open]);
@@ -81,9 +97,18 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
     await onSave(formData);
   };
 
+  // Auto-set category to certification if certificate is Yes
+  useEffect(() => {
+    if (formData.certificate === 'Yes' || formData.certificate === 'Badges') {
+      if (formData.category !== 'certification') {
+        setFormData(prev => ({ ...prev, category: 'certification' }));
+      }
+    }
+  }, [formData.certificate]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {course ? 'Editează Cursul' : 'Adaugă Curs Nou'}
@@ -110,6 +135,46 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
               placeholder="Descrierea cursului"
               rows={3}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category" className="flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Categorie
+              </Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="skills">🛠️ Skills</SelectItem>
+                  <SelectItem value="improvement">🧠 Improvement</SelectItem>
+                  <SelectItem value="certification">🏆 Certificare</SelectItem>
+                  <SelectItem value="partner">🌐 Partner/Pro</SelectItem>
+                  <SelectItem value="general">📚 General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="course_type">Tip Curs</Label>
+              <Select
+                value={formData.course_type}
+                onValueChange={(value) => setFormData({ ...formData, course_type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="internal">Intern (PLR/Propriu)</SelectItem>
+                  <SelectItem value="external">Extern (Partner)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -180,15 +245,59 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lessons_count">Număr de lecții</Label>
+              <Input
+                id="lessons_count"
+                type="number"
+                min="1"
+                value={formData.lessons_count}
+                onChange={(e) => setFormData({ ...formData, lessons_count: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="certificate">Certificat</Label>
+              <Select
+                value={formData.certificate}
+                onValueChange={(value) => setFormData({ ...formData, certificate: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="No">Nu</SelectItem>
+                  <SelectItem value="Yes">Da - Certificat</SelectItem>
+                  <SelectItem value="Badges">Da - Badges</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="lessons_count">Număr de lecții</Label>
-            <Input
-              id="lessons_count"
-              type="number"
-              min="1"
-              value={formData.lessons_count}
-              onChange={(e) => setFormData({ ...formData, lessons_count: parseInt(e.target.value) || 1 })}
-            />
+            <Label htmlFor="recommended_for">Recomandat Pentru</Label>
+            <Select
+              value={formData.recommended_for || ''}
+              onValueChange={(value) => setFormData({ ...formData, recommended_for: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selectează categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nespecificat</SelectItem>
+                <SelectItem value="marketing">Marketing</SelectItem>
+                <SelectItem value="tech">Tech</SelectItem>
+                <SelectItem value="design">Design</SelectItem>
+                <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="productivity">Productivitate</SelectItem>
+                <SelectItem value="mindset">Mindset</SelectItem>
+                <SelectItem value="leadership">Leadership</SelectItem>
+                <SelectItem value="communication">Comunicare</SelectItem>
+                <SelectItem value="computing">Computing & AI</SelectItem>
+                <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

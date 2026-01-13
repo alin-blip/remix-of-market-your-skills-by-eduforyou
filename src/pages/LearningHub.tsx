@@ -44,7 +44,10 @@ import {
   Edit,
   Loader2,
   Globe,
-  Filter
+  Filter,
+  Wrench,
+  Brain,
+  Award
 } from 'lucide-react';
 
 interface Course {
@@ -68,6 +71,7 @@ interface Course {
   prerequisites?: string;
   course_type?: string;
   requires_pro?: boolean;
+  category?: string;
 }
 
 interface CourseProgress {
@@ -112,6 +116,14 @@ const levelColors: Record<string, { bg: string; text: string }> = {
   advanced: { bg: 'bg-red-500/10', text: 'text-red-500' },
 };
 
+const categoryColors: Record<string, { bg: string; text: string; icon: any }> = {
+  skills: { bg: 'bg-blue-500/10', text: 'text-blue-500', icon: Wrench },
+  improvement: { bg: 'bg-purple-500/10', text: 'text-purple-500', icon: Brain },
+  certification: { bg: 'bg-green-500/10', text: 'text-green-500', icon: Award },
+  partner: { bg: 'bg-amber-500/10', text: 'text-amber-500', icon: Globe },
+  general: { bg: 'bg-muted', text: 'text-muted-foreground', icon: BookOpen },
+};
+
 const formatDuration = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -136,75 +148,8 @@ export default function LearningHub() {
   const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
   const [showLessonManager, setShowLessonManager] = useState(false);
   const [lessonManagerCourse, setLessonManagerCourse] = useState<Course | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-
-  // Smart Start-Up modules with translations
-  const smartStartupModules = [
-    {
-      number: 1,
-      title: t.learningHub?.modules?.module1?.title || "Deciding to Start a Startup",
-      description: t.learningHub?.modules?.module1?.description || "Află dacă antreprenoriatul este pentru tine",
-      duration: "2h 30min",
-      lessons: 4,
-      locked: false
-    },
-    {
-      number: 2,
-      title: t.learningHub?.modules?.module2?.title || "Getting & Evaluating Ideas",
-      description: t.learningHub?.modules?.module2?.description || "Găsește și validează idei de startup",
-      duration: "3h 15min",
-      lessons: 5,
-      locked: false
-    },
-    {
-      number: 3,
-      title: t.learningHub?.modules?.module3?.title || "Building Your Founding Team",
-      description: t.learningHub?.modules?.module3?.description || "Găsește co-fondatori și construiește echipa",
-      duration: "2h 45min",
-      lessons: 4,
-      locked: false
-    },
-    {
-      number: 4,
-      title: t.learningHub?.modules?.module4?.title || "Planning & Building Your MVP",
-      description: t.learningHub?.modules?.module4?.description || "Construiește un MVP care rezolvă probleme reale",
-      duration: "4h",
-      lessons: 5,
-      locked: true
-    },
-    {
-      number: 5,
-      title: t.learningHub?.modules?.module5?.title || "Launching & First Customers",
-      description: t.learningHub?.modules?.module5?.description || "Strategii pentru a atrage primii clienți",
-      duration: "3h",
-      lessons: 4,
-      locked: true
-    },
-    {
-      number: 6,
-      title: t.learningHub?.modules?.module6?.title || "Growth & Monetization",
-      description: t.learningHub?.modules?.module6?.description || "Scalează și monetizează startup-ul",
-      duration: "4h 30min",
-      lessons: 5,
-      locked: true
-    },
-    {
-      number: 7,
-      title: t.learningHub?.modules?.module7?.title || "Fundraising & Company Building",
-      description: t.learningHub?.modules?.module7?.description || "Atrage investiții și construiește compania",
-      duration: "3h 30min",
-      lessons: 4,
-      locked: true
-    },
-    {
-      number: 8,
-      title: t.learningHub?.modules?.module8?.title || "Stories from Great Founders",
-      description: t.learningHub?.modules?.module8?.description || "Învață de la fondatori de succes",
-      duration: "4h",
-      lessons: 5,
-      locked: true
-    }
-  ];
+  const [skillsSubFilter, setSkillsSubFilter] = useState<string>('all');
+  const [improvementSubFilter, setImprovementSubFilter] = useState<string>('all');
 
   // Fetch courses (admin sees all, users see published only)
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery({
@@ -220,19 +165,21 @@ export default function LearningHub() {
     },
   });
 
-  // Separate internal and external courses
-  const internalCourses = courses.filter(c => c.course_type !== 'external');
-  const externalCourses = courses.filter(c => c.course_type === 'external');
+  // Filter courses by category
+  const skillsCourses = courses.filter(c => c.category === 'skills');
+  const improvementCourses = courses.filter(c => c.category === 'improvement');
+  const certificationCourses = courses.filter(c => c.category === 'certification' || (c.certificate === 'Yes' || c.certificate === 'Badges'));
+  const partnerCourses = courses.filter(c => c.category === 'partner' || c.course_type === 'external');
 
-  // Courses with certificates (for certifications tab)
-  const coursesWithCertificates = externalCourses.filter(
-    c => c.certificate === 'Yes' || c.certificate === 'Badges'
-  );
+  // Sub-filters for skills tab
+  const filteredSkillsCourses = skillsSubFilter === 'all' 
+    ? skillsCourses 
+    : skillsCourses.filter(c => c.platform === skillsSubFilter || c.recommended_for === skillsSubFilter);
 
-  // Filter external courses by category
-  const filteredExternalCourses = categoryFilter === 'all' 
-    ? externalCourses 
-    : externalCourses.filter(c => c.recommended_for === categoryFilter);
+  // Sub-filters for improvement tab
+  const filteredImprovementCourses = improvementSubFilter === 'all'
+    ? improvementCourses
+    : improvementCourses.filter(c => c.recommended_for === improvementSubFilter);
 
   // Fetch learning paths
   const { data: learningPaths = [] } = useQuery({
@@ -327,7 +274,7 @@ export default function LearningHub() {
           course_id: course.id,
           amount: course.price,
           currency: 'GBP',
-          status: 'completed', // Simplified for demo
+          status: 'completed',
         });
       if (error) throw error;
     },
@@ -369,7 +316,6 @@ export default function LearningHub() {
     return purchases.some(p => p.course_id === courseId);
   };
 
-  // Check access using the new hook (includes Founder access)
   const checkAccess = (courseId: string, price: number) => {
     return hasAccessToCourse(courseId, price);
   };
@@ -383,10 +329,8 @@ export default function LearningHub() {
     const hasAccess = checkAccess(course.id, course.price);
     
     if (!hasAccess) {
-      // Show purchase dialog
       setSelectedCourse(course);
     } else {
-      // Start or continue the course
       const currentProgress = getCourseProgress(course.id);
       if (currentProgress < 100) {
         updateProgressMutation.mutate({ 
@@ -400,18 +344,145 @@ export default function LearningHub() {
 
   const handleBuyCourse = async (course: Course) => {
     setPurchasingCourseId(course.id);
-    // For now, use demo purchase until Stripe price is created
-    // In production, call checkoutCourse with the course's Stripe price ID
     await purchaseMutation.mutateAsync(course);
     setPurchasingCourseId(null);
   };
 
-  const handleModuleClick = (module: typeof smartStartupModules[0]) => {
-    if (module.locked) {
-      navigate('/upgrade');
-    } else {
-      toast.success(`${t.learningHub?.messages?.startModule || 'Începe modulul'}: ${module.title}`);
-    }
+  // Render course card
+  const renderCourseCard = (course: Course, index: number) => {
+    const courseProgress = getCourseProgress(course.id);
+    const hasAccess = checkAccess(course.id, course.price);
+    const isFree = course.price === 0;
+    const categoryInfo = categoryColors[course.category || 'general'] || categoryColors.general;
+
+    return (
+      <motion.div
+        key={course.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+      >
+        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group">
+          {/* Thumbnail */}
+          <div className="h-40 bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden">
+            <div className={`absolute top-3 left-3 w-2 h-2 rounded-full ${platformColors[course.platform]}`} />
+            
+            {/* Category badge */}
+            <div className="absolute top-3 left-8">
+              <Badge className={`${categoryInfo.bg} ${categoryInfo.text} border-0 text-xs`}>
+                {course.category === 'skills' ? 'Skills' : 
+                 course.category === 'improvement' ? 'Improvement' :
+                 course.category === 'certification' ? 'Certificare' :
+                 course.category === 'partner' ? 'Partner' : 'General'}
+              </Badge>
+            </div>
+            
+            {/* Price badge */}
+            <div className="absolute top-3 right-3">
+              {isFree ? (
+                <Badge className="bg-green-500/90 text-white border-0">
+                  {t.learningHub?.badges?.free || 'Gratuit'}
+                </Badge>
+              ) : hasAccess && !isFree ? (
+                <Badge className="bg-green-500/90 text-white border-0 gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  {isFounder ? 'Founder' : 'Acces'}
+                </Badge>
+              ) : (
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
+                  £{course.price}
+                </Badge>
+              )}
+            </div>
+
+            {/* Play button overlay */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <div className="h-14 w-14 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                <PlayCircle className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+
+            {/* Video icon */}
+            <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs text-muted-foreground bg-background/80 rounded-full px-2 py-1">
+              <Video className="h-3 w-3" />
+              {course.lessons_count} {t.learningHub?.lessons || 'lecții'}
+            </div>
+          </div>
+
+          <CardContent className="flex-1 flex flex-col p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className={`${levelColors[course.level]?.bg || ''} ${levelColors[course.level]?.text || ''} border-0 text-xs`}>
+                {course.level}
+              </Badge>
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {formatDuration(course.duration_minutes)}
+              </span>
+            </div>
+
+            <h3 className="font-semibold mb-2 line-clamp-2">{course.title}</h3>
+            <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-2">
+              {course.description}
+            </p>
+
+            {courseProgress > 0 ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {t.learningHub?.progress?.label || 'Progres'}
+                  </span>
+                  <span className="font-medium">
+                    {courseProgress}%
+                  </span>
+                </div>
+                <Progress value={courseProgress} className="h-1.5" />
+                <Button 
+                  variant="secondary" 
+                  className="w-full gap-2 mt-2"
+                  onClick={() => handleStartCourse(course)}
+                >
+                  <Play className="h-4 w-4" />
+                  {t.learningHub?.buttons?.continue || 'Continuă'}
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                className="w-full gap-2"
+                variant={hasAccess ? "secondary" : "default"}
+                onClick={() => handleStartCourse(course)}
+              >
+                {hasAccess ? (
+                  <>
+                    <Play className="h-4 w-4" />
+                    {t.learningHub?.buttons?.startCourse || 'Începe cursul'}
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4" />
+                    {t.learningHub?.buttons?.buy || 'Cumpără'} - £{course.price}
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-2 gap-2"
+                onClick={() => {
+                  setLessonManagerCourse(course);
+                  setShowLessonManager(true);
+                }}
+              >
+                <Video className="h-4 w-4" />
+                Gestionează Lecții
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
   };
 
   return (
@@ -427,7 +498,7 @@ export default function LearningHub() {
               {t.learningHub?.title || 'Learning Hub'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {t.learningHub?.subtitle || 'Cursuri premium pentru freelanceri • Prețuri de la £49 la £499'}
+              {t.learningHub?.subtitle || 'Cursuri de Skills, Dezvoltare Personală și Certificări'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -435,42 +506,13 @@ export default function LearningHub() {
               <Trophy className="h-4 w-4 text-amber-500" />
               {completedCourses} {t.learningHub?.coursesCompleted || 'cursuri completate'}
             </Badge>
+            {isAdmin && (
+              <Button onClick={() => { setEditingCourse(null); setShowCourseDialog(true); }} className="gap-2">
+                <Plus className="h-4 w-4" /> Adaugă Curs
+              </Button>
+            )}
           </div>
         </div>
-
-        {/* Founder Accelerator Premium Banner */}
-        <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border-amber-500/30 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-2xl" />
-          <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="hidden md:flex h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 items-center justify-center shrink-0">
-                <Crown className="h-8 w-8 text-white" />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <Badge className="mb-2 bg-amber-500/20 text-amber-500 border-amber-500/30">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  {t.learningHub?.premiumBadge || 'Program Premium'}
-                </Badge>
-                <h3 className="text-xl font-bold mb-1">{t.learningHub?.founderAccelerator?.title || 'Founder Accelerator'}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t.learningHub?.founderAccelerator?.description || 'Programul complet de 8 module pentru a-ți transforma ideea într-un startup de succes. 36+ ore de conținut bazat pe curriculum-ul Y Combinator.'}
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-amber-500 mb-1">£997</div>
-                <p className="text-xs text-muted-foreground mb-2">{t.learningHub?.lifetimeAccess || 'acces pe viață'}</p>
-                <Button 
-                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                  onClick={() => navigate('/upgrade')}
-                >
-                  <Rocket className="h-4 w-4" />
-                  {t.learningHub?.viewDetails || 'Vezi Detalii'}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* AI Course Recommendations */}
         <CourseRecommendations />
@@ -496,145 +538,71 @@ export default function LearningHub() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="smart-startup" className="space-y-6">
+        <Tabs defaultValue="skills" className="space-y-6">
           <TabsList className="grid w-full max-w-2xl grid-cols-4">
-            <TabsTrigger value="smart-startup" className="gap-2">
-              <Rocket className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.learningHub?.tabs?.smartStartup || 'Smart Start-Up'}</span>
-              <span className="sm:hidden">Start-Up</span>
+            <TabsTrigger value="skills" className="gap-2">
+              <Wrench className="h-4 w-4" />
+              <span className="hidden sm:inline">Cursuri Skills</span>
+              <span className="sm:hidden">Skills</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{skillsCourses.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="courses" className="gap-2">
-              <Play className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.learningHub?.tabs?.courses || 'Cursuri'}</span>
-              <span className="sm:hidden">Cursuri</span>
-              <Badge variant="secondary" className="ml-1 text-xs">{internalCourses.length}</Badge>
+            <TabsTrigger value="improvement" className="gap-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden sm:inline">Improvement</span>
+              <span className="sm:hidden">Growth</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{improvementCourses.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="certifications" className="gap-2">
+              <Award className="h-4 w-4" />
+              <span className="hidden sm:inline">Certificări</span>
+              <span className="sm:hidden">Cert.</span>
+              <Badge className="ml-1 text-xs bg-green-500/20 text-green-500 border-0">{certificationCourses.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="pro-courses" className="gap-2">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">Cursuri Pro</span>
               <span className="sm:hidden">Pro</span>
-              <Badge className="ml-1 text-xs bg-amber-500/20 text-amber-500 border-0">{externalCourses.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="certifications" className="gap-2">
-              <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.learningHub?.tabs?.certifications || 'Certificări'}</span>
-              <span className="sm:hidden">Cert.</span>
+              <Badge className="ml-1 text-xs bg-amber-500/20 text-amber-500 border-0">{partnerCourses.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
-          {/* Smart Start-Up Tab */}
-          <TabsContent value="smart-startup" className="space-y-6">
-            <div className="flex items-center justify-between">
+          {/* Skills Tab */}
+          <TabsContent value="skills" className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold">{t.learningHub?.smartStartup?.title || 'Smart Start-Up Curriculum'}</h2>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-blue-500" />
+                  Cursuri de Skills
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  {t.learningHub?.smartStartup?.subtitle || 'Module 1-3 gratuite • Module 4-8 disponibile în Founder Accelerator'}
+                  Dezvoltă abilități practice: copywriting, design, programare, marketing
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                className="gap-2 border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
-                onClick={() => navigate('/upgrade')}
-              >
-                <Crown className="h-4 w-4" />
-                {t.learningHub?.upgradeButton || 'Upgrade la Full Access'}
-              </Button>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {smartStartupModules.map((module, index) => (
-                <motion.div
-                  key={module.number}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+            {/* Sub-filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
+              {[
+                { value: 'all', label: 'Toate' },
+                { value: 'marketing', label: 'Marketing' },
+                { value: 'tech', label: 'Tech' },
+                { value: 'design', label: 'Design' },
+                { value: 'business', label: 'Business' },
+              ].map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={skillsSubFilter === cat.value ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSkillsSubFilter(cat.value)}
+                  className="h-8"
                 >
-                  <Card 
-                    className={`cursor-pointer transition-all hover:shadow-md ${
-                      module.locked 
-                        ? 'opacity-75 hover:border-amber-500/50' 
-                        : 'hover:border-primary/50'
-                    }`}
-                    onClick={() => handleModuleClick(module)}
-                  >
-                    <CardContent className="py-4">
-                      <div className="flex items-start gap-4">
-                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-                          module.locked 
-                            ? 'bg-muted text-muted-foreground' 
-                            : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
-                        }`}>
-                          {module.locked ? (
-                            <Lock className="h-5 w-5" />
-                          ) : (
-                            <span className="font-bold">{module.number}</span>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-sm">{module.title}</h3>
-                            {module.locked ? (
-                              <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-500 border-0">
-                                <Lock className="h-3 w-3 mr-1" />
-                                {t.learningHub?.badges?.premium || 'Premium'}
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-500 border-0">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                {t.learningHub?.badges?.free || 'Gratuit'}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-2">{module.description}</p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Play className="h-3 w-3" />
-                              {module.lessons} {t.learningHub?.lessons || 'lecții'}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {module.duration}
-                            </span>
-                          </div>
-                        </div>
-                        <ArrowRight className={`h-5 w-5 shrink-0 ${module.locked ? 'text-amber-500' : 'text-muted-foreground'}`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                  {cat.label}
+                </Button>
               ))}
             </div>
 
-            {/* Upgrade CTA */}
-            <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
-              <CardContent className="py-8 text-center">
-                <Crown className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">{t.learningHub?.unlockAll?.title || 'Deblochează Toate Modulele'}</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  {t.learningHub?.unlockAll?.description || 'Obține acces la toate cele 8 module, comunitatea privată și suport prioritar cu Founder Accelerator.'}
-                </p>
-                <Button 
-                  size="lg"
-                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                  onClick={() => navigate('/upgrade')}
-                >
-                  <Rocket className="h-5 w-5" />
-                  {t.learningHub?.unlockAll?.button || 'Upgrade Acum - £997'}
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="courses" className="space-y-6">
-            {/* Admin Add Course Button */}
-            {isAdmin && (
-              <div className="flex justify-end">
-                <Button onClick={() => { setEditingCourse(null); setShowCourseDialog(true); }} className="gap-2">
-                  <Plus className="h-4 w-4" /> Adaugă Curs
-                </Button>
-              </div>
-            )}
             {/* Courses Grid */}
             {isLoadingCourses ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -642,137 +610,227 @@ export default function LearningHub() {
                   <Card key={i} className="h-80 animate-pulse bg-muted/50" />
                 ))}
               </div>
-            ) : (
+            ) : filteredSkillsCourses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {internalCourses.map((course, index) => {
-                  const courseProgress = getCourseProgress(course.id);
-                  const hasAccess = checkAccess(course.id, course.price);
-                  const isFree = course.price === 0;
-
-                  return (
-                    <motion.div
-                      key={course.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group">
-                        {/* Thumbnail */}
-                        <div className="h-40 bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden">
-                          <div className={`absolute top-3 left-3 w-2 h-2 rounded-full ${platformColors[course.platform]}`} />
-                          
-                          {/* Price badge */}
-                          <div className="absolute top-3 right-3">
-                            {isFree ? (
-                              <Badge className="bg-green-500/90 text-white border-0">
-                                {t.learningHub?.badges?.free || 'Gratuit'}
-                              </Badge>
-                            ) : hasAccess && !isFree ? (
-                              <Badge className="bg-green-500/90 text-white border-0 gap-1">
-                                <CheckCircle2 className="h-3 w-3" />
-                                {isFounder ? 'Founder' : 'Acces'}
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
-                                £{course.price}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Play button overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div className="h-14 w-14 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
-                              <PlayCircle className="h-8 w-8 text-primary" />
-                            </div>
-                          </div>
-
-                          {/* Video icon */}
-                          <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs text-muted-foreground bg-background/80 rounded-full px-2 py-1">
-                            <Video className="h-3 w-3" />
-                            {course.lessons_count} {t.learningHub?.lessons || 'lecții'}
-                          </div>
-                        </div>
-
-                        <CardContent className="flex-1 flex flex-col p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className={`${levelColors[course.level]?.bg || ''} ${levelColors[course.level]?.text || ''} border-0 text-xs`}>
-                              {course.level}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {formatDuration(course.duration_minutes)}
-                            </span>
-                          </div>
-
-                          <h3 className="font-semibold mb-2 line-clamp-2">{course.title}</h3>
-                          <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-2">
-                            {course.description}
-                          </p>
-
-                          {courseProgress > 0 ? (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-muted-foreground">
-                                  {t.learningHub?.progress?.label || 'Progres'}
-                                </span>
-                                <span className="font-medium">
-                                  {courseProgress}%
-                                </span>
-                              </div>
-                              <Progress value={courseProgress} className="h-1.5" />
-                              <Button 
-                                variant="secondary" 
-                                className="w-full gap-2 mt-2"
-                                onClick={() => handleStartCourse(course)}
-                              >
-                                <Play className="h-4 w-4" />
-                                {t.learningHub?.buttons?.continue || 'Continuă'}
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button 
-                              className="w-full gap-2"
-                              variant={hasAccess ? "secondary" : "default"}
-                              onClick={() => handleStartCourse(course)}
-                            >
-                              {hasAccess ? (
-                                <>
-                                  <Play className="h-4 w-4" />
-                                  {t.learningHub?.buttons?.startCourse || 'Începe cursul'}
-                                </>
-                              ) : (
-                                <>
-                                  <ShoppingCart className="h-4 w-4" />
-                                  {t.learningHub?.buttons?.buy || 'Cumpără'} - £{course.price}
-                                </>
-                              )}
-                            </Button>
-                          )}
-                          
-                          {isAdmin && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full mt-2 gap-2"
-                              onClick={() => {
-                                setLessonManagerCourse(course);
-                                setShowLessonManager(true);
-                              }}
-                            >
-                              <Video className="h-4 w-4" />
-                              Gestionează Lecții
-                            </Button>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
+                {filteredSkillsCourses.map((course, index) => renderCourseCard(course, index))}
               </div>
+            ) : (
+              <Card className="bg-muted/30">
+                <CardContent className="py-8 text-center">
+                  <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există cursuri de skills încă</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Cursurile de skills vor fi adăugate în curând.
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
-          {/* Pro Courses Tab - External Courses from Top Providers */}
+          {/* Improvement Tab */}
+          <TabsContent value="improvement" className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-500" />
+                  Cursuri de Dezvoltare Personală
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Productivitate, mindset, leadership, comunicare și dezvoltare personală
+                </p>
+              </div>
+            </div>
+
+            {/* Sub-filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
+              {[
+                { value: 'all', label: 'Toate' },
+                { value: 'productivity', label: 'Productivitate' },
+                { value: 'mindset', label: 'Mindset' },
+                { value: 'leadership', label: 'Leadership' },
+                { value: 'communication', label: 'Comunicare' },
+              ].map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={improvementSubFilter === cat.value ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setImprovementSubFilter(cat.value)}
+                  className="h-8"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+
+            {/* Courses Grid */}
+            {isLoadingCourses ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="h-80 animate-pulse bg-muted/50" />
+                ))}
+              </div>
+            ) : filteredImprovementCourses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredImprovementCourses.map((course, index) => renderCourseCard(course, index))}
+              </div>
+            ) : (
+              <Card className="bg-muted/30">
+                <CardContent className="py-8 text-center">
+                  <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există cursuri de improvement încă</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Cursurile de dezvoltare personală vor fi adăugate în curând.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Inspirational Quote */}
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
+              <CardContent className="py-6 text-center">
+                <Sparkles className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+                <p className="text-lg italic text-muted-foreground">
+                  "Investiția în cunoaștere plătește cel mai bun dobânda."
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">— Benjamin Franklin</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Certifications Tab */}
+          <TabsContent value="certifications" className="space-y-6">
+            {/* Partnership Info */}
+            <Card className="bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-background border-green-500/20">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <GraduationCap className="h-5 w-5 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Certificări Gratuite și Premium</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Obține certificări recunoscute de la Google, Microsoft, HubSpot și alții
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Internal Courses with Certificates */}
+            {certificationCourses.filter(c => c.course_type !== 'external').length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Award className="h-5 w-5 text-green-500" />
+                  Cursuri cu Certificare Internă
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {certificationCourses
+                    .filter(c => c.course_type !== 'external')
+                    .map((course, index) => renderCourseCard(course, index))}
+                </div>
+              </div>
+            )}
+
+            {/* External Courses with Certificates */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                Cursuri cu Certificări de la Parteneri
+                <Badge variant="secondary">{certificationCourses.filter(c => c.course_type === 'external').length}</Badge>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {certificationCourses
+                  .filter(c => c.course_type === 'external')
+                  .map((course, index) => (
+                    <motion.div
+                      key={course.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <Card className="hover:shadow-md transition-shadow hover:border-green-500/30">
+                        <CardContent className="py-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4">
+                              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center shrink-0">
+                                <GraduationCap className="h-6 w-6 text-green-500" />
+                              </div>
+                              <div>
+                                <h3 className="font-medium mb-1">{course.title}</h3>
+                                <p className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
+                                  <span className="font-medium text-foreground">{course.provider}</span>
+                                  <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
+                                    {course.certificate === 'Badges' ? 'Badges' : 'Certificat'}
+                                  </Badge>
+                                  {course.level && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {course.level}
+                                    </Badge>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            <Button variant="ghost" size="icon" asChild>
+                              <a href={course.external_url || '#'} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Legacy Certifications */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Star className="h-5 w-5 text-primary" />
+                Alte Certificări Recomandate
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {certifications.map((cert, index) => (
+                  <motion.div
+                    key={cert.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                            <GraduationCap className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{cert.name}</h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              {cert.provider}
+                              {cert.free && (
+                                <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
+                                  {t.learningHub?.badges?.free || 'Gratuit'}
+                                </Badge>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" asChild>
+                          <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Pro Courses Tab */}
           <TabsContent value="pro-courses" className="space-y-6">
             {/* Partnership Banner */}
             <PartnershipBanner />
@@ -821,31 +879,9 @@ export default function LearningHub() {
               </div>
             </div>
 
-            {/* Category Filter */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
-              {[
-                { value: 'all', label: 'Toate' },
-                { value: 'computing', label: 'Computing & AI' },
-                { value: 'cybersecurity', label: 'Cybersecurity' },
-                { value: 'business', label: 'Marketing & Business' },
-              ].map((cat) => (
-                <Button
-                  key={cat.value}
-                  variant={categoryFilter === cat.value ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setCategoryFilter(cat.value)}
-                  className="h-8"
-                >
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
-
             {/* External Courses Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredExternalCourses.map((course, index) => (
+              {partnerCourses.map((course, index) => (
                 <ExternalCourseCard 
                   key={course.id} 
                   course={{
@@ -857,13 +893,13 @@ export default function LearningHub() {
               ))}
             </div>
 
-            {filteredExternalCourses.length === 0 && (
+            {partnerCourses.length === 0 && (
               <Card className="bg-muted/30">
                 <CardContent className="py-8 text-center">
-                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold mb-1">Nu există cursuri în această categorie</h3>
+                  <Globe className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există cursuri Pro încă</h3>
                   <p className="text-sm text-muted-foreground">
-                    Selectează o altă categorie pentru a vedea cursuri disponibile.
+                    Cursurile de la parteneri vor fi adăugate în curând.
                   </p>
                 </CardContent>
               </Card>
@@ -890,129 +926,6 @@ export default function LearningHub() {
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
-
-          <TabsContent value="certifications" className="space-y-6">
-            {/* Partnership Info */}
-            <Card className="bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-background border-green-500/20">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/20">
-                    <GraduationCap className="h-5 w-5 text-green-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Certificări Gratuite de la Partenerii Noștri</h3>
-                    <p className="text-sm text-muted-foreground">
-                      În parteneriat cu Google, Microsoft, HubSpot, freeCodeCamp și alții
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Courses with Certificates from External Providers */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                Cursuri cu Certificări Oficiale
-                <Badge variant="secondary">{coursesWithCertificates.length}</Badge>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {coursesWithCertificates.map((course, index) => (
-                  <motion.div
-                    key={course.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Card className="hover:shadow-md transition-shadow hover:border-green-500/30">
-                      <CardContent className="py-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center shrink-0">
-                              <GraduationCap className="h-6 w-6 text-green-500" />
-                            </div>
-                            <div>
-                              <h3 className="font-medium mb-1">{course.title}</h3>
-                              <p className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                                <span className="font-medium text-foreground">{course.provider}</span>
-                                <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
-                                  {course.certificate === 'Badges' ? 'Badges' : 'Certificat Gratuit'}
-                                </Badge>
-                                {course.level && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {course.level}
-                                  </Badge>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="icon" asChild>
-                            <a href={course.external_url || '#'} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Legacy Certifications */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Star className="h-5 w-5 text-primary" />
-                Alte Certificări Recomandate
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {certifications.map((cert, index) => (
-                  <motion.div
-                    key={cert.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card className="hover:shadow-md transition-shadow">
-                      <CardContent className="py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                            <GraduationCap className="h-6 w-6 text-primary" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium">{cert.name}</h3>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                              {cert.provider}
-                              {cert.free && (
-                                <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
-                                  {t.learningHub?.badges?.free || 'Gratuit'}
-                                </Badge>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={cert.url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            <Card className="bg-muted/30">
-              <CardContent className="py-6 text-center">
-                <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h3 className="font-semibold mb-1">{t.learningHub?.moreCertifications?.title || 'Mai multe certificări în curând!'}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t.learningHub?.moreCertifications?.description || 'Adăugăm constant noi certificări gratuite pentru studenți.'}
-                </p>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
 

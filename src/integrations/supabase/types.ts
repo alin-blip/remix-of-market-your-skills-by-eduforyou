@@ -306,6 +306,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          category: string | null
           certificate: string | null
           course_type: string | null
           created_at: string | null
@@ -330,6 +331,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          category?: string | null
           certificate?: string | null
           course_type?: string | null
           created_at?: string | null
@@ -354,6 +356,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          category?: string | null
           certificate?: string | null
           course_type?: string | null
           created_at?: string | null
