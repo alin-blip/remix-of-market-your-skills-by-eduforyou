@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_definitions: {
+        Row: {
+          category: string
+          color: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points_reward: number
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          category?: string
+          color?: string
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          name: string
+          points_reward?: number
+          requirement_type: string
+          requirement_value?: number
+        }
+        Update: {
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points_reward?: number
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
       client_projects: {
         Row: {
           client_id: string
@@ -1080,6 +1119,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badge_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_course_progress: {
         Row: {
           completed_at: string | null
@@ -1127,6 +1195,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_points: {
+        Row: {
+          courses_completed: number
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          lessons_completed: number
+          longest_streak: number
+          perfect_quizzes: number
+          quizzes_passed: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          courses_completed?: number
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          lessons_completed?: number
+          longest_streak?: number
+          perfect_quizzes?: number
+          quizzes_passed?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          courses_completed?: number
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          lessons_completed?: number
+          longest_streak?: number
+          perfect_quizzes?: number
+          quizzes_passed?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -18,6 +18,7 @@ import { CourseCertificatePDF } from '@/components/pdf/CourseCertificatePDF';
 import { CourseRating } from '@/components/courses/CourseRating';
 import { LessonNotes } from '@/components/courses/LessonNotes';
 import { LessonQuiz } from '@/components/courses/LessonQuiz';
+import { LessonNotesExport } from '@/components/courses/LessonNotesExport';
 import {
   ArrowLeft,
   Play,
@@ -465,6 +466,9 @@ export default function CourseViewer() {
             {selectedLesson && (
               <LessonQuiz lessonId={selectedLesson.id} />
             )}
+
+            {/* Notes Export */}
+            <LessonNotesExport courseId={courseId!} courseTitle={course.title} />
 
             {/* Course Rating Section */}
             <CourseRating courseId={courseId!} hasAccess={hasAccess} />

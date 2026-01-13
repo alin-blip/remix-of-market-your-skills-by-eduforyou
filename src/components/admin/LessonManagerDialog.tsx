@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { QuizManagerDialog } from './QuizManagerDialog';
 import {
   Plus,
   Trash2,
@@ -24,6 +25,7 @@ import {
   X,
   PlayCircle,
   Save,
+  HelpCircle,
 } from 'lucide-react';
 
 interface Course {
@@ -80,6 +82,7 @@ export function LessonManagerDialog({ open, onOpenChange, course }: LessonManage
     is_free: false,
   });
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [quizLesson, setQuizLesson] = useState<Lesson | null>(null);
 
   // Fetch lessons
   const { data: lessons = [], isLoading } = useQuery({
@@ -390,6 +393,14 @@ export function LessonManagerDialog({ open, onOpenChange, course }: LessonManage
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                onClick={() => setQuizLesson(lesson)}
+                                title="Gestionează Quiz"
+                              >
+                                <HelpCircle className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
                                 onClick={() => setPreviewUrl(lesson.video_url || '')}
                                 disabled={!lesson.video_url}
                               >
@@ -447,6 +458,13 @@ export function LessonManagerDialog({ open, onOpenChange, course }: LessonManage
               </CardContent>
             </Card>
           )}
+
+          {/* Quiz Manager Dialog */}
+          <QuizManagerDialog
+            open={!!quizLesson}
+            onOpenChange={(open) => !open && setQuizLesson(null)}
+            lesson={quizLesson}
+          />
         </div>
       </DialogContent>
     </Dialog>
