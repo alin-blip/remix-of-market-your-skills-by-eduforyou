@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
+import { useFeatureGating } from '@/hooks/useFeatureGating';
+import { UpgradeModal } from '@/components/upgrade/UpgradeModal';
 import { 
   Linkedin, 
   Mail, 
@@ -61,6 +63,7 @@ export default function OutreachGenerator() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useI18n();
+  const { gatingState, checkPlanAccess, closeUpgradeModal } = useFeatureGating();
   
   const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -73,6 +76,11 @@ export default function OutreachGenerator() {
     dm: null
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Check feature access on mount - Outreach requires Pro plan
+  useEffect(() => {
+    checkPlanAccess('pro', 'Outreach Generator', 'Generează mesaje personalizate de outreach pentru LinkedIn, Email și DM.');
+  }, []);
 
   const platformConfig = {
     linkedin: {
@@ -301,6 +309,13 @@ export default function OutreachGenerator() {
 
   return (
     <MainLayout>
+      <UpgradeModal 
+        open={gatingState.showUpgradeModal} 
+        onOpenChange={closeUpgradeModal}
+        requiredPlan={gatingState.requiredPlan}
+        featureName={gatingState.featureName}
+        featureDescription={gatingState.featureDescription}
+      />
       <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
           {step === 'ready' && (

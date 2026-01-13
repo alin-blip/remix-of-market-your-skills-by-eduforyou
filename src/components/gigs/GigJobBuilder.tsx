@@ -14,6 +14,8 @@ import { GigJobCard } from "./GigJobCard";
 import { GigJobDialog, GigJobFormData } from "./GigJobDialog";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeModal } from "@/components/upgrade/UpgradeModal";
 
 interface PackageData {
   name: string;
@@ -51,6 +53,7 @@ interface GigJob {
 export function GigJobBuilder() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const { plan, getLimit, requiresUpgrade } = useSubscription();
   const { 
     isConnected, 
     publishGig, 
@@ -61,6 +64,7 @@ export function GigJobBuilder() {
     markServicesSynced 
   } = useSwipeHireIntegration();
   const [syncingProfile, setSyncingProfile] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -69,6 +73,9 @@ export function GigJobBuilder() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<GigJobFormData> | undefined>();
   const [publishingId, setPublishingId] = useState<string | null>(null);
+
+  const gigLimit = getLimit('gigs') as number;
+  const currentGigCount = gigsJobs.filter(g => g.type === 'gig').length;
 
   useEffect(() => {
     if (user?.id) loadData();
@@ -126,6 +133,12 @@ export function GigJobBuilder() {
   };
 
   const createFromPackage = (packageKey: "starter" | "standard" | "premium") => {
+    // Check gig limit
+    if (gigLimit !== Infinity && currentGigCount >= gigLimit) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
     if (!offer) return;
     const pkg = offer[`${packageKey}_package`];
     if (!pkg) return;
@@ -149,6 +162,16 @@ export function GigJobBuilder() {
       currency: "EUR",
       sourcePackage: packageKey,
     });
+    setDialogOpen(true);
+  };
+
+  const handleCreateNew = () => {
+    // Check gig limit
+    if (gigLimit !== Infinity && currentGigCount >= gigLimit) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setEditingItem(undefined);
     setDialogOpen(true);
   };
 
@@ -415,6 +438,8 @@ export function GigJobBuilder() {
     premium: "from-amber-500 to-orange-500",
   };
 
+  const requiredPlan = requiresUpgrade('pro') ? 'pro' : 'starter';
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -435,6 +460,13 @@ export function GigJobBuilder() {
 
   return (
     <>
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        requiredPlan={requiredPlan}
+        featureName="Gig Builder"
+        featureDescription={`Ai atins limita de ${gigLimit} gig-uri. Fă upgrade pentru a crea mai multe.`}
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
