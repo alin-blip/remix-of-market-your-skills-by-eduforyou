@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { CourseDialog } from '@/components/courses/CourseDialog';
+import { LessonManagerDialog } from '@/components/admin/LessonManagerDialog';
 import { useStripeCheckout } from '@/hooks/useStripeCheckout';
 import { useCoursesAccess } from '@/hooks/useCourseAccess';
 import { 
@@ -105,6 +106,8 @@ export default function LearningHub() {
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
+  const [showLessonManager, setShowLessonManager] = useState(false);
+  const [lessonManagerCourse, setLessonManagerCourse] = useState<Course | null>(null);
 
   // Smart Start-Up modules with translations
   const smartStartupModules = [
@@ -658,7 +661,21 @@ export default function LearningHub() {
                               )}
                             </Button>
                           )}
-                        </CardContent>
+                          
+                          {isAdmin && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2 gap-2"
+                              onClick={() => {
+                                setLessonManagerCourse(course);
+                                setShowLessonManager(true);
+                              }}
+                            >
+                              <Video className="h-4 w-4" />
+                              Gestionează Lecții
+                            </Button>
+                          )}
                       </Card>
                     </motion.div>
                   );
@@ -787,6 +804,12 @@ export default function LearningHub() {
             await saveCourseM.mutateAsync(editingCourse ? { ...data, id: editingCourse.id } : data);
           }}
           isLoading={saveCourseM.isPending}
+        />
+        
+        <LessonManagerDialog
+          open={showLessonManager}
+          onOpenChange={setShowLessonManager}
+          course={lessonManagerCourse}
         />
       </div>
     </MainLayout>

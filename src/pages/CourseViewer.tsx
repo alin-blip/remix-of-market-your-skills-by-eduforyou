@@ -13,6 +13,8 @@ import { useAuth } from '@/lib/auth';
 import { useCourseAccess } from '@/hooks/useCourseAccess';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { pdf } from '@react-pdf/renderer';
+import { CourseCertificatePDF } from '@/components/pdf/CourseCertificatePDF';
 import {
   ArrowLeft,
   Play,
@@ -23,7 +25,9 @@ import {
   BookOpen,
   Trophy,
   ChevronRight,
-  Loader2
+  Loader2,
+  Download,
+  Award
 } from 'lucide-react';
 
 interface Course {
@@ -62,6 +66,7 @@ export default function CourseViewer() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [isDownloadingCertificate, setIsDownloadingCertificate] = useState(false);
 
   // Fetch course details
   const { data: course, isLoading: courseLoading } = useQuery({
@@ -83,6 +88,22 @@ export default function CourseViewer() {
     courseId || '', 
     course?.price || 0
   );
+
+  // Fetch user profile for certificate
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   // Fetch lessons
   const { data: lessons = [], isLoading: lessonsLoading } = useQuery({
@@ -192,6 +213,72 @@ export default function CourseViewer() {
     }
   };
 
+  // Format duration helper
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins} min`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}min`;
+  };
+
+  // Download certificate function
+  const handleDownloadCertificate = async () => {
+    if (!course || !userProfile || overallProgress < 100) return;
+    
+    setIsDownloadingCertificate(true);
+    try {
+      const certificateId = `FL-${course.id.slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+      const completedDate = new Date().toLocaleDateString('ro-RO', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      const blob = await pdf(
+        <CourseCertificatePDF
+          userName={userProfile.full_name || 'Student'}
+          courseTitle={course.title}
+          completedDate={completedDate}
+          courseDuration={formatDuration(course.duration_minutes || 0)}
+          lessonsCount={lessons.length}
+          certificateId={certificateId}
+        />
+      ).toBlob();
+
+      // Download the PDF
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Certificat-${course.title.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('Certificat descărcat cu succes!');
+
+      // Send completion notification email
+      if (userProfile.email) {
+        await supabase.functions.invoke('course-notifications', {
+          body: {
+            type: 'course_completed',
+            user_id: user?.id,
+            course_id: courseId,
+            user_email: userProfile.email,
+            user_name: userProfile.full_name || 'Student',
+            course_title: course.title,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      toast.error('Eroare la generarea certificatului');
+    } finally {
+      setIsDownloadingCertificate(false);
+    }
+  };
+
   if (courseLoading || accessLoading) {
     return (
       <MainLayout>
@@ -265,10 +352,24 @@ export default function CourseViewer() {
               <Progress value={overallProgress} className="h-2" />
             </div>
             {overallProgress === 100 && (
-              <Badge className="gap-1 bg-green-500">
-                <Trophy className="h-3 w-3" />
-                Completat
-              </Badge>
+              <>
+                <Badge className="gap-1 bg-green-500">
+                  <Trophy className="h-3 w-3" />
+                  Completat
+                </Badge>
+                <Button 
+                  onClick={handleDownloadCertificate}
+                  disabled={isDownloadingCertificate}
+                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                >
+                  {isDownloadingCertificate ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  Certificat PDF
+                </Button>
+              </>
             )}
           </div>
         </div>
