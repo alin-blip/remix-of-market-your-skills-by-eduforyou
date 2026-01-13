@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { pdf } from '@react-pdf/renderer';
 import { CourseCertificatePDF } from '@/components/pdf/CourseCertificatePDF';
 import { CourseRating } from '@/components/courses/CourseRating';
+import { LessonNotes } from '@/components/courses/LessonNotes';
+import { LessonQuiz } from '@/components/courses/LessonQuiz';
 import {
   ArrowLeft,
   Play,
@@ -452,6 +454,16 @@ export default function CourseViewer() {
                   </CardContent>
                 )}
               </Card>
+            )}
+
+            {/* Lesson Notes */}
+            {selectedLesson && (
+              <LessonNotes lessonId={selectedLesson.id} />
+            )}
+
+            {/* Lesson Quiz */}
+            {selectedLesson && (
+              <LessonQuiz lessonId={selectedLesson.id} />
             )}
 
             {/* Course Rating Section */}
