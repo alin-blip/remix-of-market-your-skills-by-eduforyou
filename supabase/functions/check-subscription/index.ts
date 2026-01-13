@@ -33,10 +33,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
     logStep("Authorization header found");
@@ -48,11 +44,56 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // FIRST: Check local database for subscription
+    const { data: localSub, error: localSubError } = await supabaseClient
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (localSub && localSub.status === 'active') {
+      const isValid = !localSub.current_period_end || 
+        new Date(localSub.current_period_end) > new Date();
+      
+      if (isValid) {
+        logStep("Found active subscription in local database", { 
+          plan: localSub.plan, 
+          end: localSub.current_period_end 
+        });
+        
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan: localSub.plan,
+          product_id: PRODUCT_IDS[localSub.plan as keyof typeof PRODUCT_IDS] || null,
+          subscription_end: localSub.current_period_end,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    // SECOND: Fallback to Stripe check if no valid local subscription
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      logStep("STRIPE_SECRET_KEY not set, returning local subscription status");
+      return new Response(JSON.stringify({ 
+        subscribed: false, 
+        plan: 'free',
+        product_id: null,
+        subscription_end: null 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+    logStep("Stripe key verified, checking Stripe");
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, returning unsubscribed state");
+      logStep("No customer found in Stripe, returning unsubscribed state");
       return new Response(JSON.stringify({ 
         subscribed: false, 
         plan: 'free',
@@ -89,7 +130,7 @@ serve(async (req) => {
       else if (productId === PRODUCT_IDS.pro) plan = 'pro';
       else if (productId === PRODUCT_IDS.founder) plan = 'founder';
       
-      logStep("Active subscription found", { subscriptionId: subscription.id, plan, endDate: subscriptionEnd });
+      logStep("Active subscription found in Stripe", { subscriptionId: subscription.id, plan, endDate: subscriptionEnd });
     } else {
       // Check for one-time purchases (Founder Accelerator)
       const paymentIntents = await stripe.paymentIntents.list({
@@ -106,9 +147,9 @@ serve(async (req) => {
         hasActiveSub = true;
         plan = 'founder';
         productId = PRODUCT_IDS.founder;
-        logStep("Founder one-time purchase found");
+        logStep("Founder one-time purchase found in Stripe");
       } else {
-        logStep("No active subscription or founder purchase found");
+        logStep("No active subscription or founder purchase found in Stripe");
       }
     }
 
