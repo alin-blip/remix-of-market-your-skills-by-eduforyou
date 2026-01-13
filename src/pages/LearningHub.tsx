@@ -22,6 +22,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { ExternalCourseCard } from '@/components/courses/ExternalCourseCard';
 import { LearningPathCard } from '@/components/courses/LearningPathCard';
 import { CourseRecommendations } from '@/components/courses/CourseRecommendations';
+import { PartnershipBanner, PartnershipLogos } from '@/components/courses/PartnershipBanner';
 import { 
   BookOpen, 
   Play, 
@@ -222,6 +223,11 @@ export default function LearningHub() {
   // Separate internal and external courses
   const internalCourses = courses.filter(c => c.course_type !== 'external');
   const externalCourses = courses.filter(c => c.course_type === 'external');
+
+  // Courses with certificates (for certifications tab)
+  const coursesWithCertificates = externalCourses.filter(
+    c => c.certificate === 'Yes' || c.certificate === 'Badges'
+  );
 
   // Filter external courses by category
   const filteredExternalCourses = categoryFilter === 'all' 
@@ -768,6 +774,9 @@ export default function LearningHub() {
 
           {/* Pro Courses Tab - External Courses from Top Providers */}
           <TabsContent value="pro-courses" className="space-y-6">
+            {/* Partnership Banner */}
+            <PartnershipBanner />
+
             {/* Header with PRO Badge */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -778,7 +787,7 @@ export default function LearningHub() {
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  20+ cursuri de la provideri de top: Google, Microsoft, AWS, Harvard și alții
+                  În parteneriat cu Google, Microsoft, AWS, Harvard și alți provideri de top
                 </p>
               </div>
               {plan !== 'pro' && plan !== 'founder' && (
@@ -884,41 +893,115 @@ export default function LearningHub() {
           </TabsContent>
 
           <TabsContent value="certifications" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {certifications.map((cert, index) => (
-                <motion.div
-                  key={cert.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                          <GraduationCap className="h-6 w-6 text-primary" />
+            {/* Partnership Info */}
+            <Card className="bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-background border-green-500/20">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <GraduationCap className="h-5 w-5 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Certificări Gratuite de la Partenerii Noștri</h3>
+                    <p className="text-sm text-muted-foreground">
+                      În parteneriat cu Google, Microsoft, HubSpot, freeCodeCamp și alții
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Courses with Certificates from External Providers */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                Cursuri cu Certificări Oficiale
+                <Badge variant="secondary">{coursesWithCertificates.length}</Badge>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {coursesWithCertificates.map((course, index) => (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="hover:shadow-md transition-shadow hover:border-green-500/30">
+                      <CardContent className="py-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-4">
+                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center shrink-0">
+                              <GraduationCap className="h-6 w-6 text-green-500" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium mb-1">{course.title}</h3>
+                              <p className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-foreground">{course.provider}</span>
+                                <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
+                                  {course.certificate === 'Badges' ? 'Badges' : 'Certificat Gratuit'}
+                                </Badge>
+                                {course.level && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {course.level}
+                                  </Badge>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" asChild>
+                            <a href={course.external_url || '#'} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
                         </div>
-                        <div>
-                          <h3 className="font-medium">{cert.name}</h3>
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            {cert.provider}
-                            {cert.free && (
-                              <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
-                                {t.learningHub?.badges?.free || 'Gratuit'}
-                              </Badge>
-                            )}
-                          </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Legacy Certifications */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Star className="h-5 w-5 text-primary" />
+                Alte Certificări Recomandate
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {certifications.map((cert, index) => (
+                  <motion.div
+                    key={cert.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                            <GraduationCap className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{cert.name}</h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              {cert.provider}
+                              {cert.free && (
+                                <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
+                                  {t.learningHub?.badges?.free || 'Gratuit'}
+                                </Badge>
+                              )}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <Button variant="ghost" size="icon" asChild>
-                        <a href={cert.url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                        <Button variant="ghost" size="icon" asChild>
+                          <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
             <Card className="bg-muted/30">
