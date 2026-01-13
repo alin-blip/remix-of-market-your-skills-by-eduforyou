@@ -21,6 +21,7 @@ import { useCoursesAccess } from '@/hooks/useCourseAccess';
 import { useSubscription } from '@/hooks/useSubscription';
 import { ExternalCourseCard } from '@/components/courses/ExternalCourseCard';
 import { LearningPathCard } from '@/components/courses/LearningPathCard';
+import { CourseRecommendations } from '@/components/courses/CourseRecommendations';
 import { 
   BookOpen, 
   Play, 
@@ -464,6 +465,9 @@ export default function LearningHub() {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Course Recommendations */}
+        <CourseRecommendations />
 
         {/* Progress Overview */}
         <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-background border-amber-500/20">

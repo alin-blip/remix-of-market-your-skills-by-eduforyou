@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.course-notifications]
 verify_jwt = false
+
+[functions.course-recommendations]
+verify_jwt = false
