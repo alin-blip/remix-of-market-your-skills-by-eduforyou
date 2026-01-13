@@ -177,6 +177,8 @@ export default function Onboarding() {
     }
   };
 
+  const progressPercent = ((currentStep + 1) / steps.length) * 100;
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background effects */}
@@ -185,21 +187,48 @@ export default function Onboarding() {
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
       
       <div className="relative z-10 container max-w-3xl mx-auto px-4 py-8">
-        {/* Progress bar */}
+        {/* Progress indicator header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              Pas {currentStep + 1} din {steps.length}
+            </span>
+            <span className="text-sm font-medium text-primary">
+              {Math.round(progressPercent)}% completat
+            </span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          </div>
+        </div>
+
+        {/* Step indicators */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4 overflow-x-auto pb-2">
             {steps.map((step, index) => (
               <div key={index} className="flex items-center flex-shrink-0">
-                <div
-                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
-                    index < currentStep
-                      ? 'bg-primary text-primary-foreground'
-                      : index === currentStep
-                      ? 'bg-primary text-primary-foreground ring-4 ring-primary/30'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
+                      index < currentStep
+                        ? 'bg-primary text-primary-foreground'
+                        : index === currentStep
+                        ? 'bg-primary text-primary-foreground ring-4 ring-primary/30 scale-110'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
+                  </div>
+                  <span className={`hidden md:block text-xs mt-1 max-w-[60px] text-center truncate ${
+                    index <= currentStep ? 'text-foreground' : 'text-muted-foreground'
+                  }`}>
+                    {step.title.split(' ').slice(0, 2).join(' ')}
+                  </span>
                 </div>
                 {index < steps.length - 1 && (
                   <div
@@ -211,10 +240,24 @@ export default function Onboarding() {
               </div>
             ))}
           </div>
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground">{steps[currentStep].title}</h2>
-            <p className="text-muted-foreground">{steps[currentStep].description}</p>
-          </div>
+          
+          {/* Current step info */}
+          <Card className="bg-primary/5 border-primary/20 p-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                {currentStep + 1}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">{steps[currentStep].title}</h2>
+                <p className="text-sm text-muted-foreground">{steps[currentStep].description}</p>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+              <span>📍 {steps.length - currentStep - 1} pași rămași</span>
+              <span>•</span>
+              <span>⏱️ ~{(steps.length - currentStep) * 2} minute</span>
+            </div>
+          </Card>
         </div>
 
         {/* Step content */}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { SwipeHireSettings } from "@/components/integrations/SwipeHireSettings";
 import { AutoSyncSettings } from "@/components/integrations/AutoSyncSettings";
@@ -6,16 +7,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plug, User, CreditCard, Crown, Loader2, ExternalLink } from "lucide-react";
+import { Plug, User, CreditCard, Crown, Loader2, ExternalLink, RotateCcw } from "lucide-react";
 import { useSubscription, PLAN_LIMITS } from "@/hooks/useSubscription";
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function Settings() {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { plan, subscribed, subscriptionEnd, isLoading, openCustomerPortal } = useSubscription();
+  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
+
+  const handleResetOnboarding = async () => {
+    if (!user) return;
+    
+    setIsResettingOnboarding(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ onboarding_completed: false })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      await refreshProfile();
+      toast.success("Onboarding resetat cu succes!");
+      navigate('/onboard');
+    } catch (error) {
+      console.error('Error resetting onboarding:', error);
+      toast.error("Eroare la resetarea onboarding-ului");
+    } finally {
+      setIsResettingOnboarding(false);
+    }
+  };
 
   const planDetails = {
     free: { name: 'Free', color: 'bg-gray-500', icon: '🆓' },
@@ -47,7 +85,7 @@ export default function Settings() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="account">
+          <TabsContent value="account" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Contul tău</CardTitle>
@@ -64,6 +102,55 @@ export default function Settings() {
                     <p className="font-mono text-sm">{user?.id?.slice(0, 8)}...</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Reset Onboarding Card */}
+            <Card className="border-orange-500/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <RotateCcw className="h-5 w-5 text-orange-500" />
+                  Resetează Onboarding
+                </CardTitle>
+                <CardDescription>
+                  Refă wizard-ul de onboarding pentru a-ți actualiza profilul, skill-urile, Ikigai-ul și oferta.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="gap-2 border-orange-500/50 hover:bg-orange-500/10">
+                      <RotateCcw className="h-4 w-4" />
+                      Resetează și Refă Onboarding
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Ești sigur că vrei să resetezi onboarding-ul?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Vei fi redirecționat către wizard-ul de onboarding pentru a-ți actualiza toate informațiile de profil.
+                        Datele existente din profil vor fi păstrate, dar vei putea să le modifici în wizard.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anulează</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleResetOnboarding}
+                        disabled={isResettingOnboarding}
+                        className="bg-orange-500 hover:bg-orange-600"
+                      >
+                        {isResettingOnboarding ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Se resetează...
+                          </>
+                        ) : (
+                          'Da, resetează'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
             </Card>
           </TabsContent>
