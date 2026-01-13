@@ -1,0 +1,129 @@
+import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Crown, Sparkles, Check, Lock } from 'lucide-react';
+import { useSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
+
+interface UpgradeModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  requiredPlan: SubscriptionPlan;
+  featureName: string;
+  featureDescription?: string;
+}
+
+const planInfo: Record<SubscriptionPlan, { name: string; price: string; features: string[] }> = {
+  free: { name: 'Free', price: '0€', features: [] },
+  starter: { 
+    name: 'Starter', 
+    price: '19€/lună',
+    features: [
+      '3 platforme',
+      '15 gig-uri',
+      '50 generări AI/lună',
+      'Profile Builder',
+      'Income Tracker',
+      'Export PDF'
+    ]
+  },
+  pro: { 
+    name: 'Pro', 
+    price: '49€/lună',
+    features: [
+      'Platforme nelimitate',
+      'Gig-uri nelimitate',
+      'Generări AI nelimitate',
+      'Outreach Generator',
+      'Suport prioritar',
+      'Toate funcțiile Starter'
+    ]
+  },
+  founder: { 
+    name: 'Founder Accelerator', 
+    price: '997€ (o singură plată)',
+    features: [
+      'Toate funcțiile Pro',
+      'Acces la toate cursurile',
+      'Mentorat 1-1',
+      'Comunitate privată',
+      'Acces pe viață'
+    ]
+  }
+};
+
+export function UpgradeModal({ 
+  open, 
+  onOpenChange, 
+  requiredPlan, 
+  featureName,
+  featureDescription 
+}: UpgradeModalProps) {
+  const navigate = useNavigate();
+  const { plan: currentPlan } = useSubscription();
+  const info = planInfo[requiredPlan];
+
+  const handleUpgrade = () => {
+    onOpenChange(false);
+    navigate('/pricing');
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+              <Lock className="h-6 w-6 text-amber-500" />
+            </div>
+            <DialogTitle className="text-xl">Funcție Premium</DialogTitle>
+          </div>
+          <DialogDescription>
+            {featureDescription || `${featureName} necesită un plan ${info.name} sau superior.`}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                <span className="font-semibold">{info.name}</span>
+              </div>
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                {info.price}
+              </Badge>
+            </div>
+            
+            <ul className="space-y-2">
+              {info.features.map((feature, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-green-500" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="text-sm text-muted-foreground text-center">
+            <span>Planul tău actual: </span>
+            <Badge variant="outline">{planInfo[currentPlan].name}</Badge>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            Mai târziu
+          </Button>
+          <Button 
+            onClick={handleUpgrade} 
+            className="flex-1 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+          >
+            <Sparkles className="h-4 w-4" />
+            Upgrade acum
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

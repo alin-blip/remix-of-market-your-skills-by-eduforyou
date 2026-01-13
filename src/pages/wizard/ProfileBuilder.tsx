@@ -26,6 +26,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
+import { useFeatureGating } from '@/hooks/useFeatureGating';
+import { UpgradeModal } from '@/components/upgrade/UpgradeModal';
 
 type Platform = 'facebook' | 'instagram' | 'linkedin' | 'tiktok';
 
@@ -63,6 +65,7 @@ export default function ProfileBuilder() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { t } = useI18n();
+  const { gatingState, checkFeatureAccess, closeUpgradeModal } = useFeatureGating();
   
   const [step, setStep] = useState<'loading' | 'ready' | 'generating' | 'results'>('loading');
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -78,6 +81,11 @@ export default function ProfileBuilder() {
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Check feature access on mount
+  useEffect(() => {
+    checkFeatureAccess('hasProfileBuilder', 'Profile Builder', 'Generează profile optimizate pentru platforme sociale cu AI.');
+  }, []);
 
   const platformConfig = {
     facebook: {
@@ -475,6 +483,13 @@ export default function ProfileBuilder() {
 
   return (
     <MainLayout>
+      <UpgradeModal 
+        open={gatingState.showUpgradeModal} 
+        onOpenChange={closeUpgradeModal}
+        requiredPlan={gatingState.requiredPlan}
+        featureName={gatingState.featureName}
+        featureDescription={gatingState.featureDescription}
+      />
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-2">

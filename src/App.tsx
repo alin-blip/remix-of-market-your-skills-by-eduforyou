@@ -35,6 +35,7 @@ import LearningHub from "./pages/LearningHub";
 import ClientCRM from "./pages/ClientCRM";
 import ToolsHub from "./pages/ToolsHub";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import CourseViewer from "./pages/CourseViewer";
 
 const queryClient = new QueryClient();
 
@@ -244,6 +245,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <PaymentSuccess />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/course/:courseId" 
+                  element={
+                    <ProtectedRoute>
+                      <CourseViewer />
                     </ProtectedRoute>
                   } 
                 />
