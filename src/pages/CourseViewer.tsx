@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { pdf } from '@react-pdf/renderer';
 import { CourseCertificatePDF } from '@/components/pdf/CourseCertificatePDF';
+import { CourseRating } from '@/components/courses/CourseRating';
 import {
   ArrowLeft,
   Play,
@@ -452,6 +453,9 @@ export default function CourseViewer() {
                 )}
               </Card>
             )}
+
+            {/* Course Rating Section */}
+            <CourseRating courseId={courseId!} hasAccess={hasAccess} />
           </div>
 
           {/* Lessons Sidebar */}
