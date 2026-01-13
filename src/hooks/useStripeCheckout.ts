@@ -28,7 +28,7 @@ export function useStripeCheckout() {
         body: {
           priceId: STRIPE_PRICES[plan],
           mode: plan === 'founder' ? 'payment' : 'subscription',
-          successUrl: `${window.location.origin}/dashboard?success=true`,
+          successUrl: `${window.location.origin}/payment-success?plan=${plan}`,
           cancelUrl: `${window.location.origin}/pricing?canceled=true`,
           userId: user.id,
         },
@@ -59,7 +59,7 @@ export function useStripeCheckout() {
         body: {
           priceId,
           mode: 'payment',
-          successUrl: `${window.location.origin}/learning-hub?success=true`,
+          successUrl: `${window.location.origin}/payment-success?plan=course&course_id=${courseId}`,
           cancelUrl: `${window.location.origin}/learning-hub?canceled=true`,
           userId: user.id,
           courseId,

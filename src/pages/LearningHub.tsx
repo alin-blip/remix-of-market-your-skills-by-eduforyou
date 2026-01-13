@@ -16,6 +16,7 @@ import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { CourseDialog } from '@/components/courses/CourseDialog';
 import { useStripeCheckout } from '@/hooks/useStripeCheckout';
+import { useCoursesAccess } from '@/hooks/useCourseAccess';
 import { 
   BookOpen, 
   Play, 
@@ -98,10 +99,12 @@ export default function LearningHub() {
   const queryClient = useQueryClient();
   const { isAdmin } = useAdminRole();
   const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
+  const { hasAccessToCourse, isFounder, isLoading: isAccessLoading } = useCoursesAccess();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
 
   // Smart Start-Up modules with translations
   const smartStartupModules = [
@@ -289,16 +292,24 @@ export default function LearningHub() {
     return purchases.some(p => p.course_id === courseId);
   };
 
+  // Check access using the new hook (includes Founder access)
+  const checkAccess = (courseId: string, price: number) => {
+    return hasAccessToCourse(courseId, price);
+  };
+
   const completedCourses = progress.filter(p => p.progress_percent >= 100).length;
   const totalProgress = courses.length > 0 
     ? Math.round(progress.reduce((sum, p) => sum + p.progress_percent, 0) / courses.length) 
     : 0;
 
-  const handleStartCourse = (course: Course) => {
-    if (course.price > 0 && !hasPurchased(course.id)) {
+  const handleStartCourse = async (course: Course) => {
+    const hasAccess = checkAccess(course.id, course.price);
+    
+    if (!hasAccess) {
+      // Show purchase dialog
       setSelectedCourse(course);
     } else {
-      // Simulate starting course and updating progress
+      // Start or continue the course
       const currentProgress = getCourseProgress(course.id);
       if (currentProgress < 100) {
         updateProgressMutation.mutate({ 
@@ -308,6 +319,14 @@ export default function LearningHub() {
         toast.success(`${t.learningHub?.progress?.updated || 'Progres actualizat'}: ${Math.min(currentProgress + 25, 100)}%`);
       }
     }
+  };
+
+  const handleBuyCourse = async (course: Course) => {
+    setPurchasingCourseId(course.id);
+    // For now, use demo purchase until Stripe price is created
+    // In production, call checkoutCourse with the course's Stripe price ID
+    await purchaseMutation.mutateAsync(course);
+    setPurchasingCourseId(null);
   };
 
   const handleModuleClick = (module: typeof smartStartupModules[0]) => {
@@ -537,7 +556,7 @@ export default function LearningHub() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {courses.map((course, index) => {
                   const courseProgress = getCourseProgress(course.id);
-                  const isPurchased = hasPurchased(course.id);
+                  const hasAccess = checkAccess(course.id, course.price);
                   const isFree = course.price === 0;
 
                   return (
@@ -558,6 +577,11 @@ export default function LearningHub() {
                               <Badge className="bg-green-500/90 text-white border-0">
                                 {t.learningHub?.badges?.free || 'Gratuit'}
                               </Badge>
+                            ) : hasAccess && !isFree ? (
+                              <Badge className="bg-green-500/90 text-white border-0 gap-1">
+                                <CheckCircle2 className="h-3 w-3" />
+                                {isFounder ? 'Founder' : 'Acces'}
+                              </Badge>
                             ) : (
                               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
                                 £{course.price}
@@ -577,15 +601,6 @@ export default function LearningHub() {
                             <Video className="h-3 w-3" />
                             {course.lessons_count} {t.learningHub?.lessons || 'lecții'}
                           </div>
-
-                          {isPurchased && (
-                            <div className="absolute bottom-3 right-3">
-                              <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-0 gap-1">
-                                <CheckCircle2 className="h-3 w-3" />
-                                {t.learningHub?.badges?.purchased || 'Achiziționat'}
-                              </Badge>
-                            </div>
-                          )}
                         </div>
 
                         <CardContent className="flex-1 flex flex-col p-4">
@@ -627,10 +642,10 @@ export default function LearningHub() {
                           ) : (
                             <Button 
                               className="w-full gap-2"
-                              variant={isPurchased || isFree ? "secondary" : "default"}
+                              variant={hasAccess ? "secondary" : "default"}
                               onClick={() => handleStartCourse(course)}
                             >
-                              {isPurchased || isFree ? (
+                              {hasAccess ? (
                                 <>
                                   <Play className="h-4 w-4" />
                                   {t.learningHub?.buttons?.startCourse || 'Începe cursul'}
@@ -742,19 +757,22 @@ export default function LearningHub() {
                   </Button>
                   <Button 
                     className="flex-1 gap-2"
-                    onClick={() => purchaseMutation.mutate(selectedCourse)}
-                    disabled={purchaseMutation.isPending}
+                    onClick={() => handleBuyCourse(selectedCourse)}
+                    disabled={purchaseMutation.isPending || purchasingCourseId === selectedCourse.id}
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    {purchaseMutation.isPending 
+                    {purchaseMutation.isPending || purchasingCourseId === selectedCourse.id
                       ? (t.learningHub?.purchaseDialog?.processing || 'Se procesează...') 
                       : (t.learningHub?.purchaseDialog?.buyNow || 'Cumpără acum')}
                   </Button>
                 </div>
 
-                <p className="text-xs text-muted-foreground text-center">
-                  {t.learningHub?.purchaseDialog?.demo || '* Acesta este un demo. În producție, va fi integrat Stripe.'}
-                </p>
+                {isFounder && (
+                  <p className="text-xs text-green-500 text-center flex items-center justify-center gap-1">
+                    <Crown className="h-3 w-3" />
+                    Ca Founder, ai acces gratuit la toate cursurile!
+                  </p>
+                )}
               </div>
             )}
           </DialogContent>

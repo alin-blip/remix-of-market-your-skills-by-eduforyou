@@ -34,6 +34,7 @@ import IncomeTracker from "./pages/IncomeTracker";
 import LearningHub from "./pages/LearningHub";
 import ClientCRM from "./pages/ClientCRM";
 import ToolsHub from "./pages/ToolsHub";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -235,6 +236,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <ToolsHub />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/payment-success" 
+                  element={
+                    <ProtectedRoute>
+                      <PaymentSuccess />
                     </ProtectedRoute>
                   } 
                 />
