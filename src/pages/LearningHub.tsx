@@ -676,6 +676,7 @@ export default function LearningHub() {
                               Gestionează Lecții
                             </Button>
                           )}
+                        </CardContent>
                       </Card>
                     </motion.div>
                   );
