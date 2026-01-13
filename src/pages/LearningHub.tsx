@@ -13,6 +13,9 @@ import { useAuth } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useI18n } from '@/lib/i18n';
+import { useAdminRole } from '@/hooks/useAdminRole';
+import { CourseDialog } from '@/components/courses/CourseDialog';
+import { useStripeCheckout } from '@/hooks/useStripeCheckout';
 import { 
   BookOpen, 
   Play, 
@@ -29,7 +32,10 @@ import {
   Video,
   Crown,
   Rocket,
-  ArrowRight
+  ArrowRight,
+  Plus,
+  Edit,
+  Loader2
 } from 'lucide-react';
 
 interface Course {
@@ -90,8 +96,12 @@ export default function LearningHub() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAdmin } = useAdminRole();
+  const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showCourseDialog, setShowCourseDialog] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // Smart Start-Up modules with translations
   const smartStartupModules = [
@@ -161,18 +171,38 @@ export default function LearningHub() {
     }
   ];
 
-  // Fetch courses
+  // Fetch courses (admin sees all, users see published only)
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery({
-    queryKey: ['courses'],
+    queryKey: ['courses', isAdmin],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('is_published', true)
-        .order('price', { ascending: true });
+      let query = supabase.from('courses').select('*').order('price', { ascending: true });
+      if (!isAdmin) {
+        query = query.eq('is_published', true);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return data as Course[];
     },
+  });
+
+  // Save course mutation (admin only)
+  const saveCourseM = useMutation({
+    mutationFn: async (courseData: Omit<Course, 'id'> & { id?: string }) => {
+      if (courseData.id) {
+        const { error } = await supabase.from('courses').update(courseData).eq('id', courseData.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('courses').insert(courseData);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success(editingCourse ? 'Curs actualizat!' : 'Curs adăugat!');
+      setShowCourseDialog(false);
+      setEditingCourse(null);
+    },
+    onError: () => toast.error('Eroare la salvarea cursului'),
   });
 
   // Fetch user progress
@@ -488,6 +518,14 @@ export default function LearningHub() {
           </TabsContent>
 
           <TabsContent value="courses" className="space-y-6">
+            {/* Admin Add Course Button */}
+            {isAdmin && (
+              <div className="flex justify-end">
+                <Button onClick={() => { setEditingCourse(null); setShowCourseDialog(true); }} className="gap-2">
+                  <Plus className="h-4 w-4" /> Adaugă Curs
+                </Button>
+              </div>
+            )}
             {/* Courses Grid */}
             {isLoadingCourses ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -721,6 +759,17 @@ export default function LearningHub() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Admin Course Dialog */}
+        <CourseDialog
+          open={showCourseDialog}
+          onOpenChange={setShowCourseDialog}
+          course={editingCourse}
+          onSave={async (data) => {
+            await saveCourseM.mutateAsync(editingCourse ? { ...data, id: editingCourse.id } : data);
+          }}
+          isLoading={saveCourseM.isPending}
+        />
       </div>
     </MainLayout>
   );

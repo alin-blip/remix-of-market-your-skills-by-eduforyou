@@ -13,12 +13,15 @@ import {
   Zap, 
   Sparkles, 
   Crown, 
-  Users, 
+  Rocket,
   GraduationCap,
   ArrowRight,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { useStripeCheckout, STRIPE_PRICES } from '@/hooks/useStripeCheckout';
 
 interface PlanFeature {
   name: string;
@@ -29,12 +32,13 @@ interface Plan {
   id: string;
   name: string;
   description: string;
-  price: { monthly: number; yearly: number };
+  price: { monthly: number; yearly: number } | { oneTime: number };
   icon: React.ElementType;
   color: string;
   features: PlanFeature[];
   popular?: boolean;
   cta: string;
+  isOneTime?: boolean;
 }
 
 const plans: Plan[] = [
@@ -103,24 +107,25 @@ const plans: Plan[] = [
     ],
   },
   {
-    id: 'team',
-    name: 'Team',
-    description: 'Pentru echipe și organizații',
-    price: { monthly: 49, yearly: 490 },
-    icon: Users,
-    color: 'orange',
-    cta: 'Contactează-ne',
+    id: 'founder',
+    name: 'Founder Accelerator',
+    description: 'Acces pe viață + Toate cursurile',
+    price: { oneTime: 997 },
+    icon: Rocket,
+    color: 'amber',
+    cta: 'Cumpără Acum',
+    isOneTime: true,
     features: [
-      { name: 'Toate platformele', included: true },
+      { name: 'Acces pe viață la toate funcționalitățile', included: true },
       { name: 'Gig-uri nelimitate', included: true },
-      { name: 'Multi-user (5+ membri)', included: true },
-      { name: 'Team Dashboard', included: true },
+      { name: 'Smart Start-Up Curriculum complet', included: true },
+      { name: 'Toate cursurile premium', included: true },
       { name: 'AI Generations', included: 'Nelimitat' },
       { name: 'Profile Builder', included: true },
       { name: 'Outreach Templates', included: 'Nelimitat' },
-      { name: 'Advanced Analytics', included: true },
-      { name: 'API Access', included: true },
-      { name: 'Dedicated Support', included: true },
+      { name: 'Income Tracker + Analytics', included: true },
+      { name: 'Export PDF/DOCX', included: true },
+      { name: 'Priority Support + Comunitate', included: true },
     ],
   },
 ];
@@ -128,14 +133,29 @@ const plans: Plan[] = [
 export default function Pricing() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { checkout, isLoading } = useStripeCheckout();
   const [isYearly, setIsYearly] = useState(false);
 
-  const handleSelectPlan = (plan: Plan) => {
+  const handleSelectPlan = async (plan: Plan) => {
+    if (!user) {
+      toast.info('Trebuie să te autentifici pentru a face upgrade');
+      navigate('/auth/login');
+      return;
+    }
+    
     if (plan.id === 'free') {
       toast.success('Folosești deja planul Free!');
       return;
     }
-    toast.info(`Upgrade la ${plan.name} va fi disponibil în curând!`);
+    
+    if (plan.id === 'team') {
+      toast.info('Contactează-ne pentru planul Team!');
+      return;
+    }
+    
+    // Redirect to Stripe checkout
+    await checkout(plan.id as 'starter' | 'pro' | 'founder');
   };
 
   const getColorClasses = (color: string, type: 'bg' | 'text' | 'border') => {
@@ -143,9 +163,18 @@ export default function Pricing() {
       gray: { bg: 'bg-gray-500/10', text: 'text-gray-500', border: 'border-gray-500/30' },
       blue: { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/30' },
       purple: { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500/30' },
-      orange: { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
+      amber: { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/30' },
     };
     return colors[color]?.[type] || '';
+  };
+
+  const getPriceDisplay = (plan: Plan) => {
+    if ('oneTime' in plan.price) {
+      return { price: plan.price.oneTime, suffix: '', annual: null };
+    }
+    const price = isYearly ? Math.round(plan.price.yearly / 12) : plan.price.monthly;
+    const annual = isYearly && plan.price.yearly > 0 ? plan.price.yearly : null;
+    return { price, suffix: '/lună', annual };
   };
 
   return (
@@ -221,20 +250,25 @@ export default function Pricing() {
 
                 {/* Price */}
                 <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">
-                      {isYearly 
-                        ? Math.round(plan.price.yearly / 12)
-                        : plan.price.monthly
-                      }€
-                    </span>
-                    <span className="text-muted-foreground">/lună</span>
-                  </div>
-                  {isYearly && plan.price.yearly > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Facturat {plan.price.yearly}€/an
-                    </p>
-                  )}
+                  {(() => {
+                    const { price, suffix, annual } = getPriceDisplay(plan);
+                    return (
+                      <>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-bold">
+                            £{price}
+                          </span>
+                          {suffix && <span className="text-muted-foreground">{suffix}</span>}
+                          {plan.isOneTime && <span className="text-muted-foreground text-sm">o singură dată</span>}
+                        </div>
+                        {annual && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Facturat £{annual}/an
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Features */}
@@ -263,13 +297,15 @@ export default function Pricing() {
                 {/* CTA */}
                 <Button 
                   onClick={() => handleSelectPlan(plan)}
+                  disabled={isLoading}
                   className={`w-full gap-2 ${
-                    plan.popular 
-                      ? '' 
+                    plan.popular || plan.isOneTime
+                      ? 'bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90' 
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                   }`}
-                  variant={plan.popular ? 'default' : 'secondary'}
+                  variant={plan.popular || plan.isOneTime ? 'default' : 'secondary'}
                 >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {plan.cta}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
