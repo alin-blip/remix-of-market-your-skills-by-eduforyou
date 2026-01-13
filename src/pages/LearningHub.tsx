@@ -556,13 +556,7 @@ export default function LearningHub() {
               <Award className="h-4 w-4" />
               <span className="hidden sm:inline">Certificări</span>
               <span className="sm:hidden">Cert.</span>
-              <Badge className="ml-1 text-xs bg-green-500/20 text-green-500 border-0">{certificationCourses.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="pro-courses" className="gap-2">
-              <Globe className="h-4 w-4" />
-              <span className="hidden sm:inline">Cursuri Pro</span>
-              <span className="sm:hidden">Pro</span>
-              <Badge className="ml-1 text-xs bg-amber-500/20 text-amber-500 border-0">{partnerCourses.length}</Badge>
+              <Badge className="ml-1 text-xs bg-green-500/20 text-green-500 border-0">{partnerCourses.length + certificationCourses.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
@@ -701,22 +695,74 @@ export default function LearningHub() {
 
           {/* Certifications Tab */}
           <TabsContent value="certifications" className="space-y-6">
-            {/* Partnership Info */}
-            <Card className="bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-background border-green-500/20">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/20">
-                    <GraduationCap className="h-5 w-5 text-green-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Certificări Gratuite și Premium</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Obține certificări recunoscute de la Google, Microsoft, HubSpot și alții
-                    </p>
+            {/* Partnership Banner */}
+            <PartnershipBanner />
+
+            {/* Partner Courses Section - First */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Globe className="h-5 w-5 text-amber-500" />
+                Cursuri de la Parteneri
+                <Badge variant="secondary">{partnerCourses.length}</Badge>
+              </h3>
+              
+              {/* Learning Paths */}
+              {learningPaths.length > 0 && (
+                <div className="space-y-4 mb-6">
+                  <h4 className="text-md font-medium flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    Trasee de Învățare
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {learningPaths.map((path, index) => (
+                      <LearningPathCard 
+                        key={path.id} 
+                        path={{
+                          ...path,
+                          coursesCount: pathCourseCounts[path.id] || 0,
+                        }} 
+                        index={index} 
+                      />
+                    ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+
+              {/* Partner Courses Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {partnerCourses.map((course, index) => (
+                  <ExternalCourseCard 
+                    key={course.id} 
+                    course={{
+                      ...course,
+                      tags: Array.isArray(course.tags) ? course.tags : [],
+                    } as any} 
+                    index={index} 
+                  />
+                ))}
+              </div>
+
+              {partnerCourses.length === 0 && (
+                <Card className="bg-muted/30">
+                  <CardContent className="py-6 text-center">
+                    <Globe className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Nu există cursuri de la parteneri încă.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-4 text-muted-foreground">Certificări</span>
+              </div>
+            </div>
 
             {/* Internal Courses with Certificates */}
             {certificationCourses.filter(c => c.course_type !== 'external').length > 0 && (
@@ -831,102 +877,6 @@ export default function LearningHub() {
           </TabsContent>
 
           {/* Pro Courses Tab */}
-          <TabsContent value="pro-courses" className="space-y-6">
-            {/* Partnership Banner */}
-            <PartnershipBanner />
-
-            {/* Header with PRO Badge */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl font-semibold">Cursuri Pro</h2>
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                    {plan === 'pro' || plan === 'founder' ? 'Acces Complet' : 'PRO'}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  În parteneriat cu Google, Microsoft, AWS, Harvard și alți provideri de top
-                </p>
-              </div>
-              {plan !== 'pro' && plan !== 'founder' && (
-                <Button 
-                  className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                  onClick={() => navigate('/pricing')}
-                >
-                  <Crown className="h-4 w-4" />
-                  Upgrade la Pro
-                </Button>
-              )}
-            </div>
-
-            {/* Learning Paths */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-primary" />
-                Trasee de Învățare
-              </h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {learningPaths.map((path, index) => (
-                  <LearningPathCard 
-                    key={path.id} 
-                    path={{
-                      ...path,
-                      coursesCount: pathCourseCounts[path.id] || 0,
-                    }} 
-                    index={index} 
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* External Courses Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {partnerCourses.map((course, index) => (
-                <ExternalCourseCard 
-                  key={course.id} 
-                  course={{
-                    ...course,
-                    tags: Array.isArray(course.tags) ? course.tags : [],
-                  } as any} 
-                  index={index} 
-                />
-              ))}
-            </div>
-
-            {partnerCourses.length === 0 && (
-              <Card className="bg-muted/30">
-                <CardContent className="py-8 text-center">
-                  <Globe className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold mb-1">Nu există cursuri Pro încă</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Cursurile de la parteneri vor fi adăugate în curând.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Upgrade CTA for non-Pro users */}
-            {plan !== 'pro' && plan !== 'founder' && (
-              <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
-                <CardContent className="py-8 text-center">
-                  <Globe className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Deblochează Toate Cursurile Pro</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Obține acces la 20+ cursuri de la Google, Microsoft, AWS, Harvard și alți provideri de top cu abonamentul Pro.
-                  </p>
-                  <Button 
-                    size="lg"
-                    className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-                    onClick={() => navigate('/pricing')}
-                  >
-                    <Rocket className="h-5 w-5" />
-                    Upgrade la Pro
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
         </Tabs>
 
         {/* Purchase Dialog */}
