@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -19,8 +19,11 @@ export function ProtectedRoute({
   const { isAdmin, loading: adminLoading } = useAdminRole();
   const location = useLocation();
 
-  // Show loading state while checking auth and admin status
-  if (loading || (requireAdmin && adminLoading)) {
+  // Show loading state while checking auth, admin status, AND profile
+  // We need to wait for profile to be loaded before checking onboarding status
+  const isProfileLoading = user && !profile && loading === false;
+  
+  if (loading || (requireAdmin && adminLoading) || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -37,8 +40,9 @@ export function ProtectedRoute({
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Redirect to onboarding if not completed
-  if (requireOnboarding && !profile?.onboarding_completed && location.pathname !== '/onboard') {
+  // Only redirect to onboarding if profile is loaded and onboarding is NOT completed
+  // If profile exists and onboarding_completed is true, skip onboarding
+  if (requireOnboarding && profile && profile.onboarding_completed === false && location.pathname !== '/onboard') {
     return <Navigate to="/onboard" replace />;
   }
 
