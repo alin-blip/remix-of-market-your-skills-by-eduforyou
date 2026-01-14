@@ -41,6 +41,8 @@ import CourseViewer from "./pages/CourseViewer";
 import PartnerCourses from "./pages/PartnerCourses";
 import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
 import BundlesManager from "./pages/admin/BundlesManager";
+import CourseSalesPage from "./pages/CourseSalesPage";
+import BundleSalesPage from "./pages/BundleSalesPage";
 
 const queryClient = new QueryClient();
 
@@ -301,6 +303,9 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
+                {/* Public Sales Pages */}
+                <Route path="/courses/:slug" element={<CourseSalesPage />} />
+                <Route path="/bundles/:slug" element={<BundleSalesPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

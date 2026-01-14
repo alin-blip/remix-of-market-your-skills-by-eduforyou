@@ -59,7 +59,7 @@ export function useStripeCheckout() {
         body: {
           priceId,
           mode: 'payment',
-          successUrl: `${window.location.origin}/payment-success?plan=course&course_id=${courseId}`,
+          successUrl: `${window.location.origin}/payment-success?type=course&course_id=${courseId}`,
           cancelUrl: `${window.location.origin}/learning-hub?canceled=true`,
           userId: user.id,
           courseId,
@@ -79,5 +79,37 @@ export function useStripeCheckout() {
     }
   };
 
-  return { checkout, checkoutCourse, isLoading };
+  const checkoutBundle = async (bundleId: string, priceId: string) => {
+    if (!user) {
+      toast.error('Trebuie să fii autentificat pentru a cumpăra pachetul');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: {
+          priceId,
+          mode: 'payment',
+          successUrl: `${window.location.origin}/payment-success?type=bundle&bundle_id=${bundleId}`,
+          cancelUrl: `${window.location.origin}/learning-hub?canceled=true`,
+          userId: user.id,
+          bundleId,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Bundle checkout error:', error);
+      toast.error('Eroare la cumpărarea pachetului');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { checkout, checkoutCourse, checkoutBundle, isLoading };
 }
