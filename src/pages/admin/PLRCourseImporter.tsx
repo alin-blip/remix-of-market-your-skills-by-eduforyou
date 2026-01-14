@@ -132,7 +132,7 @@ export default function PLRCourseImporter() {
     }
 
     // Client-side guard (prevents large uploads that crash the backend)
-    const MAX_ZIP_MB = 25;
+    const MAX_ZIP_MB = 100;
     const MAX_ZIP_BYTES = MAX_ZIP_MB * 1024 * 1024;
     if (file.size > MAX_ZIP_BYTES) {
       toast.error(`ZIP prea mare (max ${MAX_ZIP_MB}MB)`, {
