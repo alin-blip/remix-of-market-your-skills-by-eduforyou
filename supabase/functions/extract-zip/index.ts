@@ -5,6 +5,7 @@ import JSZip from "https://esm.sh/jszip@3.10.1";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 // Resource-safe limits (backend functions have strict memory/CPU quotas)
