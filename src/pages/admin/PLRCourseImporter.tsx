@@ -151,7 +151,28 @@ export default function PLRCourseImporter() {
       setZipProgress(80);
 
       if (data.extracted) {
-        const { videos, images, thumbnail } = data.extracted;
+        const { videos, images, thumbnail, courseInfo } = data.extracted;
+        
+        // Auto-fill course title and description from extracted documents
+        if (courseInfo) {
+          const updates: Partial<CourseFormData> = {};
+          
+          if (courseInfo.title && !courseData.title) {
+            updates.title = courseInfo.title;
+            toast.success(`Titlu detectat: "${courseInfo.title}"`, {
+              description: `Extras din: ${courseInfo.extractedFrom}`
+            });
+          }
+          
+          if (courseInfo.description && !courseData.description) {
+            updates.description = courseInfo.description;
+            toast.success('Descriere detectată automat din ZIP');
+          }
+          
+          if (Object.keys(updates).length > 0) {
+            setCourseData(prev => ({ ...prev, ...updates }));
+          }
+        }
         
         // Create lessons from extracted videos
         if (videos && videos.length > 0) {
