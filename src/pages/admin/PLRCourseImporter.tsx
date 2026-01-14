@@ -131,6 +131,16 @@ export default function PLRCourseImporter() {
       return;
     }
 
+    // Client-side guard (prevents large uploads that crash the backend)
+    const MAX_ZIP_MB = 25;
+    const MAX_ZIP_BYTES = MAX_ZIP_MB * 1024 * 1024;
+    if (file.size > MAX_ZIP_BYTES) {
+      toast.error(`ZIP prea mare (max ${MAX_ZIP_MB}MB)`, {
+        description: 'Înlătură videourile din arhivă sau încarcă-le individual.',
+      });
+      return;
+    }
+
     setIsExtractingZip(true);
     setZipProgress(10);
     toast.info('Se extrage arhiva ZIP...');
@@ -139,9 +149,9 @@ export default function PLRCourseImporter() {
       const formData = new FormData();
       formData.append('file', file);
       // Don't send courseId yet - we'll move files after course creation
-      
+
       setZipProgress(30);
-      
+
       const { data, error } = await supabase.functions.invoke('extract-zip', {
         body: formData
       });
