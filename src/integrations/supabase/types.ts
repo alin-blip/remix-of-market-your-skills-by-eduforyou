@@ -83,6 +83,86 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_courses: {
+        Row: {
+          bundle_id: string
+          course_id: string
+          created_at: string | null
+          id: string
+          position: number | null
+        }
+        Insert: {
+          bundle_id: string
+          course_id: string
+          created_at?: string | null
+          id?: string
+          position?: number | null
+        }
+        Update: {
+          bundle_id?: string
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_courses_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "course_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bundle_purchases: {
+        Row: {
+          amount: number
+          bundle_id: string
+          currency: string | null
+          id: string
+          purchased_at: string | null
+          status: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bundle_id: string
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bundle_id?: string
+          currency?: string | null
+          id?: string
+          purchased_at?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_purchases_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "course_bundles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_projects: {
         Row: {
           client_id: string
@@ -184,6 +264,54 @@ export type Database = {
         }
         Relationships: []
       }
+      course_bundles: {
+        Row: {
+          bundle_price: number
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          original_price: number
+          slug: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          bundle_price: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          original_price: number
+          slug?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          bundle_price?: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          original_price?: number
+          slug?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       course_lessons: {
         Row: {
           course_id: string
@@ -193,7 +321,9 @@ export type Database = {
           id: string
           is_free: boolean | null
           position: number
+          resources: Json | null
           title: string
+          video_storage_path: string | null
           video_url: string | null
         }
         Insert: {
@@ -204,7 +334,9 @@ export type Database = {
           id?: string
           is_free?: boolean | null
           position?: number
+          resources?: Json | null
           title: string
+          video_storage_path?: string | null
           video_url?: string | null
         }
         Update: {
@@ -215,7 +347,9 @@ export type Database = {
           id?: string
           is_free?: boolean | null
           position?: number
+          resources?: Json | null
           title?: string
+          video_storage_path?: string | null
           video_url?: string | null
         }
         Relationships: [
@@ -306,10 +440,12 @@ export type Database = {
       }
       courses: {
         Row: {
+          bundle_id: string | null
           category: string | null
           certificate: string | null
           course_type: string | null
           created_at: string | null
+          currency: string | null
           description: string | null
           duration_minutes: number | null
           external_url: string | null
@@ -324,6 +460,10 @@ export type Database = {
           provider: string | null
           recommended_for: string | null
           requires_pro: boolean | null
+          sales_page_content: Json | null
+          slug: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           tags: Json | null
           thumbnail_url: string | null
           title: string
@@ -331,10 +471,12 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          bundle_id?: string | null
           category?: string | null
           certificate?: string | null
           course_type?: string | null
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           duration_minutes?: number | null
           external_url?: string | null
@@ -349,6 +491,10 @@ export type Database = {
           provider?: string | null
           recommended_for?: string | null
           requires_pro?: boolean | null
+          sales_page_content?: Json | null
+          slug?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           tags?: Json | null
           thumbnail_url?: string | null
           title: string
@@ -356,10 +502,12 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          bundle_id?: string | null
           category?: string | null
           certificate?: string | null
           course_type?: string | null
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           duration_minutes?: number | null
           external_url?: string | null
@@ -374,6 +522,10 @@ export type Database = {
           provider?: string | null
           recommended_for?: string | null
           requires_pro?: boolean | null
+          sales_page_content?: Json | null
+          slug?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           tags?: Json | null
           thumbnail_url?: string | null
           title?: string
