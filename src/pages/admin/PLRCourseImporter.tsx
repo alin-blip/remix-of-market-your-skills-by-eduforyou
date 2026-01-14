@@ -205,7 +205,17 @@ export default function PLRCourseImporter() {
       setZipProgress(100);
     } catch (error) {
       console.error('ZIP extraction error:', error);
-      toast.error('Eroare la extragerea ZIP-ului');
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      const isWorkerLimit = msg.includes('WORKER_LIMIT') || msg.includes('546') || msg.includes('compute resources');
+      const isTooLarge = msg.includes('413') || msg.toLowerCase().includes('too large');
+
+      if (isWorkerLimit || isTooLarge) {
+        toast.error('ZIP prea mare pentru procesare pe server', {
+          description: 'Încearcă un ZIP mai mic (doar .txt/.pdf + thumbnail) sau încarcă videourile individual.',
+        });
+      } else {
+        toast.error('Eroare la extragerea ZIP-ului');
+      }
     } finally {
       setIsExtractingZip(false);
       setZipProgress(0);
