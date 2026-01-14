@@ -39,6 +39,8 @@ import ToolsHub from "./pages/ToolsHub";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import CourseViewer from "./pages/CourseViewer";
 import PartnerCourses from "./pages/PartnerCourses";
+import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
+import BundlesManager from "./pages/admin/BundlesManager";
 
 const queryClient = new QueryClient();
 
@@ -280,6 +282,22 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <PartnerCourses />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/plr-import" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <PLRCourseImporter />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/bundles" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <BundlesManager />
                     </ProtectedRoute>
                   } 
                 />
