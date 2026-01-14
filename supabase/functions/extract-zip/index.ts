@@ -9,14 +9,14 @@ const corsHeaders = {
 };
 
 // Resource-safe limits (backend functions have strict memory/CPU quotas)
-const MAX_ZIP_SIZE = 25 * 1024 * 1024; // 25MB (uploaded archive)
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // skip bigger videos inside ZIP
+const MAX_ZIP_SIZE = 100 * 1024 * 1024; // 100MB (uploaded archive)
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // skip videos > 100MB inside ZIP
 const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 1MB for text-like files
-const MAX_REQUEST_BYTES = MAX_ZIP_SIZE + 2 * 1024 * 1024; // multipart overhead buffer
+const MAX_REQUEST_BYTES = MAX_ZIP_SIZE + 4 * 1024 * 1024; // multipart overhead buffer
 
 // Additional guards against ZIP bombs / huge uncompressed payloads
-const MAX_FILES = 250;
-const MAX_TOTAL_UNCOMPRESSED = 120 * 1024 * 1024; // 120MB across all entries
+const MAX_FILES = 500;
+const MAX_TOTAL_UNCOMPRESSED = 300 * 1024 * 1024; // 300MB across all entries
 
 // Helper function to extract text from simple PDFs (lightweight)
 function extractTextFromPDF(content: Uint8Array): string {
