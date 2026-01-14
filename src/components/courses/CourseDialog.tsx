@@ -278,14 +278,14 @@ export function CourseDialog({ open, onOpenChange, course, onSave, isLoading }: 
           <div className="space-y-2">
             <Label htmlFor="recommended_for">Recomandat Pentru</Label>
             <Select
-              value={formData.recommended_for || ''}
-              onValueChange={(value) => setFormData({ ...formData, recommended_for: value })}
+              value={formData.recommended_for || 'none'}
+              onValueChange={(value) => setFormData({ ...formData, recommended_for: value === 'none' ? '' : value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selectează categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nespecificat</SelectItem>
+                <SelectItem value="none">Nespecificat</SelectItem>
                 <SelectItem value="marketing">Marketing</SelectItem>
                 <SelectItem value="tech">Tech</SelectItem>
                 <SelectItem value="design">Design</SelectItem>
