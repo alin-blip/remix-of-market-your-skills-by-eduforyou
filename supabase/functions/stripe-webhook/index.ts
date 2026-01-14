@@ -10,6 +10,11 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+const logStep = (step: string, details?: unknown) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
@@ -19,11 +24,9 @@ serve(async (req) => {
   
   try {
     if (webhookSecret && signature) {
-      // Verify webhook signature in production
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-      console.log("Webhook signature verified successfully");
+      logStep("Webhook signature verified successfully");
     } else {
-      // Fallback for development (not recommended for production)
       console.warn("No webhook secret configured - processing without verification");
       event = JSON.parse(body) as Stripe.Event;
     }
@@ -32,7 +35,7 @@ serve(async (req) => {
     return new Response("Webhook signature verification failed", { status: 400 });
   }
 
-  console.log("Processing event:", event.type);
+  logStep("Processing event", { type: event.type });
 
   try {
     switch (event.type) {
@@ -40,6 +43,9 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
         const courseId = session.metadata?.courseId;
+        const bundleId = session.metadata?.bundleId;
+
+        logStep("Checkout session completed", { userId, courseId, bundleId, mode: session.mode });
 
         if (session.mode === "subscription" && userId) {
           // Handle subscription
@@ -59,12 +65,64 @@ serve(async (req) => {
               current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             }, { onConflict: "user_id" });
 
-          console.log(`Subscription created for user ${userId}: ${planName}`);
+          logStep("Subscription created", { userId, planName });
         } else if (session.mode === "payment" && userId) {
-          // Handle one-time payment (Founder Accelerator or Course)
-          if (courseId) {
-            // Course purchase
-            await supabase
+          // Handle one-time payment
+          if (bundleId) {
+            // Bundle purchase
+            logStep("Processing bundle purchase", { bundleId, userId });
+            
+            // Insert bundle purchase record
+            const { error: bundlePurchaseError } = await supabase
+              .from("bundle_purchases")
+              .insert({
+                user_id: userId,
+                bundle_id: bundleId,
+                amount: (session.amount_total || 0) / 100,
+                currency: session.currency?.toUpperCase() || "GBP",
+                status: "completed",
+                stripe_session_id: session.id,
+              });
+
+            if (bundlePurchaseError) {
+              logStep("Error inserting bundle purchase", { error: bundlePurchaseError });
+            } else {
+              logStep("Bundle purchase recorded", { bundleId, userId });
+            }
+
+            // Get all courses in the bundle and create individual course purchases
+            const { data: bundleCourses } = await supabase
+              .from("bundle_courses")
+              .select("course_id")
+              .eq("bundle_id", bundleId);
+
+            if (bundleCourses && bundleCourses.length > 0) {
+              const coursePurchases = bundleCourses.map(bc => ({
+                user_id: userId,
+                course_id: bc.course_id,
+                amount: 0, // Bundle courses are marked as 0 since paid via bundle
+                currency: session.currency?.toUpperCase() || "GBP",
+                status: "completed",
+              }));
+
+              const { error: coursesPurchaseError } = await supabase
+                .from("course_purchases")
+                .insert(coursePurchases);
+
+              if (coursesPurchaseError) {
+                logStep("Error inserting course purchases from bundle", { error: coursesPurchaseError });
+              } else {
+                logStep("Course purchases from bundle recorded", { 
+                  bundleId, 
+                  coursesCount: bundleCourses.length 
+                });
+              }
+            }
+          } else if (courseId) {
+            // Individual course purchase
+            logStep("Processing course purchase", { courseId, userId });
+            
+            const { error: coursePurchaseError } = await supabase
               .from("course_purchases")
               .insert({
                 user_id: userId,
@@ -73,7 +131,12 @@ serve(async (req) => {
                 currency: session.currency?.toUpperCase() || "GBP",
                 status: "completed",
               });
-            console.log(`Course ${courseId} purchased by user ${userId}`);
+
+            if (coursePurchaseError) {
+              logStep("Error inserting course purchase", { error: coursePurchaseError });
+            } else {
+              logStep("Course purchase recorded", { courseId, userId });
+            }
           } else {
             // Founder Accelerator (lifetime access)
             await supabase
@@ -83,9 +146,9 @@ serve(async (req) => {
                 plan: "founder",
                 status: "active",
                 current_period_start: new Date().toISOString(),
-                current_period_end: new Date("2099-12-31").toISOString(), // Lifetime
+                current_period_end: new Date("2099-12-31").toISOString(),
               }, { onConflict: "user_id" });
-            console.log(`Founder Accelerator purchased by user ${userId}`);
+            logStep("Founder Accelerator purchased", { userId });
           }
         }
         break;
@@ -93,14 +156,13 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        // Find user by subscription metadata or customer
-        console.log("Subscription updated:", subscription.id);
+        logStep("Subscription updated", { subscriptionId: subscription.id });
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        console.log("Subscription canceled:", subscription.id);
+        logStep("Subscription canceled", { subscriptionId: subscription.id });
         break;
       }
     }
@@ -111,7 +173,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Webhook processing error:", error);
+    logStep("Webhook processing error", { error: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
     });
@@ -119,9 +181,6 @@ serve(async (req) => {
 });
 
 function determinePlanFromAmount(amountInCents: number): string {
-  // £9 = 900 pence = Starter
-  // £19 = 1900 pence = Pro
-  // £997 = 99700 pence = Founder
   if (amountInCents <= 1000) return "starter";
   if (amountInCents <= 2000) return "pro";
   return "founder";

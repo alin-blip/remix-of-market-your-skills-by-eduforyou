@@ -16,10 +16,22 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    const { priceId, mode, successUrl, cancelUrl, userId, courseId } = await req.json();
+    const { priceId, mode, successUrl, cancelUrl, userId, courseId, bundleId } = await req.json();
 
     if (!priceId) {
       throw new Error("Price ID is required");
+    }
+
+    const metadata: Record<string, string> = {
+      userId: userId || "",
+    };
+
+    // Add courseId or bundleId to metadata
+    if (courseId) {
+      metadata.courseId = courseId;
+    }
+    if (bundleId) {
+      metadata.bundleId = bundleId;
     }
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
@@ -33,10 +45,7 @@ serve(async (req) => {
       mode: mode || "subscription",
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/pricing?canceled=true`,
-      metadata: {
-        userId: userId || "",
-        courseId: courseId || "",
-      },
+      metadata,
     };
 
     const session = await stripe.checkout.sessions.create(sessionParams);
@@ -44,7 +53,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ url: session.url, sessionId: session.id }),
       {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
     );
