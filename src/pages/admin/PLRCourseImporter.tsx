@@ -152,11 +152,26 @@ export default function PLRCourseImporter() {
 
       setZipProgress(30);
 
-      const { data, error } = await supabase.functions.invoke('extract-zip', {
-        body: formData
+      // Use fetch for multipart/form-data (supabase.functions.invoke may force JSON)
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const functionsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-zip`;
+
+      const res = await fetch(functionsUrl, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${accessToken ?? anonKey}`,
+        },
+        body: formData,
       });
 
-      if (error) throw error;
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || `extract-zip failed (${res.status})`);
+      }
 
       setZipProgress(80);
 
