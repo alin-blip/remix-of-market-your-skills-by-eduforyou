@@ -429,6 +429,50 @@ export default function PLRCourseImporter() {
 
   const renderStep1 = () => (
     <div className="space-y-6">
+      {/* ZIP Upload Banner - Start rapid */}
+      <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+        <CardContent className="py-6">
+          <div className="flex flex-col items-center text-center">
+            {isExtractingZip ? (
+              <>
+                <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
+                <p className="font-medium">Se extrage arhiva ZIP...</p>
+                <Progress value={zipProgress} className="w-64 mt-3" />
+              </>
+            ) : (
+              <>
+                <Archive className="h-10 w-10 text-primary mb-3" />
+                <h4 className="font-semibold text-lg">Start rapid cu ZIP</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Încarcă un ZIP pentru a extrage automat titlul, descrierea, thumbnail-ul și videourile.
+                </p>
+                <label>
+                  <Button variant="default" size="lg" asChild>
+                    <span>
+                      <FolderOpen className="h-5 w-5 mr-2" />
+                      Selectează Arhivă ZIP
+                    </span>
+                  </Button>
+                  <input
+                    type="file"
+                    accept=".zip,application/zip"
+                    onChange={(e) => e.target.files?.[0] && handleZipUpload(e.target.files[0])}
+                    className="hidden"
+                  />
+                </label>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Separator vizual */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 border-t" />
+        <span className="text-sm text-muted-foreground">sau completează manual</span>
+        <div className="flex-1 border-t" />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
@@ -571,44 +615,37 @@ export default function PLRCourseImporter() {
     </div>
   );
 
+  const hasLessonsFromZip = lessons.some(l => l.videoStoragePath && !l.videoFile);
+  
   const renderStep2 = () => (
     <div className="space-y-6">
-      {/* ZIP Upload Banner */}
-      <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
-        <CardContent className="py-6">
-          <div className="flex flex-col items-center text-center">
-            {isExtractingZip ? (
-              <>
-                <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
-                <p className="font-medium">Se extrage arhiva ZIP...</p>
-                <Progress value={zipProgress} className="w-64 mt-3" />
-              </>
-            ) : (
-              <>
-                <Archive className="h-10 w-10 text-primary mb-3" />
-                <h4 className="font-semibold text-lg">Import rapid din ZIP</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Încarcă o arhivă ZIP cu videouri și imagini. Vom extrage automat totul.
-                </p>
-                <label>
-                  <Button variant="default" size="lg" asChild>
-                    <span>
-                      <FolderOpen className="h-5 w-5 mr-2" />
-                      Selectează Arhivă ZIP
-                    </span>
-                  </Button>
-                  <input
-                    type="file"
-                    accept=".zip,application/zip"
-                    onChange={(e) => e.target.files?.[0] && handleZipUpload(e.target.files[0])}
-                    className="hidden"
-                  />
-                </label>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Banner simplificat pentru adăugare videouri din ZIP (doar dacă nu s-a extras deja) */}
+      {!hasLessonsFromZip && lessons.length <= 1 && !lessons[0]?.videoStoragePath && !lessons[0]?.videoFile && (
+        <Card className="border-dashed border border-muted-foreground/30">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Archive className="h-6 w-6 text-muted-foreground" />
+                <div>
+                  <p className="font-medium text-sm">Ai un ZIP cu videouri?</p>
+                  <p className="text-xs text-muted-foreground">Extrage automat toate lecțiile</p>
+                </div>
+              </div>
+              <label>
+                <Button variant="outline" size="sm" asChild>
+                  <span>Încarcă ZIP</span>
+                </Button>
+                <input
+                  type="file"
+                  accept=".zip,application/zip"
+                  onChange={(e) => e.target.files?.[0] && handleZipUpload(e.target.files[0])}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex items-center justify-between">
         <div>
