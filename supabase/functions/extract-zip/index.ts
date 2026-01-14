@@ -191,6 +191,7 @@ serve(async (req) => {
 
     const extractedFiles: {
       videos: { name: string; path: string; size: number }[];
+      videoPlaceholders: { name: string; estimatedSize: number }[]; // Videos detected but not uploaded
       images: { name: string; path: string; publicUrl: string }[];
       documents: { name: string; path: string }[];
       thumbnail: string | null;
@@ -198,6 +199,7 @@ serve(async (req) => {
       skipped: { name: string; reason: string }[];
     } = {
       videos: [],
+      videoPlaceholders: [],
       images: [],
       documents: [],
       thumbnail: null,
@@ -251,54 +253,14 @@ serve(async (req) => {
 
       try {
         if (lowerName.match(/\.(mp4|mov|webm|avi|mkv)$/)) {
-          // Video file — skip by metadata size if available
-          if (estimatedBytes > MAX_VIDEO_SIZE) {
-            console.log(
-              `Skipping large video (metadata): ${baseName} (${(estimatedBytes / 1024 / 1024).toFixed(2)}MB)`,
-            );
-            extractedFiles.skipped.push({
-              name: baseName,
-              reason: `Video too large (${(estimatedBytes / 1024 / 1024).toFixed(0)}MB). Upload individually.`,
-            });
-            continue;
-          }
-
-          // Load and check size (fallback)
-          const content = await file.async("uint8array");
-
-          if (content.length > MAX_VIDEO_SIZE) {
-            console.log(
-              `Skipping large video: ${baseName} (${(content.length / 1024 / 1024).toFixed(2)}MB)`,
-            );
-            extractedFiles.skipped.push({
-              name: baseName,
-              reason: `Video too large (${(content.length / 1024 / 1024).toFixed(0)}MB). Upload individually.`,
-            });
-            continue;
-          }
-
-          const storagePath = courseId
-            ? `${courseId}/${baseName}`
-            : `temp/${Date.now()}-${baseName}`;
-
-          const { error } = await supabase.storage
-            .from("course-videos")
-            .upload(storagePath, content, {
-              contentType: getContentType(lowerName),
-              upsert: true,
-            });
-
-          if (error) {
-            console.error(`Error uploading video ${baseName}:`, error.message);
-            extractedFiles.skipped.push({ name: baseName, reason: error.message });
-          } else {
-            extractedFiles.videos.push({
-              name: baseName,
-              path: storagePath,
-              size: content.length,
-            });
-            console.log(`Uploaded video: ${baseName}`);
-          }
+          // Video file - DON'T upload, just record as placeholder for manual upload later
+          const videoSize = estimatedBytes || 0;
+          
+          extractedFiles.videoPlaceholders.push({
+            name: baseName,
+            estimatedSize: videoSize,
+          });
+          console.log(`Detected video (placeholder): ${baseName} (~${(videoSize / 1024 / 1024).toFixed(1)}MB)`);
         } else if (lowerName.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           // Image file
           const content = await file.async("uint8array");
@@ -377,10 +339,10 @@ serve(async (req) => {
       }
     }
 
-    // Sort videos by name
-    extractedFiles.videos.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    // Sort video placeholders by name (for lesson order)
+    extractedFiles.videoPlaceholders.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-    console.log(`Done: ${extractedFiles.videos.length} videos, ${extractedFiles.images.length} images, ${extractedFiles.skipped.length} skipped`);
+    console.log(`Done: ${extractedFiles.videoPlaceholders.length} video placeholders, ${extractedFiles.images.length} images, ${extractedFiles.documents.length} docs`);
 
     return new Response(
       JSON.stringify({

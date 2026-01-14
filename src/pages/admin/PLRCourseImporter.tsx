@@ -176,7 +176,7 @@ export default function PLRCourseImporter() {
       setZipProgress(80);
 
       if (data.extracted) {
-        const { videos, images, thumbnail, courseInfo } = data.extracted;
+        const { videoPlaceholders, images, thumbnail, courseInfo } = data.extracted;
         
         // Auto-fill course title and description from extracted documents
         if (courseInfo) {
@@ -199,23 +199,25 @@ export default function PLRCourseImporter() {
           }
         }
         
-        // Create lessons from extracted videos
-        if (videos && videos.length > 0) {
-          const newLessons: LessonData[] = videos.map((video: { name: string; path: string; size: number }, index: number) => ({
+        // Create lessons from video placeholders (without actual video - user uploads manually)
+        if (videoPlaceholders && videoPlaceholders.length > 0) {
+          const newLessons: LessonData[] = videoPlaceholders.map((video: { name: string; estimatedSize: number }, index: number) => ({
             id: crypto.randomUUID(),
             title: video.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
             description: '',
             videoFile: null,
-            videoName: video.name,
-            videoStoragePath: video.path,
-            duration: Math.round(video.size / 1000000), // Rough estimate
+            videoName: video.name, // Keep original name for reference
+            videoStoragePath: undefined, // No path yet - user will upload manually
+            duration: Math.max(5, Math.round(video.estimatedSize / 1000000)), // Rough estimate
             position: index,
             isFree: index === 0,
             resources: []
           }));
           
           setLessons(newLessons);
-          toast.success(`${videos.length} videouri extrase din ZIP!`);
+          toast.success(`${videoPlaceholders.length} lecții create din ZIP!`, {
+            description: 'Încarcă videourile manual pentru fiecare lecție.'
+          });
         }
 
         // Set thumbnail if found
@@ -224,6 +226,7 @@ export default function PLRCourseImporter() {
             ...prev,
             thumbnailPreview: thumbnail
           }));
+          toast.success('Thumbnail detectat din ZIP');
         }
       }
 
