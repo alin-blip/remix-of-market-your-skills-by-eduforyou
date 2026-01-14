@@ -7,9 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Max file size for processing (50MB - skip larger files)
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
-const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 1MB for text files
+// Resource-safe limits (Edge Functions have strict memory/CPU quotas)
+const MAX_ZIP_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // skip bigger videos inside ZIP
+const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 1MB for text-like files
+const MAX_REQUEST_BYTES = MAX_ZIP_SIZE + 2 * 1024 * 1024; // multipart overhead buffer
 
 // Helper function to extract text from simple PDFs (lightweight)
 function extractTextFromPDF(content: Uint8Array): string {
@@ -21,42 +23,44 @@ function extractTextFromPDF(content: Uint8Array): string {
     if (matches && matches.length > 10) {
       return matches
         .slice(0, 100) // Limit matches
-        .map(m => m.slice(1, -1))
-        .filter(t => t.length > 1 && !/^[\\\/\d]+$/.test(t))
-        .join(' ')
-        .replace(/\\n/g, '\n')
-        .replace(/\s+/g, ' ')
+        .map((m) => m.slice(1, -1))
+        .filter((t) => t.length > 1 && !/^[\\\/\d]+$/.test(t))
+        .join(" ")
+        .replace(/\\n/g, "\n")
+        .replace(/\s+/g, " ")
         .trim()
         .slice(0, 2000); // Limit output
     }
-    return '';
+    return "";
   } catch {
-    return '';
+    return "";
   }
 }
 
 // Extract course info from text content
-function extractCourseInfo(documents: { name: string; content: string }[]): { 
-  title: string | null; 
-  description: string | null; 
+function extractCourseInfo(
+  documents: { name: string; content: string }[],
+): {
+  title: string | null;
+  description: string | null;
   extractedFrom: string | null;
 } {
   let title: string | null = null;
   let description: string | null = null;
   let extractedFrom: string | null = null;
 
-  const titlePatterns = ['title', 'name', 'course'];
-  const descPatterns = ['readme', 'description', 'overview', 'about', 'intro'];
+  const titlePatterns = ["title", "name", "course"];
+  const descPatterns = ["readme", "description", "overview", "about", "intro"];
 
   // Sort documents to prioritize title/description files
   const sorted = [...documents].sort((a, b) => {
     const aLower = a.name.toLowerCase();
     const bLower = b.name.toLowerCase();
-    const aIsTitle = titlePatterns.some(p => aLower.includes(p));
-    const bIsTitle = titlePatterns.some(p => bLower.includes(p));
-    const aIsDesc = descPatterns.some(p => aLower.includes(p));
-    const bIsDesc = descPatterns.some(p => bLower.includes(p));
-    
+    const aIsTitle = titlePatterns.some((p) => aLower.includes(p));
+    const bIsTitle = titlePatterns.some((p) => bLower.includes(p));
+    const aIsDesc = descPatterns.some((p) => aLower.includes(p));
+    const bIsDesc = descPatterns.some((p) => bLower.includes(p));
+
     if (aIsTitle && !bIsTitle) return -1;
     if (bIsTitle && !aIsTitle) return 1;
     if (aIsDesc && !bIsDesc) return -1;
@@ -66,37 +70,40 @@ function extractCourseInfo(documents: { name: string; content: string }[]): {
 
   for (const doc of sorted) {
     if (!doc.content || doc.content.trim().length === 0) continue;
-    
-    const lines = doc.content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    const lines = doc.content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
     if (lines.length === 0) continue;
-    
+
     const lowerName = doc.name.toLowerCase();
-    
+
     if (!title) {
-      if (titlePatterns.some(p => lowerName.includes(p))) {
-        title = lines[0].replace(/^#\s*/, '').trim();
+      if (titlePatterns.some((p) => lowerName.includes(p))) {
+        title = lines[0].replace(/^#\s*/, "").trim();
         extractedFrom = doc.name;
-      } else if (descPatterns.some(p => lowerName.includes(p))) {
-        const firstLine = lines[0].replace(/^#\s*/, '').trim();
+      } else if (descPatterns.some((p) => lowerName.includes(p))) {
+        const firstLine = lines[0].replace(/^#\s*/, "").trim();
         if (firstLine.length > 3 && firstLine.length < 150) {
           title = firstLine;
           extractedFrom = doc.name;
         }
       }
     }
-    
-    if (!description && descPatterns.some(p => lowerName.includes(p))) {
-      const descLines = title && lines[0].replace(/^#\s*/, '').trim() === title 
-        ? lines.slice(1) 
+
+    if (!description && descPatterns.some((p) => lowerName.includes(p))) {
+      const descLines = title && lines[0].replace(/^#\s*/, "").trim() === title
+        ? lines.slice(1)
         : lines;
-      
-      const descText = descLines.join('\n').slice(0, 1000).trim();
+
+      const descText = descLines.join("\n").slice(0, 1000).trim();
       if (descText.length > 20) {
         description = descText;
         if (!extractedFrom) extractedFrom = doc.name;
       }
     }
-    
+
     if (title && description) break;
   }
 
@@ -118,7 +125,7 @@ function getContentType(filename: string): string {
     webp: "image/webp",
     pdf: "application/pdf",
     txt: "text/plain",
-    md: "text/markdown"
+    md: "text/markdown",
   };
   return types[ext || ""] || "application/octet-stream";
 }
@@ -129,6 +136,20 @@ serve(async (req) => {
   }
 
   try {
+    // IMPORTANT: guard before parsing multipart body (prevents WORKER_LIMIT on huge uploads)
+    const contentLengthHeader = req.headers.get("content-length");
+    const contentLength = contentLengthHeader ? Number(contentLengthHeader) : 0;
+    if (contentLength && contentLength > MAX_REQUEST_BYTES) {
+      return new Response(
+        JSON.stringify({
+          error: `ZIP too large for server-side extraction. Max ${(MAX_ZIP_SIZE / 1024 / 1024).toFixed(0)}MB.`,
+          code: "FILE_TOO_LARGE",
+          maxZipSizeMB: Math.floor(MAX_ZIP_SIZE / 1024 / 1024),
+        }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -140,26 +161,28 @@ serve(async (req) => {
     if (!zipFile) {
       return new Response(
         JSON.stringify({ error: "No ZIP file provided" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Check ZIP size - reject if too large (limit to 100MB)
-    if (zipFile.size > 100 * 1024 * 1024) {
+    // Secondary check (in case content-length is missing)
+    if (zipFile.size > MAX_ZIP_SIZE) {
       return new Response(
-        JSON.stringify({ 
-          error: "ZIP file too large. Maximum size is 100MB. Please upload videos individually.",
-          code: "FILE_TOO_LARGE"
+        JSON.stringify({
+          error: `ZIP too large for server-side extraction. Max ${(MAX_ZIP_SIZE / 1024 / 1024).toFixed(0)}MB.`,
+          code: "FILE_TOO_LARGE",
+          maxZipSizeMB: Math.floor(MAX_ZIP_SIZE / 1024 / 1024),
         }),
-        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    console.log(`Processing ZIP: ${zipFile.name}, size: ${(zipFile.size / 1024 / 1024).toFixed(2)}MB`);
+    console.log(
+      `Processing ZIP: ${zipFile.name}, size: ${(zipFile.size / 1024 / 1024).toFixed(2)}MB`,
+    );
 
-    // Read ZIP file
-    const arrayBuffer = await zipFile.arrayBuffer();
-    const zip = await JSZip.loadAsync(arrayBuffer);
+    // Avoid extra buffer copies by passing File/Blob directly
+    const zip = await JSZip.loadAsync(zipFile);
 
     const extractedFiles: {
       videos: { name: string; path: string; size: number }[];
