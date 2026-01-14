@@ -7,11 +7,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Resource-safe limits (Edge Functions have strict memory/CPU quotas)
-const MAX_ZIP_SIZE = 25 * 1024 * 1024; // 25MB
+// Resource-safe limits (backend functions have strict memory/CPU quotas)
+const MAX_ZIP_SIZE = 25 * 1024 * 1024; // 25MB (uploaded archive)
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // skip bigger videos inside ZIP
 const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 1MB for text-like files
 const MAX_REQUEST_BYTES = MAX_ZIP_SIZE + 2 * 1024 * 1024; // multipart overhead buffer
+
+// Additional guards against ZIP bombs / huge uncompressed payloads
+const MAX_FILES = 250;
+const MAX_TOTAL_UNCOMPRESSED = 120 * 1024 * 1024; // 120MB across all entries
 
 // Helper function to extract text from simple PDFs (lightweight)
 function extractTextFromPDF(content: Uint8Array): string {
@@ -203,42 +207,84 @@ serve(async (req) => {
     const documentContents: { name: string; content: string }[] = [];
 
     // Get file list and filter out directories/metadata
-    const files = Object.keys(zip.files).filter(filename => {
+    const files = Object.keys(zip.files).filter((filename) => {
       const file = zip.files[filename];
       return !file.dir && !filename.startsWith("__MACOSX") && !filename.includes(".DS_Store");
     });
-    
+
     console.log(`Found ${files.length} files to process`);
 
+    if (files.length > MAX_FILES) {
+      return new Response(
+        JSON.stringify({
+          error: `ZIP contains too many files (${files.length}). Please reduce it and try again.`,
+          code: "TOO_MANY_FILES",
+          maxFiles: MAX_FILES,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Process files one by one to minimize memory usage
+    let totalEstimatedBytes = 0;
+
     for (const filename of files) {
       const file = zip.files[filename];
       const lowerName = filename.toLowerCase();
       const baseName = filename.split("/").pop() || filename;
 
+      // Try to read uncompressed size from JSZip internals (avoids loading huge entries into memory)
+      const estimatedBytes = Number((file as any)?._data?.uncompressedSize ?? 0);
+
+      if (estimatedBytes > 0) {
+        if (totalEstimatedBytes + estimatedBytes > MAX_TOTAL_UNCOMPRESSED) {
+          extractedFiles.skipped.push({
+            name: baseName,
+            reason: `Total uncompressed content too large (>${Math.floor(MAX_TOTAL_UNCOMPRESSED / 1024 / 1024)}MB). Split the ZIP.`,
+          });
+          // Stop processing further files to prevent OOM/WORKER_LIMIT
+          break;
+        }
+        totalEstimatedBytes += estimatedBytes;
+      }
+
       try {
         if (lowerName.match(/\.(mp4|mov|webm|avi|mkv)$/)) {
-          // Video file - load and check size
-          const content = await file.async("uint8array");
-          
-          if (content.length > MAX_VIDEO_SIZE) {
-            console.log(`Skipping large video: ${baseName} (${(content.length / 1024 / 1024).toFixed(2)}MB)`);
-            extractedFiles.skipped.push({ 
-              name: baseName, 
-              reason: `Video too large (${(content.length / 1024 / 1024).toFixed(0)}MB). Upload individually.` 
+          // Video file — skip by metadata size if available
+          if (estimatedBytes > MAX_VIDEO_SIZE) {
+            console.log(
+              `Skipping large video (metadata): ${baseName} (${(estimatedBytes / 1024 / 1024).toFixed(2)}MB)`,
+            );
+            extractedFiles.skipped.push({
+              name: baseName,
+              reason: `Video too large (${(estimatedBytes / 1024 / 1024).toFixed(0)}MB). Upload individually.`,
             });
             continue;
           }
 
-          const storagePath = courseId 
+          // Load and check size (fallback)
+          const content = await file.async("uint8array");
+
+          if (content.length > MAX_VIDEO_SIZE) {
+            console.log(
+              `Skipping large video: ${baseName} (${(content.length / 1024 / 1024).toFixed(2)}MB)`,
+            );
+            extractedFiles.skipped.push({
+              name: baseName,
+              reason: `Video too large (${(content.length / 1024 / 1024).toFixed(0)}MB). Upload individually.`,
+            });
+            continue;
+          }
+
+          const storagePath = courseId
             ? `${courseId}/${baseName}`
             : `temp/${Date.now()}-${baseName}`;
-          
+
           const { error } = await supabase.storage
             .from("course-videos")
             .upload(storagePath, content, {
               contentType: getContentType(lowerName),
-              upsert: true
+              upsert: true,
             });
 
           if (error) {
@@ -248,11 +294,10 @@ serve(async (req) => {
             extractedFiles.videos.push({
               name: baseName,
               path: storagePath,
-              size: content.length
+              size: content.length,
             });
             console.log(`Uploaded video: ${baseName}`);
           }
-          
         } else if (lowerName.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           // Image file
           const content = await file.async("uint8array");
@@ -264,7 +309,7 @@ serve(async (req) => {
             .from("vision-images")
             .upload(storagePath, content, {
               contentType: getContentType(lowerName),
-              upsert: true
+              upsert: true,
             });
 
           if (!error) {
@@ -275,7 +320,7 @@ serve(async (req) => {
             extractedFiles.images.push({
               name: baseName,
               path: storagePath,
-              publicUrl: publicUrl.publicUrl
+              publicUrl: publicUrl.publicUrl,
             });
 
             if (!extractedFiles.thumbnail) {
@@ -283,30 +328,28 @@ serve(async (req) => {
             }
             console.log(`Uploaded image: ${baseName}`);
           }
-          
         } else if (lowerName.match(/\.(txt|md)$/)) {
           // Text file
           const textContent = await file.async("string");
-          
+
           // Skip if too large, but still record it
           if (textContent.length > MAX_TEXT_SIZE) {
             console.log(`Skipping large text file: ${baseName}`);
             extractedFiles.documents.push({ name: baseName, path: filename });
             continue;
           }
-          
+
           // Only keep first 5000 chars for course info extraction
-          documentContents.push({ 
-            name: baseName, 
-            content: textContent.slice(0, 5000) 
+          documentContents.push({
+            name: baseName,
+            content: textContent.slice(0, 5000),
           });
           extractedFiles.documents.push({ name: baseName, path: filename });
           console.log(`Read text: ${baseName}`);
-          
         } else if (lowerName.match(/\.pdf$/)) {
           // PDF - only extract text from first part
           const pdfContent = await file.async("uint8array");
-          
+
           // Skip text extraction for very large PDFs
           if (pdfContent.length <= MAX_TEXT_SIZE) {
             const extractedText = extractTextFromPDF(pdfContent);
@@ -318,9 +361,9 @@ serve(async (req) => {
         }
       } catch (fileError) {
         console.error(`Error processing ${baseName}:`, fileError);
-        extractedFiles.skipped.push({ 
-          name: baseName, 
-          reason: fileError instanceof Error ? fileError.message : "Processing error" 
+        extractedFiles.skipped.push({
+          name: baseName,
+          reason: fileError instanceof Error ? fileError.message : "Processing error",
         });
       }
     }
