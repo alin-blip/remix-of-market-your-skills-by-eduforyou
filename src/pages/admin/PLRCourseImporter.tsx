@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, Upload, Video, FileText, Check, Loader2, GripVertical, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, Video, FileText, Check, Loader2, GripVertical, Trash2, Plus, Archive, FolderOpen } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 
 interface LessonData {
@@ -22,6 +22,7 @@ interface LessonData {
   description: string;
   videoFile: File | null;
   videoName: string;
+  videoStoragePath?: string; // For ZIP-extracted videos
   duration: number;
   position: number;
   isFree: boolean;
@@ -56,7 +57,9 @@ export default function PLRCourseImporter() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExtractingZip, setIsExtractingZip] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [zipProgress, setZipProgress] = useState(0);
   
   const [courseData, setCourseData] = useState<CourseFormData>({
     title: '',
@@ -118,8 +121,74 @@ export default function PLRCourseImporter() {
       resources: []
     }));
     
-    setLessons(prev => [...prev.filter(l => l.videoFile !== null || l.title), ...newLessons]);
+    setLessons(prev => [...prev.filter(l => l.videoFile !== null || l.videoStoragePath || l.title), ...newLessons]);
     toast.success(`${files.length} videouri adăugate!`);
+  };
+
+  const handleZipUpload = async (file: File) => {
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      toast.error('Te rog încarcă un fișier ZIP');
+      return;
+    }
+
+    setIsExtractingZip(true);
+    setZipProgress(10);
+    toast.info('Se extrage arhiva ZIP...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      // Don't send courseId yet - we'll move files after course creation
+      
+      setZipProgress(30);
+      
+      const { data, error } = await supabase.functions.invoke('extract-zip', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      setZipProgress(80);
+
+      if (data.extracted) {
+        const { videos, images, thumbnail } = data.extracted;
+        
+        // Create lessons from extracted videos
+        if (videos && videos.length > 0) {
+          const newLessons: LessonData[] = videos.map((video: { name: string; path: string; size: number }, index: number) => ({
+            id: crypto.randomUUID(),
+            title: video.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+            description: '',
+            videoFile: null,
+            videoName: video.name,
+            videoStoragePath: video.path,
+            duration: Math.round(video.size / 1000000), // Rough estimate
+            position: index,
+            isFree: index === 0,
+            resources: []
+          }));
+          
+          setLessons(newLessons);
+          toast.success(`${videos.length} videouri extrase din ZIP!`);
+        }
+
+        // Set thumbnail if found
+        if (thumbnail) {
+          setCourseData(prev => ({
+            ...prev,
+            thumbnailPreview: thumbnail
+          }));
+        }
+      }
+
+      setZipProgress(100);
+    } catch (error) {
+      console.error('ZIP extraction error:', error);
+      toast.error('Eroare la extragerea ZIP-ului');
+    } finally {
+      setIsExtractingZip(false);
+      setZipProgress(0);
+    }
   };
 
   const addLesson = () => {
@@ -166,7 +235,7 @@ export default function PLRCourseImporter() {
       return;
     }
 
-    const validLessons = lessons.filter(l => l.title && l.videoFile);
+    const validLessons = lessons.filter(l => l.title && (l.videoFile || l.videoStoragePath));
     if (validLessons.length === 0) {
       toast.error('Adaugă cel puțin o lecție cu video');
       return;
@@ -231,10 +300,11 @@ export default function PLRCourseImporter() {
       const totalVideos = validLessons.length;
       for (let i = 0; i < validLessons.length; i++) {
         const lesson = validLessons[i];
+        let videoPath = lesson.videoStoragePath || '';
         
+        // If lesson has a local file (not from ZIP), upload it
         if (lesson.videoFile && course) {
-          // Upload video to storage
-          const videoPath = `${course.id}/${lesson.position}-${lesson.videoFile.name}`;
+          videoPath = `${course.id}/${lesson.position}-${lesson.videoFile.name}`;
           const { error: videoError } = await supabase.storage
             .from('course-videos')
             .upload(videoPath, lesson.videoFile);
@@ -244,8 +314,24 @@ export default function PLRCourseImporter() {
             toast.error(`Eroare la upload video: ${lesson.title}`);
             continue;
           }
+        } else if (lesson.videoStoragePath && course) {
+          // Video already uploaded from ZIP - move it to the correct course folder
+          const newPath = `${course.id}/${lesson.position}-${lesson.videoName}`;
+          const { error: moveError } = await supabase.storage
+            .from('course-videos')
+            .move(lesson.videoStoragePath, newPath);
+          
+          if (!moveError) {
+            videoPath = newPath;
+          } else {
+            console.error('Video move error:', moveError);
+            // Keep original path if move fails
+            videoPath = lesson.videoStoragePath;
+          }
+        }
 
-          // Create lesson record
+        // Create lesson record
+        if (course && videoPath) {
           const { error: lessonError } = await supabase
             .from('course_lessons')
             .insert({
@@ -456,11 +542,48 @@ export default function PLRCourseImporter() {
 
   const renderStep2 = () => (
     <div className="space-y-6">
+      {/* ZIP Upload Banner */}
+      <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+        <CardContent className="py-6">
+          <div className="flex flex-col items-center text-center">
+            {isExtractingZip ? (
+              <>
+                <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
+                <p className="font-medium">Se extrage arhiva ZIP...</p>
+                <Progress value={zipProgress} className="w-64 mt-3" />
+              </>
+            ) : (
+              <>
+                <Archive className="h-10 w-10 text-primary mb-3" />
+                <h4 className="font-semibold text-lg">Import rapid din ZIP</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Încarcă o arhivă ZIP cu videouri și imagini. Vom extrage automat totul.
+                </p>
+                <label>
+                  <Button variant="default" size="lg" asChild>
+                    <span>
+                      <FolderOpen className="h-5 w-5 mr-2" />
+                      Selectează Arhivă ZIP
+                    </span>
+                  </Button>
+                  <input
+                    type="file"
+                    accept=".zip,application/zip"
+                    onChange={(e) => e.target.files?.[0] && handleZipUpload(e.target.files[0])}
+                    className="hidden"
+                  />
+                </label>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Module / Lecții</h3>
           <p className="text-sm text-muted-foreground">
-            Adaugă lecțiile cursului. Poți uploada toate videourile odată.
+            Adaugă lecțiile cursului sau încarcă un ZIP.
           </p>
         </div>
         <div className="flex gap-2">
@@ -536,13 +659,21 @@ export default function PLRCourseImporter() {
 
                     <div>
                       <div className="border-2 border-dashed rounded-lg p-4 text-center h-full flex flex-col justify-center">
-                        {lesson.videoFile ? (
+                        {lesson.videoFile || lesson.videoStoragePath ? (
                           <div className="flex items-center justify-center gap-2">
                             <Video className="h-5 w-5 text-green-500" />
                             <span className="text-sm truncate max-w-[200px]">{lesson.videoName}</span>
-                            <Badge variant="secondary">
-                              {(lesson.videoFile.size / (1024 * 1024)).toFixed(1)} MB
-                            </Badge>
+                            {lesson.videoFile && (
+                              <Badge variant="secondary">
+                                {(lesson.videoFile.size / (1024 * 1024)).toFixed(1)} MB
+                              </Badge>
+                            )}
+                            {lesson.videoStoragePath && !lesson.videoFile && (
+                              <Badge variant="outline" className="text-green-600 border-green-600">
+                                <Check className="h-3 w-3 mr-1" />
+                                Din ZIP
+                              </Badge>
+                            )}
                           </div>
                         ) : (
                           <label className="cursor-pointer">
