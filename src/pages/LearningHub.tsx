@@ -286,7 +286,7 @@ export default function LearningHub() {
 
           <Button 
             className="w-full gap-2 bg-green-500 hover:bg-green-600"
-            onClick={() => navigate(`/free/${product.slug}`)}
+            onClick={() => navigate(`/squeeze/${product.slug}`)}
           >
             <Download className="h-4 w-4" />
             Descarcă Gratuit
@@ -492,7 +492,7 @@ export default function LearningHub() {
                   if (hasAccess) {
                     navigate(`/course/${course.id}`);
                   } else if (course.slug) {
-                    navigate(`/courses/${course.slug}`);
+                    navigate(`/course/${course.slug}`);
                   } else {
                     setSelectedCourse(course);
                   }
