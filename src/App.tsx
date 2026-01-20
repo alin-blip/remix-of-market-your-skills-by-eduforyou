@@ -43,6 +43,8 @@ import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
 import BundlesManager from "./pages/admin/BundlesManager";
 import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
+import SqueezePage from "./pages/SqueezePage";
+import EbookSalesPage from "./pages/EbookSalesPage";
 
 const queryClient = new QueryClient();
 
@@ -306,6 +308,8 @@ const App = () => (
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />
+                <Route path="/free/:slug" element={<SqueezePage />} />
+                <Route path="/ebook/:slug" element={<EbookSalesPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

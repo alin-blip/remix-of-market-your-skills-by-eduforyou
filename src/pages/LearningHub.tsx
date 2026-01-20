@@ -47,7 +47,10 @@ import {
   Filter,
   Wrench,
   Brain,
-  Award
+  Award,
+  Gift,
+  FileText,
+  Download
 } from 'lucide-react';
 
 interface Course {
@@ -61,7 +64,9 @@ interface Course {
   lessons_count: number;
   thumbnail_url?: string;
   video_url?: string;
-  // External course fields
+  slug?: string;
+  download_url?: string;
+  product_type?: string;
   provider?: string;
   external_url?: string;
   tags?: string[];
@@ -116,14 +121,6 @@ const levelColors: Record<string, { bg: string; text: string }> = {
   advanced: { bg: 'bg-red-500/10', text: 'text-red-500' },
 };
 
-const categoryColors: Record<string, { bg: string; text: string; icon: any }> = {
-  skills: { bg: 'bg-blue-500/10', text: 'text-blue-500', icon: Wrench },
-  improvement: { bg: 'bg-purple-500/10', text: 'text-purple-500', icon: Brain },
-  certification: { bg: 'bg-green-500/10', text: 'text-green-500', icon: Award },
-  partner: { bg: 'bg-amber-500/10', text: 'text-amber-500', icon: Globe },
-  general: { bg: 'bg-muted', text: 'text-muted-foreground', icon: BookOpen },
-};
-
 const formatDuration = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -148,14 +145,12 @@ export default function LearningHub() {
   const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(null);
   const [showLessonManager, setShowLessonManager] = useState(false);
   const [lessonManagerCourse, setLessonManagerCourse] = useState<Course | null>(null);
-  const [skillsSubFilter, setSkillsSubFilter] = useState<string>('all');
-  const [improvementSubFilter, setImprovementSubFilter] = useState<string>('all');
 
   // Fetch courses (admin sees all, users see published only)
   const { data: courses = [], isLoading: isLoadingCourses } = useQuery({
     queryKey: ['courses', isAdmin],
     queryFn: async () => {
-      let query = supabase.from('courses').select('*').order('price', { ascending: true });
+      let query = supabase.from('courses').select('*').order('created_at', { ascending: false });
       if (!isAdmin) {
         query = query.eq('is_published', true);
       }
@@ -165,21 +160,11 @@ export default function LearningHub() {
     },
   });
 
-  // Filter courses by category
-  const skillsCourses = courses.filter(c => c.category === 'skills');
-  const improvementCourses = courses.filter(c => c.category === 'improvement');
+  // Filter courses by product_type
+  const freeReports = courses.filter(c => c.product_type === 'free_report');
+  const ebooks = courses.filter(c => c.product_type === 'ebook');
+  const premiumCourses = courses.filter(c => c.product_type === 'course' || !c.product_type);
   const certificationCourses = courses.filter(c => c.category === 'certification' || (c.certificate === 'Yes' || c.certificate === 'Badges'));
-  const partnerCourses = courses.filter(c => c.category === 'partner' || c.course_type === 'external');
-
-  // Sub-filters for skills tab
-  const filteredSkillsCourses = skillsSubFilter === 'all' 
-    ? skillsCourses 
-    : skillsCourses.filter(c => c.platform === skillsSubFilter || c.recommended_for === skillsSubFilter);
-
-  // Sub-filters for improvement tab
-  const filteredImprovementCourses = improvementSubFilter === 'all'
-    ? improvementCourses
-    : improvementCourses.filter(c => c.recommended_for === improvementSubFilter);
 
   // Fetch learning paths
   const { data: learningPaths = [] } = useQuery({
@@ -193,43 +178,6 @@ export default function LearningHub() {
       if (error) throw error;
       return data as LearningPath[];
     },
-  });
-
-  // Fetch learning path courses count
-  const { data: pathCourseCounts = {} } = useQuery({
-    queryKey: ['learning-path-courses-count'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('learning_path_courses')
-        .select('path_id, course_id');
-      if (error) throw error;
-      
-      const counts: Record<string, number> = {};
-      data.forEach((item: any) => {
-        counts[item.path_id] = (counts[item.path_id] || 0) + 1;
-      });
-      return counts;
-    },
-  });
-
-  // Save course mutation (admin only)
-  const saveCourseM = useMutation({
-    mutationFn: async (courseData: Omit<Course, 'id'> & { id?: string }) => {
-      if (courseData.id) {
-        const { error } = await supabase.from('courses').update(courseData).eq('id', courseData.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('courses').insert(courseData);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast.success(editingCourse ? 'Curs actualizat!' : 'Curs adăugat!');
-      setShowCourseDialog(false);
-      setEditingCourse(null);
-    },
-    onError: () => toast.error('Eroare la salvarea cursului'),
   });
 
   // Fetch user progress
@@ -263,48 +211,24 @@ export default function LearningHub() {
     enabled: !!user?.id,
   });
 
-  // Purchase mutation
-  const purchaseMutation = useMutation({
-    mutationFn: async (course: Course) => {
-      if (!user?.id) throw new Error('Not authenticated');
-      const { error } = await supabase
-        .from('course_purchases')
-        .insert({
-          user_id: user.id,
-          course_id: course.id,
-          amount: course.price,
-          currency: 'GBP',
-          status: 'completed',
-        });
-      if (error) throw error;
+  // Save course mutation (admin only)
+  const saveCourseM = useMutation({
+    mutationFn: async (courseData: Omit<Course, 'id'> & { id?: string }) => {
+      if (courseData.id) {
+        const { error } = await supabase.from('courses').update(courseData).eq('id', courseData.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('courses').insert(courseData);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['course-purchases'] });
-      toast.success(t.learningHub?.messages?.purchaseSuccess || 'Curs cumpărat cu succes!');
-      setSelectedCourse(null);
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success(editingCourse ? 'Produs actualizat!' : 'Produs adăugat!');
+      setShowCourseDialog(false);
+      setEditingCourse(null);
     },
-    onError: () => {
-      toast.error(t.learningHub?.messages?.purchaseError || 'Eroare la achiziție');
-    },
-  });
-
-  // Update progress mutation
-  const updateProgressMutation = useMutation({
-    mutationFn: async ({ courseId, percent }: { courseId: string; percent: number }) => {
-      if (!user?.id) throw new Error('Not authenticated');
-      const { error } = await supabase
-        .from('user_course_progress')
-        .upsert({
-          user_id: user.id,
-          course_id: courseId,
-          progress_percent: percent,
-          completed_at: percent >= 100 ? new Date().toISOString() : null,
-        }, { onConflict: 'user_id,course_id,lesson_id' });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['course-progress'] });
-    },
+    onError: () => toast.error('Eroare la salvarea produsului'),
   });
 
   const getCourseProgress = (courseId: string) => {
@@ -321,39 +245,164 @@ export default function LearningHub() {
   };
 
   const completedCourses = progress.filter(p => p.progress_percent >= 100).length;
-  const totalProgress = courses.length > 0 
-    ? Math.round(progress.reduce((sum, p) => sum + p.progress_percent, 0) / courses.length) 
+  const totalProgress = premiumCourses.length > 0 
+    ? Math.round(progress.reduce((sum, p) => sum + p.progress_percent, 0) / premiumCourses.length) 
     : 0;
 
-  const handleStartCourse = async (course: Course) => {
-    const hasAccess = checkAccess(course.id, course.price);
+  // Render Free Report Card
+  const renderFreeReportCard = (product: Course, index: number) => (
+    <motion.div
+      key={product.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group border-green-500/20 hover:border-green-500/40">
+        {/* Thumbnail */}
+        <div className="h-48 bg-gradient-to-br from-green-500/10 to-emerald-500/10 relative overflow-hidden">
+          {product.thumbnail_url ? (
+            <img 
+              src={product.thumbnail_url} 
+              alt={product.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Gift className="h-16 w-16 text-green-500/50" />
+            </div>
+          )}
+          
+          <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0">
+            <Gift className="h-3 w-3 mr-1" />
+            GRATUIT
+          </Badge>
+        </div>
+
+        <CardContent className="flex-1 flex flex-col p-4">
+          <h3 className="font-semibold mb-2 line-clamp-2">{product.title}</h3>
+          <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-2">
+            {product.description}
+          </p>
+
+          <Button 
+            className="w-full gap-2 bg-green-500 hover:bg-green-600"
+            onClick={() => navigate(`/free/${product.slug}`)}
+          >
+            <Download className="h-4 w-4" />
+            Descarcă Gratuit
+          </Button>
+          
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mt-2 gap-2"
+              onClick={() => {
+                setEditingCourse(product);
+                setShowCourseDialog(true);
+              }}
+            >
+              <Edit className="h-4 w-4" />
+              Editează
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  // Render Ebook Card
+  const renderEbookCard = (product: Course, index: number) => {
+    const isPurchased = hasPurchased(product.id);
     
-    if (!hasAccess) {
-      setSelectedCourse(course);
-    } else {
-      const currentProgress = getCourseProgress(course.id);
-      if (currentProgress < 100) {
-        updateProgressMutation.mutate({ 
-          courseId: course.id, 
-          percent: Math.min(currentProgress + 25, 100) 
-        });
-        toast.success(`${t.learningHub?.progress?.updated || 'Progres actualizat'}: ${Math.min(currentProgress + 25, 100)}%`);
-      }
-    }
+    return (
+      <motion.div
+        key={product.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+      >
+        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow group border-amber-500/20 hover:border-amber-500/40">
+          {/* Thumbnail */}
+          <div className="h-48 bg-gradient-to-br from-amber-500/10 to-orange-500/10 relative overflow-hidden">
+            {product.thumbnail_url ? (
+              <img 
+                src={product.thumbnail_url} 
+                alt={product.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <FileText className="h-16 w-16 text-amber-500/50" />
+              </div>
+            )}
+            
+            {isPurchased ? (
+              <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0 gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Achiziționat
+              </Badge>
+            ) : (
+              <Badge className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
+                £{product.price}
+              </Badge>
+            )}
+          </div>
+
+          <CardContent className="flex-1 flex flex-col p-4">
+            <Badge variant="outline" className="w-fit mb-2 text-amber-500 border-amber-500/30">
+              <FileText className="h-3 w-3 mr-1" />
+              eBook
+            </Badge>
+            
+            <h3 className="font-semibold mb-2 line-clamp-2">{product.title}</h3>
+            <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-2">
+              {product.description}
+            </p>
+
+            <Button 
+              className="w-full gap-2"
+              variant={isPurchased ? "secondary" : "default"}
+              onClick={() => navigate(`/ebook/${product.slug}`)}
+            >
+              {isPurchased ? (
+                <>
+                  <Download className="h-4 w-4" />
+                  Descarcă
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4" />
+                  Cumpără - £{product.price}
+                </>
+              )}
+            </Button>
+            
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-2 gap-2"
+                onClick={() => {
+                  setEditingCourse(product);
+                  setShowCourseDialog(true);
+                }}
+              >
+                <Edit className="h-4 w-4" />
+                Editează
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
   };
 
-  const handleBuyCourse = async (course: Course) => {
-    setPurchasingCourseId(course.id);
-    await purchaseMutation.mutateAsync(course);
-    setPurchasingCourseId(null);
-  };
-
-  // Render course card
+  // Render Premium Course Card
   const renderCourseCard = (course: Course, index: number) => {
     const courseProgress = getCourseProgress(course.id);
     const hasAccess = checkAccess(course.id, course.price);
     const isFree = course.price === 0;
-    const categoryInfo = categoryColors[course.category || 'general'] || categoryColors.general;
 
     return (
       <motion.div
@@ -366,16 +415,6 @@ export default function LearningHub() {
           {/* Thumbnail */}
           <div className="h-40 bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden">
             <div className={`absolute top-3 left-3 w-2 h-2 rounded-full ${platformColors[course.platform]}`} />
-            
-            {/* Category badge */}
-            <div className="absolute top-3 left-8">
-              <Badge className={`${categoryInfo.bg} ${categoryInfo.text} border-0 text-xs`}>
-                {course.category === 'skills' ? 'Skills' : 
-                 course.category === 'improvement' ? 'Improvement' :
-                 course.category === 'certification' ? 'Certificare' :
-                 course.category === 'partner' ? 'Partner' : 'General'}
-              </Badge>
-            </div>
             
             {/* Price badge */}
             <div className="absolute top-3 right-3">
@@ -439,7 +478,7 @@ export default function LearningHub() {
                 <Button 
                   variant="secondary" 
                   className="w-full gap-2 mt-2"
-                  onClick={() => handleStartCourse(course)}
+                  onClick={() => navigate(`/course/${course.id}`)}
                 >
                   <Play className="h-4 w-4" />
                   {t.learningHub?.buttons?.continue || 'Continuă'}
@@ -449,7 +488,15 @@ export default function LearningHub() {
               <Button 
                 className="w-full gap-2"
                 variant={hasAccess ? "secondary" : "default"}
-                onClick={() => handleStartCourse(course)}
+                onClick={() => {
+                  if (hasAccess) {
+                    navigate(`/course/${course.id}`);
+                  } else if (course.slug) {
+                    navigate(`/courses/${course.slug}`);
+                  } else {
+                    setSelectedCourse(course);
+                  }
+                }}
               >
                 {hasAccess ? (
                   <>
@@ -498,7 +545,7 @@ export default function LearningHub() {
               {t.learningHub?.title || 'Learning Hub'}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {t.learningHub?.subtitle || 'Cursuri de Skills, Dezvoltare Personală și Certificări'}
+              Resurse gratuite, eBooks și cursuri premium
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -508,174 +555,168 @@ export default function LearningHub() {
             </Badge>
             {isAdmin && (
               <Button onClick={() => { setEditingCourse(null); setShowCourseDialog(true); }} className="gap-2">
-                <Plus className="h-4 w-4" /> Adaugă Curs
+                <Plus className="h-4 w-4" /> Adaugă Produs
               </Button>
             )}
           </div>
         </div>
 
-        {/* AI Course Recommendations */}
-        <CourseRecommendations />
-
-        {/* Progress Overview */}
-        <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-background border-amber-500/20">
-          <CardContent className="py-6">
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 items-center justify-center">
-                <GraduationCap className="h-8 w-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-1">{t.learningHub?.progress?.title || 'Progresul tău de învățare'}</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {t.learningHub?.progress?.completed || 'Ai completat'} {completedCourses} {t.learningHub?.progress?.of || 'din'} {courses.length} {t.learningHub?.progress?.available || 'cursuri disponibile'}
-                </p>
-                <div className="flex items-center gap-4">
-                  <Progress value={totalProgress} className="flex-1 h-2" />
-                  <span className="text-sm font-medium">{totalProgress}%</span>
+        {/* Progress Overview - Only show if has premium courses */}
+        {premiumCourses.length > 0 && (
+          <Card className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-background border-amber-500/20">
+            <CardContent className="py-6">
+              <div className="flex items-center gap-6">
+                <div className="hidden md:flex h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 items-center justify-center">
+                  <GraduationCap className="h-8 w-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-1">{t.learningHub?.progress?.title || 'Progresul tău de învățare'}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {t.learningHub?.progress?.completed || 'Ai completat'} {completedCourses} {t.learningHub?.progress?.of || 'din'} {premiumCourses.length} {t.learningHub?.progress?.available || 'cursuri disponibile'}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <Progress value={totalProgress} className="flex-1 h-2" />
+                    <span className="text-sm font-medium">{totalProgress}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
-        <Tabs defaultValue="skills" className="space-y-6">
+        <Tabs defaultValue="gratuite" className="space-y-6">
           <TabsList className="grid w-full max-w-2xl grid-cols-4">
-            <TabsTrigger value="skills" className="gap-2">
-              <Wrench className="h-4 w-4" />
-              <span className="hidden sm:inline">Cursuri Skills</span>
-              <span className="sm:hidden">Skills</span>
-              <Badge variant="secondary" className="ml-1 text-xs">{skillsCourses.length}</Badge>
+            <TabsTrigger value="gratuite" className="gap-2">
+              <Gift className="h-4 w-4" />
+              <span className="hidden sm:inline">Gratuite</span>
+              <span className="sm:hidden">Free</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{freeReports.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="improvement" className="gap-2">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">Improvement</span>
-              <span className="sm:hidden">Growth</span>
-              <Badge variant="secondary" className="ml-1 text-xs">{improvementCourses.length}</Badge>
+            <TabsTrigger value="ebooks" className="gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">eBooks</span>
+              <span className="sm:hidden">PDF</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{ebooks.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="certifications" className="gap-2">
+            <TabsTrigger value="cursuri" className="gap-2">
+              <Video className="h-4 w-4" />
+              <span className="hidden sm:inline">Cursuri</span>
+              <span className="sm:hidden">Video</span>
+              <Badge variant="secondary" className="ml-1 text-xs">{premiumCourses.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="certificari" className="gap-2">
               <Award className="h-4 w-4" />
               <span className="hidden sm:inline">Certificări</span>
               <span className="sm:hidden">Cert.</span>
-              <Badge className="ml-1 text-xs bg-green-500/20 text-green-500 border-0">{partnerCourses.length + certificationCourses.length}</Badge>
+              <Badge className="ml-1 text-xs bg-green-500/20 text-green-500 border-0">{certifications.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
-          {/* Skills Tab */}
-          <TabsContent value="skills" className="space-y-6">
+          {/* Gratuite Tab */}
+          <TabsContent value="gratuite" className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <Wrench className="h-5 w-5 text-blue-500" />
-                  Cursuri de Skills
+                  <Gift className="h-5 w-5 text-green-500" />
+                  Resurse Gratuite
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Dezvoltă abilități practice: copywriting, design, programare, marketing
+                  Descarcă rapoarte și ghiduri gratuite pentru a începe
                 </p>
               </div>
             </div>
 
-            {/* Sub-filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
-              {[
-                { value: 'all', label: 'Toate' },
-                { value: 'marketing', label: 'Marketing' },
-                { value: 'tech', label: 'Tech' },
-                { value: 'design', label: 'Design' },
-                { value: 'business', label: 'Business' },
-              ].map((cat) => (
-                <Button
-                  key={cat.value}
-                  variant={skillsSubFilter === cat.value ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSkillsSubFilter(cat.value)}
-                  className="h-8"
-                >
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
-
-            {/* Courses Grid */}
             {isLoadingCourses ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
                   <Card key={i} className="h-80 animate-pulse bg-muted/50" />
                 ))}
               </div>
-            ) : filteredSkillsCourses.length > 0 ? (
+            ) : freeReports.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredSkillsCourses.map((course, index) => renderCourseCard(course, index))}
+                {freeReports.map((product, index) => renderFreeReportCard(product, index))}
               </div>
             ) : (
               <Card className="bg-muted/30">
                 <CardContent className="py-8 text-center">
-                  <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold mb-1">Nu există cursuri de skills încă</h3>
+                  <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există resurse gratuite încă</h3>
                   <p className="text-sm text-muted-foreground">
-                    Cursurile de skills vor fi adăugate în curând.
+                    Resursele gratuite vor fi adăugate în curând.
                   </p>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
-          {/* Improvement Tab */}
-          <TabsContent value="improvement" className="space-y-6">
+          {/* eBooks Tab */}
+          <TabsContent value="ebooks" className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-500" />
-                  Cursuri de Dezvoltare Personală
+                  <FileText className="h-5 w-5 text-amber-500" />
+                  eBooks
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Productivitate, mindset, leadership, comunicare și dezvoltare personală
+                  Ghiduri detaliate în format PDF
                 </p>
               </div>
             </div>
 
-            {/* Sub-filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Filtrează:</span>
-              {[
-                { value: 'all', label: 'Toate' },
-                { value: 'productivity', label: 'Productivitate' },
-                { value: 'mindset', label: 'Mindset' },
-                { value: 'leadership', label: 'Leadership' },
-                { value: 'communication', label: 'Comunicare' },
-              ].map((cat) => (
-                <Button
-                  key={cat.value}
-                  variant={improvementSubFilter === cat.value ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setImprovementSubFilter(cat.value)}
-                  className="h-8"
-                >
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
-
-            {/* Courses Grid */}
             {isLoadingCourses ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
                   <Card key={i} className="h-80 animate-pulse bg-muted/50" />
                 ))}
               </div>
-            ) : filteredImprovementCourses.length > 0 ? (
+            ) : ebooks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredImprovementCourses.map((course, index) => renderCourseCard(course, index))}
+                {ebooks.map((product, index) => renderEbookCard(product, index))}
               </div>
             ) : (
               <Card className="bg-muted/30">
                 <CardContent className="py-8 text-center">
-                  <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold mb-1">Nu există cursuri de improvement încă</h3>
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există eBooks încă</h3>
                   <p className="text-sm text-muted-foreground">
-                    Cursurile de dezvoltare personală vor fi adăugate în curând.
+                    eBooks vor fi adăugate în curând.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Cursuri Premium Tab */}
+          <TabsContent value="cursuri" className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Video className="h-5 w-5 text-primary" />
+                  Cursuri Video Premium
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Cursuri video complete cu lecții și certificare
+                </p>
+              </div>
+            </div>
+
+            {isLoadingCourses ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="h-80 animate-pulse bg-muted/50" />
+                ))}
+              </div>
+            ) : premiumCourses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {premiumCourses.map((course, index) => renderCourseCard(course, index))}
+              </div>
+            ) : (
+              <Card className="bg-muted/30">
+                <CardContent className="py-8 text-center">
+                  <Video className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Nu există cursuri premium încă</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Cursurile premium vor fi adăugate în curând.
                   </p>
                 </CardContent>
               </Card>
@@ -693,149 +734,12 @@ export default function LearningHub() {
             </Card>
           </TabsContent>
 
-          {/* Certifications Tab */}
-          <TabsContent value="certifications" className="space-y-6">
-            {/* Partnership Banner */}
-            <PartnershipBanner />
-
-            {/* Partner Courses Section - First */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Globe className="h-5 w-5 text-amber-500" />
-                Cursuri de la Parteneri
-                <Badge variant="secondary">{partnerCourses.length}</Badge>
-              </h3>
-              
-              {/* Learning Paths */}
-              {learningPaths.length > 0 && (
-                <div className="space-y-4 mb-6">
-                  <h4 className="text-md font-medium flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                    Trasee de Învățare
-                  </h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {learningPaths.map((path, index) => (
-                      <LearningPathCard 
-                        key={path.id} 
-                        path={{
-                          ...path,
-                          coursesCount: pathCourseCounts[path.id] || 0,
-                        }} 
-                        index={index} 
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Partner Courses Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {partnerCourses.map((course, index) => (
-                  <ExternalCourseCard 
-                    key={course.id} 
-                    course={{
-                      ...course,
-                      tags: Array.isArray(course.tags) ? course.tags : [],
-                    } as any} 
-                    index={index} 
-                  />
-                ))}
-              </div>
-
-              {partnerCourses.length === 0 && (
-                <Card className="bg-muted/30">
-                  <CardContent className="py-6 text-center">
-                    <Globe className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      Nu există cursuri de la parteneri încă.
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Divider */}
-            <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-4 text-muted-foreground">Certificări</span>
-              </div>
-            </div>
-
-            {/* Internal Courses with Certificates */}
-            {certificationCourses.filter(c => c.course_type !== 'external').length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Award className="h-5 w-5 text-green-500" />
-                  Cursuri cu Certificare Internă
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {certificationCourses
-                    .filter(c => c.course_type !== 'external')
-                    .map((course, index) => renderCourseCard(course, index))}
-                </div>
-              </div>
-            )}
-
-            {/* External Courses with Certificates */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                Cursuri cu Certificări de la Parteneri
-                <Badge variant="secondary">{certificationCourses.filter(c => c.course_type === 'external').length}</Badge>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {certificationCourses
-                  .filter(c => c.course_type === 'external')
-                  .map((course, index) => (
-                    <motion.div
-                      key={course.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Card className="hover:shadow-md transition-shadow hover:border-green-500/30">
-                        <CardContent className="py-4">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex items-start gap-4">
-                              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center shrink-0">
-                                <GraduationCap className="h-6 w-6 text-green-500" />
-                              </div>
-                              <div>
-                                <h3 className="font-medium mb-1">{course.title}</h3>
-                                <p className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                                  <span className="font-medium text-foreground">{course.provider}</span>
-                                  <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0 text-xs">
-                                    {course.certificate === 'Badges' ? 'Badges' : 'Certificat'}
-                                  </Badge>
-                                  {course.level && (
-                                    <Badge variant="outline" className="text-xs">
-                                      {course.level}
-                                    </Badge>
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                            <Button variant="ghost" size="icon" asChild>
-                              <a href={course.external_url || '#'} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-              </div>
-            </div>
-
-            {/* Legacy Certifications */}
+          {/* Certificări Tab */}
+          <TabsContent value="certificari" className="space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Star className="h-5 w-5 text-primary" />
-                Alte Certificări Recomandate
+                Certificări Recomandate Gratuite
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {certifications.map((cert, index) => (
@@ -875,8 +779,6 @@ export default function LearningHub() {
               </div>
             </div>
           </TabsContent>
-
-          {/* Pro Courses Tab */}
         </Tabs>
 
         {/* Purchase Dialog */}
@@ -919,13 +821,15 @@ export default function LearningHub() {
                   </Button>
                   <Button 
                     className="flex-1 gap-2"
-                    onClick={() => handleBuyCourse(selectedCourse)}
-                    disabled={purchaseMutation.isPending || purchasingCourseId === selectedCourse.id}
+                    onClick={() => {
+                      if (selectedCourse.slug) {
+                        navigate(`/courses/${selectedCourse.slug}`);
+                      }
+                      setSelectedCourse(null);
+                    }}
                   >
-                    <ShoppingCart className="h-4 w-4" />
-                    {purchaseMutation.isPending || purchasingCourseId === selectedCourse.id
-                      ? (t.learningHub?.purchaseDialog?.processing || 'Se procesează...') 
-                      : (t.learningHub?.purchaseDialog?.buyNow || 'Cumpără acum')}
+                    <ArrowRight className="h-4 w-4" />
+                    Vezi Detalii
                   </Button>
                 </div>
 
