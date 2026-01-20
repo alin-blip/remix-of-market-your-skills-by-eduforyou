@@ -447,8 +447,10 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          download_url: string | null
           duration_minutes: number | null
           external_url: string | null
+          funnel_id: string | null
           id: string
           is_published: boolean | null
           language: string | null
@@ -457,6 +459,7 @@ export type Database = {
           platform: string
           prerequisites: string | null
           price: number
+          product_type: string | null
           provider: string | null
           recommended_for: string | null
           requires_pro: boolean | null
@@ -478,8 +481,10 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          download_url?: string | null
           duration_minutes?: number | null
           external_url?: string | null
+          funnel_id?: string | null
           id?: string
           is_published?: boolean | null
           language?: string | null
@@ -488,6 +493,7 @@ export type Database = {
           platform?: string
           prerequisites?: string | null
           price?: number
+          product_type?: string | null
           provider?: string | null
           recommended_for?: string | null
           requires_pro?: boolean | null
@@ -509,8 +515,10 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          download_url?: string | null
           duration_minutes?: number | null
           external_url?: string | null
+          funnel_id?: string | null
           id?: string
           is_published?: boolean | null
           language?: string | null
@@ -519,6 +527,7 @@ export type Database = {
           platform?: string
           prerequisites?: string | null
           price?: number
+          product_type?: string | null
           provider?: string | null
           recommended_for?: string | null
           requires_pro?: boolean | null
@@ -532,7 +541,15 @@ export type Database = {
           updated_at?: string | null
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_tasks: {
         Row: {
@@ -697,6 +714,67 @@ export type Database = {
           },
         ]
       }
+      funnels: {
+        Row: {
+          basic_product_id: string | null
+          created_at: string | null
+          description: string | null
+          free_product_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          premium_product_id: string | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          basic_product_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          free_product_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          premium_product_id?: string | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          basic_product_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          free_product_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          premium_product_id?: string | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnels_basic_product_fkey"
+            columns: ["basic_product_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnels_free_product_fkey"
+            columns: ["free_product_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnels_premium_product_fkey"
+            columns: ["premium_product_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gigs_jobs: {
         Row: {
           category: string | null
@@ -810,6 +888,54 @@ export type Database = {
           what_youre_good_at?: Json | null
         }
         Relationships: []
+      }
+      leads: {
+        Row: {
+          converted: boolean | null
+          created_at: string | null
+          email: string
+          funnel_id: string | null
+          id: string
+          name: string | null
+          product_id: string | null
+          source: string | null
+        }
+        Insert: {
+          converted?: boolean | null
+          created_at?: string | null
+          email: string
+          funnel_id?: string | null
+          id?: string
+          name?: string | null
+          product_id?: string | null
+          source?: string | null
+        }
+        Update: {
+          converted?: boolean | null
+          created_at?: string | null
+          email?: string
+          funnel_id?: string | null
+          id?: string
+          name?: string | null
+          product_id?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       learning_path_courses: {
         Row: {
