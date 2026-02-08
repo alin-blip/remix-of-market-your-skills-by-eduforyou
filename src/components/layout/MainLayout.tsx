@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
@@ -14,7 +14,7 @@ import {
 import { LogOut, User, Shield } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
-import { supabase } from '@/integrations/supabase/client';
+
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -24,36 +24,6 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { profile, signOut, user } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [completedSteps, setCompletedSteps] = useState(0);
-
-  useEffect(() => {
-    if (user) {
-      loadProgress();
-    }
-  }, [user]);
-
-  const loadProgress = async () => {
-    if (!user) return;
-
-    try {
-      const [skillsResult, ikigaiResult, offersResult, outreachResult] = await Promise.all([
-        supabase.from('skill_entries').select('id').eq('user_id', user.id).limit(1),
-        supabase.from('ikigai_results').select('id').eq('user_id', user.id).limit(1),
-        supabase.from('offers').select('id').eq('user_id', user.id).limit(1),
-        supabase.from('outreach_templates').select('id').eq('user_id', user.id).limit(1),
-      ]);
-
-      let completed = 0;
-      if (skillsResult.data && skillsResult.data.length > 0) completed++;
-      if (ikigaiResult.data && ikigaiResult.data.length > 0) completed++;
-      if (offersResult.data && offersResult.data.length > 0) completed++;
-      if (outreachResult.data && outreachResult.data.length > 0) completed++;
-
-      setCompletedSteps(completed);
-    } catch (error) {
-      console.error('Error loading progress:', error);
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -70,7 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar completedSteps={completedSteps} totalSteps={4} />
+        <AppSidebar />
 
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
