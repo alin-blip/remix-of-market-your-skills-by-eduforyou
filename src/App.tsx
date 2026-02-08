@@ -14,7 +14,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
+import EDUDashboard from "./pages/EDUDashboard";
 import SkillScanner from "./pages/wizard/SkillScanner";
 import IkigaiBuilder from "./pages/wizard/IkigaiBuilder";
 import OfferBuilder from "./pages/wizard/OfferBuilder";
@@ -47,6 +47,15 @@ import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
 import SqueezePage from "./pages/SqueezePage";
 import EbookSalesPage from "./pages/EbookSalesPage";
+// E.D.U Method Pages
+import EligibilityCheck from "./pages/edu/EligibilityCheck";
+import CourseMatch from "./pages/edu/CourseMatch";
+import TestPrep from "./pages/edu/TestPrep";
+import Documents from "./pages/edu/Documents";
+import CVBuilder from "./pages/edu/CVBuilder";
+import StudentFinance from "./pages/edu/StudentFinance";
+import Bonuses from "./pages/edu/Bonuses";
+import FreedomCircle from "./pages/edu/FreedomCircle";
 
 const queryClient = new QueryClient();
 
@@ -76,10 +85,19 @@ const App = () => (
                   path="/dashboard" 
                   element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <EDUDashboard />
                     </ProtectedRoute>
                   } 
                 />
+                {/* E.D.U Method Routes */}
+                <Route path="/edu/eligibility" element={<ProtectedRoute><EligibilityCheck /></ProtectedRoute>} />
+                <Route path="/edu/course-match" element={<ProtectedRoute><CourseMatch /></ProtectedRoute>} />
+                <Route path="/edu/test-prep" element={<ProtectedRoute><TestPrep /></ProtectedRoute>} />
+                <Route path="/edu/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+                <Route path="/edu/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
+                <Route path="/edu/finance" element={<ProtectedRoute><StudentFinance /></ProtectedRoute>} />
+                <Route path="/edu/bonuses" element={<ProtectedRoute><Bonuses /></ProtectedRoute>} />
+                <Route path="/edu/community" element={<ProtectedRoute><FreedomCircle /></ProtectedRoute>} />
                 <Route 
                   path="/wizard/skill-scanner" 
                   element={
