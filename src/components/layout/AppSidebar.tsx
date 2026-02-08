@@ -17,7 +17,14 @@ import {
   Users,
   ClipboardCheck,
   Briefcase,
-  HeadphonesIcon,
+  Sparkles,
+  Target,
+  Package,
+  User,
+  MessageSquare,
+  FileDown,
+  Wallet,
+  Calendar,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -74,6 +81,22 @@ export function AppSidebar() {
     { path: '/edu/finance', label: 'Student Finance', icon: PoundSterling },
     { path: '/edu/bonuses', label: 'Bonuses (10)', icon: Gift },
     { path: '/edu/community', label: 'Freedom Circle', icon: Users },
+  ];
+
+  const freedomLaunchpadItems = [
+    { path: '/wizard/skill-scanner', label: 'Skill Scanner', icon: Sparkles },
+    { path: '/wizard/ikigai', label: 'Ikigai Builder', icon: Target },
+    { path: '/wizard/offer', label: 'Offer Builder', icon: Package },
+    { path: '/wizard/profile', label: 'Profile Builder', icon: User },
+    { path: '/wizard/outreach', label: 'Outreach Generator', icon: MessageSquare },
+    { path: '/wizard/gig-job-builder', label: 'Gig Job Builder', icon: Briefcase },
+    { path: '/wizard/export', label: 'Freedom Plan Export', icon: FileDown },
+  ];
+
+  const businessToolsItems = [
+    { path: '/income-tracker', label: 'Income Tracker', icon: Wallet },
+    { path: '/client-crm', label: 'Client CRM', icon: Users },
+    { path: '/life-os', label: 'Life OS', icon: Calendar },
   ];
 
   const renderNavItem = (item: { path: string; label: string; icon: React.ComponentType<{ className?: string }> }) => {
@@ -187,34 +210,27 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Learning Hub (Bonuses) */}
+        {/* Freedom Launchpad */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
             <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
-              Resources
+              Freedom Launchpad
             </SidebarGroupLabel>
           )}
           <SidebarMenu className="gap-0.5">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/learning-hub'}
-                tooltip="Learning Hub"
-                className="h-9 rounded-lg"
-              >
-                <NavLink
-                  to="/learning-hub"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <BookOpen className="h-4 w-4" />
-                  {!collapsed && <span className="text-sm">Learning Hub</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {freedomLaunchpadItems.map(renderNavItem)}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Business Tools */}
+        <SidebarGroup className="gap-1">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+              Business Tools
+            </SidebarGroupLabel>
+          )}
+          <SidebarMenu className="gap-0.5">
+            {businessToolsItems.map(renderNavItem)}
           </SidebarMenu>
         </SidebarGroup>
 
