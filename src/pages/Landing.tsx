@@ -14,7 +14,6 @@ import {
   Moon,
   Monitor,
 } from 'lucide-react';
-import { GraduationCap } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,11 +77,11 @@ export default function Landing() {
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="container flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 via-primary to-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <GraduationCap className="h-5 w-5 text-white" />
+            <div className="h-10 w-10 rounded-xl gradient-accent flex items-center justify-center shadow-lg glow-accent group-hover:scale-110 transition-transform">
+              <Sparkles className="h-5 w-5 text-accent-foreground" />
             </div>
             <span className="font-display font-bold text-xl tracking-tight">
-              E.D.U<span className="text-accent"> Method</span>
+              Student<span className="text-accent">Freedom</span>
             </span>
           </Link>
           

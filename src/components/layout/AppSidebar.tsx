@@ -2,29 +2,20 @@ import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import {
   LayoutDashboard,
+  Sparkles,
+  Compass,
+  Globe,
   Sun,
   Moon,
   Settings,
+  Briefcase,
   Shield,
   LogOut,
-  GraduationCap,
-  Globe,
-  CheckSquare,
-  BookOpen,
-  FileText,
-  PoundSterling,
-  Gift,
-  Users,
-  ClipboardCheck,
-  Briefcase,
-  Sparkles,
   Target,
-  Package,
-  User,
-  MessageSquare,
-  FileDown,
-  Wallet,
-  Calendar,
+  GraduationCap,
+  DollarSign,
+  Users,
+  BookOpen,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -39,6 +30,7 @@ import {
   useSidebar,
   SidebarGroupLabel,
 } from '@/components/ui/sidebar';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -53,7 +45,12 @@ import { useAdminRole } from '@/hooks/useAdminRole';
 import { useAuth } from '@/lib/auth';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  completedSteps?: number;
+  totalSteps?: number;
+}
+
+export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
@@ -63,84 +60,31 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  // Check if user is on any wizard path
+  const isOnWizardPath = currentPath.startsWith('/wizard');
+  const isOnLearnPath = currentPath === '/learning-hub' || currentPath === '/upgrade';
+  const isOnBusinessPath = currentPath === '/income-tracker' || currentPath === '/client-crm';
+
+  const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+  const isComplete = completedSteps >= totalSteps;
+
   const userInitials = user?.email?.slice(0, 2).toUpperCase() || 'U';
-
-  // E.D.U navigation items
-  const evaluateItems = [
-    { path: '/edu/eligibility', label: 'Eligibility Check', icon: CheckSquare },
-    { path: '/edu/course-match', label: 'Course Matching', icon: GraduationCap },
-    { path: '/edu/test-prep', label: 'Test Preparation', icon: BookOpen },
-  ];
-
-  const deliverItems = [
-    { path: '/edu/documents', label: 'Documents', icon: FileText },
-    { path: '/edu/cv-builder', label: 'CV Builder', icon: ClipboardCheck },
-  ];
-
-  const unlockItems = [
-    { path: '/edu/finance', label: 'Student Finance', icon: PoundSterling },
-    { path: '/edu/bonuses', label: 'Bonuses (10)', icon: Gift },
-    { path: '/edu/community', label: 'Freedom Circle', icon: Users },
-  ];
-
-  const freedomLaunchpadItems = [
-    { path: '/wizard/skill-scanner', label: 'Skill Scanner', icon: Sparkles },
-    { path: '/wizard/ikigai', label: 'Ikigai Builder', icon: Target },
-    { path: '/wizard/offer', label: 'Offer Builder', icon: Package },
-    { path: '/wizard/profile', label: 'Profile Builder', icon: User },
-    { path: '/wizard/outreach', label: 'Outreach Generator', icon: MessageSquare },
-    { path: '/wizard/gig-job-builder', label: 'Gig Job Builder', icon: Briefcase },
-    { path: '/wizard/export', label: 'Freedom Plan Export', icon: FileDown },
-  ];
-
-  const businessToolsItems = [
-    { path: '/income-tracker', label: 'Income Tracker', icon: Wallet },
-    { path: '/client-crm', label: 'Client CRM', icon: Users },
-    { path: '/life-os', label: 'Life OS', icon: Calendar },
-  ];
-
-  const renderNavItem = (item: { path: string; label: string; icon: React.ComponentType<{ className?: string }> }) => {
-    const Icon = item.icon;
-    const isActive = currentPath === item.path;
-    return (
-      <SidebarMenuItem key={item.path}>
-        <SidebarMenuButton
-          asChild
-          isActive={isActive}
-          tooltip={item.label}
-          className="h-9 rounded-lg"
-        >
-          <NavLink
-            to={item.path}
-            className={cn(
-              "flex items-center gap-3 px-3 transition-all",
-              isActive && "bg-primary/10 text-primary font-medium"
-            )}
-            activeClassName=""
-          >
-            <Icon className="h-4 w-4" />
-            {!collapsed && <span className="text-sm">{item.label}</span>}
-          </NavLink>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      {/* Header with E.D.U Method Logo */}
+      {/* Header with Logo */}
       <SidebarHeader className="p-4 pb-6">
         <NavLink to="/dashboard" className="flex items-center gap-3 group">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 via-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-shadow">
-            <GraduationCap className="h-5 w-5 text-white" />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-shadow">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight">
-                E.D.U Method
+                Student Freedom
               </span>
               <span className="text-[10px] text-sidebar-foreground/50 uppercase tracking-wider">
-                by Eduforyou
+                Path Planner
               </span>
             </div>
           )}
@@ -148,14 +92,14 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-3 flex flex-col gap-1">
-        {/* Dashboard */}
+        {/* Main Navigation */}
         <SidebarGroup className="gap-1">
           <SidebarMenu className="gap-1">
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/dashboard'}
-                tooltip="Dashboard"
+                tooltip={t.sidebar.dashboard}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -167,75 +111,221 @@ export function AppSidebar() {
                   activeClassName=""
                 >
                   <LayoutDashboard className="h-5 w-5" />
-                  {!collapsed && <span>E.D.U Journey</span>}
+                  {!collapsed && <span>{t.sidebar.dashboard}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Define Your Path - Main entry point */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isOnWizardPath}
+                tooltip={t.sidebar.defineYourPath}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/wizard/path"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    isOnWizardPath && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Compass className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar.defineYourPath}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath.startsWith('/life-os')}
+                tooltip={t.lifeOS?.title || "Life OS"}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/life-os"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath.startsWith('/life-os') && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Target className="h-5 w-5" />
+                  {!collapsed && <span>{t.lifeOS?.title || "Life OS"}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Gig & Job Builder */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/wizard/gig-job-builder'}
+                tooltip={t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/wizard/gig-job-builder"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/wizard/gig-job-builder' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Briefcase className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* E — EVALUATE */}
-        <SidebarGroup className="gap-1">
-          {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-blue-400/80 uppercase tracking-wider px-3 mb-1 font-bold">
-              E — Evaluate
-            </SidebarGroupLabel>
-          )}
-          <SidebarMenu className="gap-0.5">
-            {evaluateItems.map(renderNavItem)}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* D — DELIVER */}
-        <SidebarGroup className="gap-1">
-          {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-primary/80 uppercase tracking-wider px-3 mb-1 font-bold">
-              D — Deliver
-            </SidebarGroupLabel>
-          )}
-          <SidebarMenu className="gap-0.5">
-            {deliverItems.map(renderNavItem)}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* U — UNLOCK */}
-        <SidebarGroup className="gap-1">
-          {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-accent/80 uppercase tracking-wider px-3 mb-1 font-bold">
-              U — Unlock
-            </SidebarGroupLabel>
-          )}
-          <SidebarMenu className="gap-0.5">
-            {unlockItems.map(renderNavItem)}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Freedom Launchpad */}
+        {/* Learn Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
             <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
-              Freedom Launchpad
+              {t.sidebar?.learn || 'Learn'}
             </SidebarGroupLabel>
           )}
-          <SidebarMenu className="gap-0.5">
-            {freedomLaunchpadItems.map(renderNavItem)}
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/learning-hub'}
+                tooltip={t.sidebar?.learningHub || 'Learning Hub'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/learning-hub"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <BookOpen className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.learningHub || 'Learning Hub'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Founder Accelerator - Premium */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/upgrade'}
+                tooltip={t.sidebar?.founderAccelerator || 'Founder Accelerator'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/upgrade"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/upgrade' 
+                      ? "bg-orange-500/10 text-orange-500 font-medium" 
+                      : "text-orange-500 hover:bg-orange-500/10"
+                  )}
+                  activeClassName=""
+                >
+                  <GraduationCap className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.founderAccelerator || 'Founder Accelerator'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Business Tools */}
+        {/* Business Tools Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
             <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
-              Business Tools
+              {t.sidebar?.businessTools || 'Business'}
             </SidebarGroupLabel>
           )}
-          <SidebarMenu className="gap-0.5">
-            {businessToolsItems.map(renderNavItem)}
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/income-tracker'}
+                tooltip={t.sidebar?.incomeTracker || 'Income Tracker'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/income-tracker"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/income-tracker' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <DollarSign className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.incomeTracker || 'Income Tracker'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/client-crm'}
+                tooltip={t.sidebar?.clientCRM || 'Client CRM'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/client-crm"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/client-crm' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Users className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.clientCRM || 'Client CRM'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Progress Card */}
+        {!collapsed && (
+          <div className={cn(
+            "mx-1 p-3 rounded-xl border transition-colors",
+            isComplete 
+              ? "bg-green-500/10 border-green-500/20" 
+              : "bg-sidebar-accent/30 border-sidebar-border"
+          )}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-sidebar-foreground/70">
+                {t.sidebar.progressLabel}
+              </span>
+              <span className={cn(
+                "text-xs font-bold",
+                isComplete ? "text-green-500" : "text-primary"
+              )}>
+                {completedSteps}/{totalSteps}
+              </span>
+            </div>
+            <Progress 
+              value={progressPercentage} 
+              className={cn(
+                "h-1.5",
+                isComplete && "[&>div]:bg-green-500"
+              )} 
+            />
+            {isComplete && (
+              <p className="text-[10px] text-green-500 mt-1.5 font-medium">
+                ✓ Freedom Path Complete!
+              </p>
+            )}
+          </div>
+        )}
       </SidebarContent>
 
       {/* Footer */}
@@ -298,7 +388,7 @@ export function AppSidebar() {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              Settings
+              {t.sidebar?.settings || "Settings"}
             </TooltipContent>
           </Tooltip>
 
@@ -323,7 +413,7 @@ export function AppSidebar() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                Admin Panel
+                {t.admin?.title || 'Admin Panel'}
               </TooltipContent>
             </Tooltip>
           )}
@@ -339,7 +429,7 @@ export function AppSidebar() {
                 collapsed && "justify-center px-0"
               )}
             >
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 via-primary to-accent flex items-center justify-center flex-shrink-0 text-xs font-bold text-white">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary-foreground">
                 {userInitials}
               </div>
               {!collapsed && (
@@ -358,7 +448,7 @@ export function AppSidebar() {
             <DropdownMenuItem asChild>
               <NavLink to="/settings" className="cursor-pointer">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                {t.sidebar?.settings || "Settings"}
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -367,7 +457,7 @@ export function AppSidebar() {
               className="text-destructive focus:text-destructive cursor-pointer"
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              {t.auth?.logout || "Sign Out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
