@@ -354,6 +354,9 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
           {t.onboardingStep6.scanButton}
         </Button>
       </div>
+
+      {/* Optional CV Upload */}
+      <CVUpload onTextExtracted={(text) => setCvText(text)} />
     </div>
   );
 }

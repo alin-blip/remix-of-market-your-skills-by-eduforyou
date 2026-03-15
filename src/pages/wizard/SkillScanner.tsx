@@ -447,6 +447,9 @@ export default function SkillScanner() {
                 </p>
               </Card>
 
+              {/* CV Upload */}
+              <CVUpload onTextExtracted={(text) => setCvText(text)} />
+
               <div className="flex justify-between">
                 {savedSkills.length > 0 && (
                   <Button
