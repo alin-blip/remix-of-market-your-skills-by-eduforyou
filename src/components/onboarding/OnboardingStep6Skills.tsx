@@ -123,7 +123,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
           user_id: user.id,
           skill: skill.name,
           category: skill.category,
-          confidence: skill.confidence,
+          confidence: Math.round(skill.confidence),
           description: skill.description,
         }))
       );
