@@ -89,7 +89,7 @@ export default function SkillScanner() {
   };
 
   const handleScan = async () => {
-    if (!experiences.trim()) {
+    if (!experiences.trim() && !cvText.trim()) {
       toast.error(t.skillScanner.addExperience);
       return;
     }
