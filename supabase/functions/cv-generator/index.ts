@@ -91,7 +91,7 @@ Sections to include (output as styled HTML):
 
 Tone: Adapt to the company's culture. Use compelling, results-focused language. Make it visually appealing with colors, spacing, and modern design.`;
     } else {
-      systemPrompt = "You are a copywriter who writes cover letters as sales letters. They follow the HOOK → STORY → OFFER → CTA framework. Output in clean HTML format with inline styles.";
+      systemPrompt = "You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.";
       userPrompt = `Write a Cover Letter as a Sales Letter for this application.
 
 Skills: ${skillsList}
@@ -101,13 +101,13 @@ ${offerContext}
 ${additionalInstructions ? `Additional instructions: ${additionalInstructions}` : ""}
 ${avatarUrl ? `Include the profile photo at the top: <img src="${avatarUrl}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" alt="Profile Photo">` : ""}
 
-Structure (output as styled HTML):
-1. HOOK - Start with a specific problem the company has
-2. STORY - How you've solved something similar (use real skills/experience)
-3. OFFER - What you bring to the table (concrete value)
-4. CTA - Invitation for a 15-minute conversation
+Structure (output as styled HTML, but do NOT write the section names in the output - the letter must flow naturally):
+1. Start with a specific problem the company has (attention-grabbing opening)
+2. Share how you've solved something similar (use real skills/experience)
+3. Present what you bring to the table (concrete value proposition)
+4. End with an invitation for a 15-minute conversation
 
-Keep it under 300 words. Personal, not generic.`;
+Keep it under 300 words. Personal, not generic. The letter should read as one cohesive piece without any visible framework labels.`;
     }
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
