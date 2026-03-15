@@ -28,7 +28,7 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { targetId, documentType, experience, targetRole, additionalInstructions } = await req.json();
+    const { targetId, documentType, experience, targetRole, additionalInstructions, avatarUrl } = await req.json();
 
     // Fetch existing data
     const [skillsRes, offersRes, targetRes] = await Promise.all([
