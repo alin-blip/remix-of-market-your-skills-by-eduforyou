@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/lib/i18n';
+import { CVUpload } from '@/components/shared/CVUpload';
 import { 
   Sparkles, 
   ArrowRight, 
