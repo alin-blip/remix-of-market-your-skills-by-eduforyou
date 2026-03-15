@@ -773,6 +773,10 @@ export const ro = {
     founderAccelerator: 'Founder Accelerator',
     learn: 'Învață',
     businessTools: 'Business',
+    dream100Tracker: 'Dream 100 Tracker',
+    dream100Scanner: 'Scanner',
+    cvBuilder: 'CV Builder',
+    outreachSequences: 'Outreach',
   },
 
   // Founder Accelerator

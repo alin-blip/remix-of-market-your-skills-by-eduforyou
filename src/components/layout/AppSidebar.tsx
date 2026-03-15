@@ -16,6 +16,10 @@ import {
   DollarSign,
   Users,
   BookOpen,
+  Crosshair,
+  Search,
+  FileText,
+  Send,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -177,6 +181,100 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <Briefcase className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Dream 100 Section */}
+        <SidebarGroup className="gap-1">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+              Dream 100
+            </SidebarGroupLabel>
+          )}
+          <SidebarMenu className="gap-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/dream100'}
+                tooltip={t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/dream100"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/dream100' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Crosshair className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/dream100-scanner'}
+                tooltip={t.sidebar?.dream100Scanner || 'Scanner'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/dream100-scanner"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/dream100-scanner' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Search className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.dream100Scanner || 'Scanner'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/cv-builder'}
+                tooltip={t.sidebar?.cvBuilder || 'CV Builder'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/cv-builder"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/cv-builder' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <FileText className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.cvBuilder || 'CV Builder'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/outreach-sequences'}
+                tooltip={t.sidebar?.outreachSequences || 'Outreach'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/outreach-sequences"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/outreach-sequences' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Send className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.outreachSequences || 'Outreach'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

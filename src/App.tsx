@@ -47,7 +47,10 @@ import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
 import SqueezePage from "./pages/SqueezePage";
 import EbookSalesPage from "./pages/EbookSalesPage";
-
+import Dream100Tracker from "./pages/dream100/Dream100Tracker";
+import Dream100Scanner from "./pages/dream100/Dream100Scanner";
+import CVBuilder from "./pages/dream100/CVBuilder";
+import OutreachSequences from "./pages/dream100/OutreachSequences";
 const queryClient = new QueryClient();
 
 // App component with providers
@@ -307,6 +310,11 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
+                {/* Dream 100 Routes */}
+                <Route path="/dream100" element={<ProtectedRoute><Dream100Tracker /></ProtectedRoute>} />
+                <Route path="/dream100-scanner" element={<ProtectedRoute><Dream100Scanner /></ProtectedRoute>} />
+                <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
+                <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />

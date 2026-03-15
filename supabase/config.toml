@@ -29,3 +29,15 @@ verify_jwt = false
 
 [functions.course-recommendations]
 verify_jwt = false
+
+[functions.dream100-analyzer]
+verify_jwt = false
+
+[functions.dream100-scanner]
+verify_jwt = false
+
+[functions.cv-generator]
+verify_jwt = false
+
+[functions.outreach-sequence]
+verify_jwt = false

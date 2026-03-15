@@ -689,6 +689,44 @@ export type Database = {
           },
         ]
       }
+      cv_documents: {
+        Row: {
+          content: string
+          created_at: string | null
+          document_type: string
+          id: string
+          target_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string | null
+          document_type: string
+          id?: string
+          target_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          document_type?: string
+          id?: string
+          target_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cv_documents_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "dream100_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_tasks: {
         Row: {
           area_key: string | null
@@ -751,6 +789,95 @@ export type Database = {
             columns: ["sprint_id"]
             isOneToOne: false
             referencedRelation: "weekly_sprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dream100_targets: {
+        Row: {
+          ai_analysis: Json | null
+          created_at: string | null
+          decision_maker_role: string | null
+          id: string
+          industry: string | null
+          kanban_stage: string
+          linkedin_url: string | null
+          name: string
+          notes: string | null
+          path_type: string
+          reminder_date: string | null
+          updated_at: string | null
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          created_at?: string | null
+          decision_maker_role?: string | null
+          id?: string
+          industry?: string | null
+          kanban_stage?: string
+          linkedin_url?: string | null
+          name: string
+          notes?: string | null
+          path_type?: string
+          reminder_date?: string | null
+          updated_at?: string | null
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          ai_analysis?: Json | null
+          created_at?: string | null
+          decision_maker_role?: string | null
+          id?: string
+          industry?: string | null
+          kanban_stage?: string
+          linkedin_url?: string | null
+          name?: string
+          notes?: string | null
+          path_type?: string
+          reminder_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      dream100_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          target_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          target_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          target_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dream100_tasks_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "dream100_targets"
             referencedColumns: ["id"]
           },
         ]
@@ -1353,6 +1480,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      outreach_sequences: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json
+          path_type: string
+          platform: string
+          target_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          path_type?: string
+          platform?: string
+          target_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          path_type?: string
+          platform?: string
+          target_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_sequences_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "dream100_targets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       outreach_templates: {
         Row: {
