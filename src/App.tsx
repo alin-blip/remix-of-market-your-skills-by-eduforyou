@@ -47,7 +47,10 @@ import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
 import SqueezePage from "./pages/SqueezePage";
 import EbookSalesPage from "./pages/EbookSalesPage";
-
+import Dream100Tracker from "./pages/dream100/Dream100Tracker";
+import Dream100Scanner from "./pages/dream100/Dream100Scanner";
+import CVBuilder from "./pages/dream100/CVBuilder";
+import OutreachSequences from "./pages/dream100/OutreachSequences";
 const queryClient = new QueryClient();
 
 // App component with providers
