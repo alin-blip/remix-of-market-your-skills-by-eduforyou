@@ -73,15 +73,15 @@ ${avatarUrl ? `IMPORTANT: Include the profile photo at the top of the CV using t
 
 Format: Output as clean HTML. Include sections: Contact Info (use placeholders), Professional Summary, Key Skills, Professional Experience, Education. Use keywords from the target role. Keep it clean and scannable. Use semantic HTML with inline styles.`;
     } else if (documentType === "sales_cv") {
-      systemPrompt = "You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles, modern typography, and visual hierarchy.";
-      userPrompt = `Create a CV Sales Page for approaching this company. This is NOT a traditional CV - it's a personal sales page.
+      systemPrompt = "You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles. IMPORTANT STYLING RULES: Use a professional color palette - dark text (#1a1a1a) for body, navy (#1e3a5f) or dark charcoal for headings. Do NOT use purple or violet colors. Use reasonable font sizes (14-16px body, 20-24px headings). Do NOT include any buttons or interactive elements - this is a document, not a website. Keep it clean and professional.";
+      userPrompt = `Create a CV Sales Page for approaching this company. This is NOT a traditional CV - it's a personal sales page document.
 
 Skills: ${skillsList}
 Experience: ${experience || "Not provided"}
 ${companyContext}
 ${offerContext}
 ${additionalInstructions ? `Additional instructions: ${additionalInstructions}` : ""}
-${avatarUrl ? `IMPORTANT: Include the profile photo prominently at the top using: <img src="${avatarUrl}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #6366f1;" alt="Profile Photo">` : ""}
+${avatarUrl ? `IMPORTANT: Include the profile photo prominently at the top using: <img src="${avatarUrl}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #1e3a5f;" alt="Profile Photo">` : ""}
 
 Sections to include (output as styled HTML):
 1. "What Problems I Solve" - tied to the company's specific challenges
@@ -89,7 +89,8 @@ Sections to include (output as styled HTML):
 3. "Expected Results in First 90 Days" - concrete, measurable outcomes
 4. "Why Me" - social proof and evidence
 
-Tone: Adapt to the company's culture. Use compelling, results-focused language. Make it visually appealing with colors, spacing, and modern design.`;
+CRITICAL: Use professional styling only. Body text: 14-16px, dark color (#1a1a1a). Headings: 20-24px max, navy (#1e3a5f). No purple/violet. No buttons or links styled as buttons. No CTA buttons. This is a printable document.
+Tone: Adapt to the company's culture. Use compelling, results-focused language.`;
     } else {
       systemPrompt = "You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.";
       userPrompt = `Write a Cover Letter as a Sales Letter for this application.
