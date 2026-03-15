@@ -17,8 +17,9 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Plus, Brain, MessageSquare, ExternalLink, Trash2, 
-  Loader2, Crosshair, GripVertical, Calendar, Users
+  Loader2, Crosshair, GripVertical, Calendar, Users, Eye
 } from 'lucide-react';
+import { DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 const KANBAN_STAGES = [
