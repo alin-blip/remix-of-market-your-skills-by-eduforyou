@@ -16,6 +16,10 @@ import {
   DollarSign,
   Users,
   BookOpen,
+  Crosshair,
+  Search,
+  FileText,
+  Send,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
