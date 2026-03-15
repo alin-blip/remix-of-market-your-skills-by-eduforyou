@@ -166,7 +166,7 @@ export default function SkillScanner() {
             user_id: user.id,
             skill: skill.name,
             category: skill.category,
-            confidence: skill.confidence,
+            confidence: Math.round(skill.confidence),
             description: skill.description,
           }))
         );
