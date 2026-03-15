@@ -1340,4 +1340,17 @@ export const ro = {
     pricingDesc: 'Vezi și gestionează planurile tale de abonament și facturarea.',
     openTool: 'Deschide',
   },
+
+  // CV Upload & Avatar
+  cvUpload: {
+    dropzone: 'Uploadează CV-ul tău (opțional)',
+    dropzoneHint: 'PDF, max 5MB • Drag & drop sau click',
+    onlyPdf: 'Doar fișiere PDF sunt acceptate',
+    tooLarge: 'Fișier prea mare. Maximum 5MB.',
+    parsing: 'Se extrage textul din CV...',
+    profilePhoto: 'Foto Profil',
+    photoHint: 'Va fi inclusă în CV-ul generat',
+    avatarSaved: 'Foto de profil salvată!',
+    onlyImages: 'Doar fișiere imagine sunt acceptate',
+  },
 };

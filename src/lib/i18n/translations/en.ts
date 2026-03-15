@@ -1340,4 +1340,17 @@ export const en = {
     pricingDesc: 'View and manage your subscription plans and billing.',
     openTool: 'Open Tool',
   },
+
+  // CV Upload & Avatar
+  cvUpload: {
+    dropzone: 'Upload your CV (optional)',
+    dropzoneHint: 'PDF, max 5MB • Drag & drop or click',
+    onlyPdf: 'Only PDF files are accepted',
+    tooLarge: 'File too large. Maximum 5MB.',
+    parsing: 'Extracting text from CV...',
+    profilePhoto: 'Profile Photo',
+    photoHint: 'Will be included in your CV',
+    avatarSaved: 'Profile photo saved!',
+    onlyImages: 'Only image files are accepted',
+  },
 };

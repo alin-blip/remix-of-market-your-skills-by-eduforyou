@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.outreach-sequence]
 verify_jwt = false
+
+[functions.parse-cv]
+verify_jwt = false
