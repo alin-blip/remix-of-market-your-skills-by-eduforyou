@@ -115,6 +115,7 @@ export default function SkillScanner() {
           },
           body: JSON.stringify({
             experiences,
+            cvText,
             interests: profile?.interests || [],
             studyField: profile?.study_field || '',
           }),
