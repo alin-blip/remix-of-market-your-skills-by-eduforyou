@@ -55,6 +55,7 @@ export default function SkillScanner() {
   
   const [step, setStep] = useState<'loading' | 'saved' | 'input' | 'scanning' | 'results'>('loading');
   const [experiences, setExperiences] = useState('');
+  const [cvText, setCvText] = useState('');
   const [scanProgress, setScanProgress] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
