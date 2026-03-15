@@ -42,6 +42,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [hasSavedSkills, setHasSavedSkills] = useState(false);
+  const [cvText, setCvText] = useState('');
 
   useEffect(() => {
     checkExistingSkills();
