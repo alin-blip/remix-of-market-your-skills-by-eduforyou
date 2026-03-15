@@ -72,15 +72,23 @@ export default function CVBuilder() {
     toast({ title: locale === 'ro' ? 'Copiat!' : 'Copied!' });
   };
 
-  const downloadAsHtml = (content: string, filename: string) => {
-    const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${filename}</title></head><body>${content}</body></html>`;
-    const blob = new Blob([fullHtml], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename.replace('.txt', '.html');
-    a.click();
-    URL.revokeObjectURL(url);
+  const downloadAsPdf = async (content: string, filename: string) => {
+    const html2pdf = (await import('html2pdf.js')).default;
+    const container = document.createElement('div');
+    container.innerHTML = content;
+    container.style.padding = '20px';
+    container.style.fontFamily = 'Arial, sans-serif';
+    document.body.appendChild(container);
+    
+    await html2pdf().set({
+      margin: 10,
+      filename: filename.replace('.html', '.pdf'),
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }).from(container).save();
+    
+    document.body.removeChild(container);
   };
 
   const handleCvTextExtracted = (text: string) => {
@@ -192,8 +200,8 @@ export default function CVBuilder() {
                         <Button variant="outline" size="sm" onClick={() => copyToClipboard(documents[dt.id])}>
                           <Copy className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Copiază' : 'Copy'}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadAsHtml(documents[dt.id], `${dt.id}.html`)}>
-                          <Download className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Descarcă' : 'Download'}
+                        <Button variant="outline" size="sm" onClick={() => downloadAsPdf(documents[dt.id], `${dt.id}.pdf`)}>
+                          <Download className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Descarcă PDF' : 'Download PDF'}
                         </Button>
                       </div>
                     </div>
