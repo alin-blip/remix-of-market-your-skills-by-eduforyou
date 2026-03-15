@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { Sparkles, Brain, Users, Zap, Code, Loader2, Check, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { CVUpload } from '@/components/shared/CVUpload';
 
 interface Skill {
   name: string;
