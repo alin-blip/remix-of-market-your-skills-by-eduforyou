@@ -317,10 +317,16 @@ export default function Dream100Tracker() {
 
                                   {/* AI Analysis indicator */}
                                   {target.ai_analysis && (
-                                    <div className="text-[10px] text-muted-foreground bg-muted/50 rounded p-1.5">
-                                      <span className="font-medium text-primary">✨ {locale === 'ro' ? 'Analizat' : 'Analyzed'}</span>
-                                      {' — '}{target.ai_analysis.recommended_tone}
-                                    </div>
+                                    <button
+                                      onClick={() => setAnalysisTarget(target)}
+                                      className="w-full text-left text-[10px] text-muted-foreground bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded p-1.5 transition-colors cursor-pointer flex items-center gap-1"
+                                    >
+                                      <Eye className="h-3 w-3 text-primary shrink-0" />
+                                      <span className="font-medium text-primary">
+                                        {locale === 'ro' ? 'Vezi analiza' : 'View analysis'}
+                                      </span>
+                                      <span className="ml-auto text-muted-foreground">{target.ai_analysis.recommended_tone}</span>
+                                    </button>
                                   )}
 
                                   {/* Tasks checklist */}
