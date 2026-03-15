@@ -310,6 +310,11 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
+                {/* Dream 100 Routes */}
+                <Route path="/dream100" element={<ProtectedRoute><Dream100Tracker /></ProtectedRoute>} />
+                <Route path="/dream100-scanner" element={<ProtectedRoute><Dream100Scanner /></ProtectedRoute>} />
+                <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
+                <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />
