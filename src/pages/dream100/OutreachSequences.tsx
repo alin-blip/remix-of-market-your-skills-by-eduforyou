@@ -119,7 +119,7 @@ export default function OutreachSequences() {
     const seq = sequences.find(s => s.id === sequenceId);
     if (!seq) return;
     const updatedMessages = seq.messages.map(m => ({ ...m, status: 'replied' as const }));
-    await supabase.from('outreach_sequences').update({ messages: updatedMessages }).eq('id', sequenceId);
+    await supabase.from('outreach_sequences').update({ messages: updatedMessages as any }).eq('id', sequenceId);
     setSequences(prev => prev.map(s => s.id === sequenceId ? { ...s, messages: updatedMessages } : s));
 
     if (seq.target_id) {
