@@ -200,8 +200,8 @@ export default function CVBuilder() {
                         <Button variant="outline" size="sm" onClick={() => copyToClipboard(documents[dt.id])}>
                           <Copy className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Copiază' : 'Copy'}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadAsHtml(documents[dt.id], `${dt.id}.html`)}>
-                          <Download className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Descarcă' : 'Download'}
+                        <Button variant="outline" size="sm" onClick={() => downloadAsPdf(documents[dt.id], `${dt.id}.pdf`)}>
+                          <Download className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Descarcă PDF' : 'Download PDF'}
                         </Button>
                       </div>
                     </div>
