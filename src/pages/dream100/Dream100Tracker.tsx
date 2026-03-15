@@ -17,8 +17,9 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Plus, Brain, MessageSquare, ExternalLink, Trash2, 
-  Loader2, Crosshair, GripVertical, Calendar, Users
+  Loader2, Crosshair, GripVertical, Calendar, Users, Eye
 } from 'lucide-react';
+import { DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 const KANBAN_STAGES = [
@@ -62,6 +63,7 @@ export default function Dream100Tracker() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [pathFilter, setPathFilter] = useState<string>('all');
+  const [analysisTarget, setAnalysisTarget] = useState<Target | null>(null);
   
   // New target form
   const [newTarget, setNewTarget] = useState({
@@ -315,10 +317,16 @@ export default function Dream100Tracker() {
 
                                   {/* AI Analysis indicator */}
                                   {target.ai_analysis && (
-                                    <div className="text-[10px] text-muted-foreground bg-muted/50 rounded p-1.5">
-                                      <span className="font-medium text-primary">✨ {locale === 'ro' ? 'Analizat' : 'Analyzed'}</span>
-                                      {' — '}{target.ai_analysis.recommended_tone}
-                                    </div>
+                                    <button
+                                      onClick={() => setAnalysisTarget(target)}
+                                      className="w-full text-left text-[10px] text-muted-foreground bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded p-1.5 transition-colors cursor-pointer flex items-center gap-1"
+                                    >
+                                      <Eye className="h-3 w-3 text-primary shrink-0" />
+                                      <span className="font-medium text-primary">
+                                        {locale === 'ro' ? 'Vezi analiza' : 'View analysis'}
+                                      </span>
+                                      <span className="ml-auto text-muted-foreground">{target.ai_analysis.recommended_tone}</span>
+                                    </button>
                                   )}
 
                                   {/* Tasks checklist */}
@@ -379,6 +387,70 @@ export default function Dream100Tracker() {
             </div>
           </DragDropContext>
         )}
+
+        {/* Analysis Detail Dialog */}
+        <Dialog open={!!analysisTarget} onOpenChange={(open) => !open && setAnalysisTarget(null)}>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                {locale === 'ro' ? 'Analiză AI' : 'AI Analysis'} — {analysisTarget?.name}
+              </DialogTitle>
+              <DialogDescription>
+                {locale === 'ro' ? 'Analiză generată automat pentru această țintă' : 'Auto-generated analysis for this target'}
+              </DialogDescription>
+            </DialogHeader>
+            {analysisTarget?.ai_analysis && (
+              <div className="space-y-4">
+                <div className="rounded-lg border bg-muted/30 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Ton recomandat' : 'Recommended Tone'}</p>
+                  <Badge className="mb-1.5">{analysisTarget.ai_analysis.recommended_tone}</Badge>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.tone_reasoning}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Problema principală' : 'Main Problem'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.main_problem}</p>
+                </div>
+
+                {analysisTarget.ai_analysis.cultural_values?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">{locale === 'ro' ? 'Valori culturale' : 'Cultural Values'}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {analysisTarget.ai_analysis.cultural_values.map((v: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs">{v}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysisTarget.ai_analysis.key_insights?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">{locale === 'ro' ? 'Insight-uri cheie' : 'Key Insights'}</p>
+                    <ul className="space-y-1">
+                      {analysisTarget.ai_analysis.key_insights.map((ins: string, i: number) => (
+                        <li key={i} className="text-sm text-foreground flex gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          <span>{ins}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Semnale de angajare' : 'Hiring Signals'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.hiring_signals}</p>
+                </div>
+
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                  <p className="text-xs font-semibold text-primary mb-1">{locale === 'ro' ? 'Strategie de abordare' : 'Approach Strategy'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.approach_strategy}</p>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
