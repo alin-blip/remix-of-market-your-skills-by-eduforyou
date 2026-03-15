@@ -62,15 +62,16 @@ Premium Package: ${JSON.stringify(offer.premium_package || {})}` : "";
     let userPrompt = "";
 
     if (documentType === "ats_cv") {
-      systemPrompt = "You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems.";
+      systemPrompt = "You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems. Output in clean HTML format with inline styles.";
       userPrompt = `Create an ATS-friendly CV optimized for this role: ${targetRole || "professional role"}.
 
 Skills: ${skillsList}
 Experience: ${experience || "Not provided"}
 ${companyContext}
 ${additionalInstructions ? `Additional instructions: ${additionalInstructions}` : ""}
+${avatarUrl ? `IMPORTANT: Include the profile photo at the top of the CV using this image: <img src="${avatarUrl}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;" alt="Profile Photo">` : ""}
 
-Format: Plain text CV with sections: Contact Info (use placeholders), Professional Summary, Key Skills, Professional Experience, Education. Use keywords from the target role. Keep it clean and scannable.`;
+Format: Output as clean HTML. Include sections: Contact Info (use placeholders), Professional Summary, Key Skills, Professional Experience, Education. Use keywords from the target role. Keep it clean and scannable. Use semantic HTML with inline styles.`;
     } else if (documentType === "sales_cv") {
       systemPrompt = "You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value.";
       userPrompt = `Create a CV Sales Page for approaching this company. This is NOT a traditional CV - it's a personal sales page.
