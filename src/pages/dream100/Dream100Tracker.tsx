@@ -388,6 +388,76 @@ export default function Dream100Tracker() {
           </DragDropContext>
         )}
       </div>
+        {/* Analysis Detail Dialog */}
+        <Dialog open={!!analysisTarget} onOpenChange={(open) => !open && setAnalysisTarget(null)}>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                {locale === 'ro' ? 'Analiză AI' : 'AI Analysis'} — {analysisTarget?.name}
+              </DialogTitle>
+              <DialogDescription>
+                {locale === 'ro' ? 'Analiză generată automat pentru această țintă' : 'Auto-generated analysis for this target'}
+              </DialogDescription>
+            </DialogHeader>
+            {analysisTarget?.ai_analysis && (
+              <div className="space-y-4">
+                {/* Recommended Tone */}
+                <div className="rounded-lg border bg-muted/30 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Ton recomandat' : 'Recommended Tone'}</p>
+                  <Badge className="mb-1.5">{analysisTarget.ai_analysis.recommended_tone}</Badge>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.tone_reasoning}</p>
+                </div>
+
+                {/* Main Problem */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Problema principală' : 'Main Problem'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.main_problem}</p>
+                </div>
+
+                {/* Cultural Values */}
+                {analysisTarget.ai_analysis.cultural_values?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">{locale === 'ro' ? 'Valori culturale' : 'Cultural Values'}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {analysisTarget.ai_analysis.cultural_values.map((v: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs">{v}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Insights */}
+                {analysisTarget.ai_analysis.key_insights?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">{locale === 'ro' ? 'Insight-uri cheie' : 'Key Insights'}</p>
+                    <ul className="space-y-1">
+                      {analysisTarget.ai_analysis.key_insights.map((ins: string, i: number) => (
+                        <li key={i} className="text-sm text-foreground flex gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          <span>{ins}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Hiring Signals */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">{locale === 'ro' ? 'Semnale de angajare' : 'Hiring Signals'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.hiring_signals}</p>
+                </div>
+
+                {/* Approach Strategy */}
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                  <p className="text-xs font-semibold text-primary mb-1">{locale === 'ro' ? 'Strategie de abordare' : 'Approach Strategy'}</p>
+                  <p className="text-sm text-foreground">{analysisTarget.ai_analysis.approach_strategy}</p>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </MainLayout>
   );
 }
