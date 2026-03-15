@@ -76,6 +76,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
       const response = await supabase.functions.invoke('skill-scanner', {
         body: {
           experiences: data.projects_experience,
+          cvText,
           studyField: data.study_field,
           interests: data.interests,
         },
