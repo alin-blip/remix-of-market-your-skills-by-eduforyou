@@ -462,7 +462,7 @@ export default function SkillScanner() {
                 <div className={savedSkills.length === 0 ? 'ml-auto' : ''}>
                   <Button 
                     onClick={handleScan}
-                    disabled={!experiences.trim()}
+                    disabled={!experiences.trim() && !cvText.trim()}
                     className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
                     size="lg"
                   >
