@@ -63,6 +63,7 @@ export default function Dream100Tracker() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [pathFilter, setPathFilter] = useState<string>('all');
+  const [analysisTarget, setAnalysisTarget] = useState<Target | null>(null);
   
   // New target form
   const [newTarget, setNewTarget] = useState({
