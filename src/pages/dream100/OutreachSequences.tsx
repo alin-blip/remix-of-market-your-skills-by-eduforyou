@@ -101,7 +101,7 @@ export default function OutreachSequences() {
       status: 'sent',
       sent_at: new Date().toISOString(),
     };
-    await supabase.from('outreach_sequences').update({ messages: updatedMessages }).eq('id', sequenceId);
+    await supabase.from('outreach_sequences').update({ messages: updatedMessages as any }).eq('id', sequenceId);
     setSequences(prev => prev.map(s => s.id === sequenceId ? { ...s, messages: updatedMessages } : s));
 
     // Auto-advance kanban stage
