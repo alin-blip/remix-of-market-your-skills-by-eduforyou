@@ -91,7 +91,7 @@ Sections to include (output as styled HTML):
 
 Tone: Adapt to the company's culture. Use compelling, results-focused language. Make it visually appealing with colors, spacing, and modern design.`;
     } else {
-      systemPrompt = "You are a copywriter who writes cover letters as sales letters. They follow the HOOK → STORY → OFFER → CTA framework.";
+      systemPrompt = "You are a copywriter who writes cover letters as sales letters. They follow the HOOK → STORY → OFFER → CTA framework. Output in clean HTML format with inline styles.";
       userPrompt = `Write a Cover Letter as a Sales Letter for this application.
 
 Skills: ${skillsList}
@@ -99,8 +99,9 @@ Experience: ${experience || "Not provided"}
 ${companyContext}
 ${offerContext}
 ${additionalInstructions ? `Additional instructions: ${additionalInstructions}` : ""}
+${avatarUrl ? `Include the profile photo at the top: <img src="${avatarUrl}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" alt="Profile Photo">` : ""}
 
-Structure:
+Structure (output as styled HTML):
 1. HOOK - Start with a specific problem the company has
 2. STORY - How you've solved something similar (use real skills/experience)
 3. OFFER - What you bring to the table (concrete value)
