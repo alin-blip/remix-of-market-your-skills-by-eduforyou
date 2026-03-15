@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { experiences, studyField } = body;
+    const { experiences, studyField, cvText } = body;
     
     // Handle interests - could be array, string, or null
     let interestsText = '';
