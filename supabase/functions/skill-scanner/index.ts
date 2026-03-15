@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { experiences, studyField } = body;
+    const { experiences, studyField, cvText } = body;
     
     // Handle interests - could be array, string, or null
     let interestsText = '';
@@ -43,12 +43,14 @@ Pentru fiecare competență, oferă:
 
 Răspunde DOAR prin tool call, nu text liber.`;
 
+    const combinedExperiences = [experiences, cvText].filter(Boolean).join('\n\n');
+
     const userPrompt = `Analizează profilul acestui student:
 
 **Domeniul de studiu:** ${studyField || 'Nespecificat'}
 
 **Experiențe și proiecte:**
-${experiences || 'Nicio experiență specificată'}
+${combinedExperiences || 'Nicio experiență specificată'}
 
 **Interese și hobby-uri:**
 ${interestsText || 'Niciun interes specificat'}

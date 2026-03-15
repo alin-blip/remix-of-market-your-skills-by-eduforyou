@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/lib/i18n';
+import { CVUpload } from '@/components/shared/CVUpload';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -54,6 +55,7 @@ export default function SkillScanner() {
   
   const [step, setStep] = useState<'loading' | 'saved' | 'input' | 'scanning' | 'results'>('loading');
   const [experiences, setExperiences] = useState('');
+  const [cvText, setCvText] = useState('');
   const [scanProgress, setScanProgress] = useState(0);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -113,6 +115,7 @@ export default function SkillScanner() {
           },
           body: JSON.stringify({
             experiences,
+            cvText,
             interests: profile?.interests || [],
             studyField: profile?.study_field || '',
           }),
@@ -443,6 +446,9 @@ export default function SkillScanner() {
                   {t.skillScanner.experiencesHint}
                 </p>
               </Card>
+
+              {/* CV Upload */}
+              <CVUpload onTextExtracted={(text) => setCvText(text)} />
 
               <div className="flex justify-between">
                 {savedSkills.length > 0 && (

@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { Sparkles, Brain, Users, Zap, Code, Loader2, Check, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { CVUpload } from '@/components/shared/CVUpload';
 
 interface Skill {
   name: string;
@@ -41,6 +42,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [hasSavedSkills, setHasSavedSkills] = useState(false);
+  const [cvText, setCvText] = useState('');
 
   useEffect(() => {
     checkExistingSkills();
@@ -74,6 +76,7 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
       const response = await supabase.functions.invoke('skill-scanner', {
         body: {
           experiences: data.projects_experience,
+          cvText,
           studyField: data.study_field,
           interests: data.interests,
         },
@@ -351,6 +354,9 @@ export default function OnboardingStep6Skills({ data, onSkillsGenerated }: Props
           {t.onboardingStep6.scanButton}
         </Button>
       </div>
+
+      {/* Optional CV Upload */}
+      <CVUpload onTextExtracted={(text) => setCvText(text)} />
     </div>
   );
 }

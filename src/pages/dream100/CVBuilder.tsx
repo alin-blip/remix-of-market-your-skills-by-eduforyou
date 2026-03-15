@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Loader2, Copy, RefreshCw, Download } from 'lucide-react';
+import { CVUpload } from '@/components/shared/CVUpload';
+import { AvatarUpload } from '@/components/shared/AvatarUpload';
 
 export default function CVBuilder() {
   const { user } = useAuth();
@@ -24,11 +26,19 @@ export default function CVBuilder() {
   const [activeTab, setActiveTab] = useState('ats_cv');
   const [documents, setDocuments] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('dream100_targets').select('id, name, industry').order('name').then(({ data }) => {
-      setTargets((data as any[]) || []);
+    // Load targets and profile avatar
+    Promise.all([
+      supabase.from('dream100_targets').select('id, name, industry').order('name'),
+      supabase.from('profiles').select('avatar_url').eq('id', user.id).single(),
+    ]).then(([targetsRes, profileRes]) => {
+      setTargets((targetsRes.data as any[]) || []);
+      if (profileRes.data && (profileRes.data as any).avatar_url) {
+        setAvatarUrl((profileRes.data as any).avatar_url);
+      }
     });
   }, [user]);
 
@@ -42,6 +52,7 @@ export default function CVBuilder() {
           experience,
           targetRole,
           additionalInstructions,
+          avatarUrl: avatarUrl || null,
         },
       });
       if (error) throw error;
@@ -61,14 +72,21 @@ export default function CVBuilder() {
     toast({ title: locale === 'ro' ? 'Copiat!' : 'Copied!' });
   };
 
-  const downloadAsText = (content: string, filename: string) => {
-    const blob = new Blob([content], { type: 'text/plain' });
+  const downloadAsHtml = (content: string, filename: string) => {
+    const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${filename}</title></head><body>${content}</body></html>`;
+    const blob = new Blob([fullHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = filename;
+    a.download = filename.replace('.txt', '.html');
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleCvTextExtracted = (text: string) => {
+    if (text) {
+      setExperience(prev => prev ? `${prev}\n\n--- Extras din CV ---\n${text}` : text);
+    }
   };
 
   const docTypes = [
@@ -95,6 +113,12 @@ export default function CVBuilder() {
         {/* Configuration */}
         <Card>
           <CardContent className="p-4 md:p-6 space-y-4">
+            {/* Avatar Upload */}
+            <AvatarUpload
+              currentUrl={avatarUrl || null}
+              onUploaded={(url) => setAvatarUrl(url)}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>{locale === 'ro' ? 'Companie din Dream 100' : 'Company from Dream 100'}</Label>
@@ -119,6 +143,10 @@ export default function CVBuilder() {
               <Label>{locale === 'ro' ? 'Experiențe anterioare' : 'Previous experience'}</Label>
               <Textarea value={experience} onChange={e => setExperience(e.target.value)} rows={3} placeholder={locale === 'ro' ? 'Job-uri, voluntariat, proiecte, cursuri...' : 'Jobs, volunteering, projects, courses...'} />
             </div>
+            
+            {/* CV Upload */}
+            <CVUpload onTextExtracted={handleCvTextExtracted} />
+
             <div>
               <Label>{locale === 'ro' ? 'Instrucțiuni suplimentare (opțional)' : 'Additional instructions (optional)'}</Label>
               <Input value={additionalInstructions} onChange={e => setAdditionalInstructions(e.target.value)} placeholder={locale === 'ro' ? 'ex: Accent pe leadership, menționează proiectul X...' : 'e.g. Emphasize leadership, mention project X...'} />
@@ -155,13 +183,16 @@ export default function CVBuilder() {
                   {documents[dt.id] ? (
                     <div className="space-y-3">
                       <div className="bg-muted/50 rounded-lg p-4 max-h-[500px] overflow-y-auto">
-                        <pre className="whitespace-pre-wrap text-sm text-foreground font-sans">{documents[dt.id]}</pre>
+                        <div
+                          className="prose prose-sm dark:prose-invert max-w-none"
+                          dangerouslySetInnerHTML={{ __html: documents[dt.id] }}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => copyToClipboard(documents[dt.id])}>
                           <Copy className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Copiază' : 'Copy'}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadAsText(documents[dt.id], `${dt.id}.txt`)}>
+                        <Button variant="outline" size="sm" onClick={() => downloadAsHtml(documents[dt.id], `${dt.id}.html`)}>
                           <Download className="h-4 w-4 mr-1" />{locale === 'ro' ? 'Descarcă' : 'Download'}
                         </Button>
                       </div>
