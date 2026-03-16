@@ -269,8 +269,19 @@ export default function OutreachGenerator() {
         description: t.outreachGenerator.templatesSavedDescription
       });
 
-      triggerFeedback();
-      navigate('/dashboard');
+      // Check for feedback before navigating
+      const { data: existingFeedback } = await supabase
+        .from('step_feedback' as any)
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('step_key', 'outreach-generator')
+        .maybeSingle();
+
+      if (!existingFeedback) {
+        setShowFeedback(true);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Save error:', error);
       toast({
