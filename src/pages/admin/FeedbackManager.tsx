@@ -86,8 +86,8 @@ export default function FeedbackManager() {
     if (ratingFilter !== 'all' && f.rating !== Number(ratingFilter)) return false;
     if (search) {
       const q = search.toLowerCase();
-      const name = f.profiles?.full_name?.toLowerCase() || '';
-      const email = f.profiles?.email?.toLowerCase() || '';
+      const name = f.user_name?.toLowerCase() || '';
+      const email = f.user_email?.toLowerCase() || '';
       if (!name.includes(q) && !email.includes(q)) return false;
     }
     return true;
