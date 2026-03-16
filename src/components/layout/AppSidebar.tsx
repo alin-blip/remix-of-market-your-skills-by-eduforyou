@@ -153,7 +153,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/life-os"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath.startsWith('/life-os') && "bg-primary/10 text-primary font-medium"
+                    currentPath.startsWith('/life-os') && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
