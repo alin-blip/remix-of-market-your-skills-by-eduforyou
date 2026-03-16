@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradeModal } from "@/components/upgrade/UpgradeModal";
+import { OutputLanguageSelect } from "@/components/shared/OutputLanguageSelect";
 
 interface PackageData {
   name: string;

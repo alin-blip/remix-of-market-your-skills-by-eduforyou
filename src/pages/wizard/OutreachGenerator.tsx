@@ -177,7 +177,7 @@ export default function OutreachGenerator() {
           offer,
           ikigaiResult: ikigaiData,
           platform,
-          locale: profile?.locale || 'ro'
+          locale: outputLang
         }
       });
 

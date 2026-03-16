@@ -189,6 +189,9 @@ export default function CVBuilder() {
               <Label>{locale === 'ro' ? 'Instrucțiuni suplimentare (opțional)' : 'Additional instructions (optional)'}</Label>
               <Input value={additionalInstructions} onChange={e => setAdditionalInstructions(e.target.value)} placeholder={locale === 'ro' ? 'ex: Accent pe leadership, menționează proiectul X...' : 'e.g. Emphasize leadership, mention project X...'} />
             </div>
+            <div className="flex items-end">
+              <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
+            </div>
           </CardContent>
         </Card>
 

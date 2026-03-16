@@ -205,10 +205,13 @@ export default function OutreachSequences() {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={generate} disabled={generating} className="w-full md:w-auto">
-                  {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                  {locale === 'ro' ? 'Generează Secvență' : 'Generate Sequence'}
-                </Button>
+                <div className="flex items-end gap-4 flex-wrap">
+                  <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
+                  <Button onClick={generate} disabled={generating} className="w-full md:w-auto">
+                    {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                    {locale === 'ro' ? 'Generează Secvență' : 'Generate Sequence'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

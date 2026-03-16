@@ -254,7 +254,7 @@ export default function ProfileBuilder() {
           offer,
           ikigaiResult: ikigaiData,
           platform,
-          locale: profile?.locale || 'ro',
+          locale: outputLang,
           userName: profile?.full_name || ''
         }
       });

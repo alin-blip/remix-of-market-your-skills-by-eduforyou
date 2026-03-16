@@ -400,7 +400,8 @@ export default function OfferBuilder() {
                 </div>
               </Card>
 
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
                 <Button 
                   onClick={handleGenerate}
                   className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
