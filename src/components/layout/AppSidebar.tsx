@@ -339,7 +339,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         {/* Business Tools Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+            <SidebarGroupLabel className="text-xs text-primary/60 uppercase tracking-wider px-3 mb-1 font-semibold">
               {t.sidebar?.businessTools || 'Business'}
             </SidebarGroupLabel>
           )}
