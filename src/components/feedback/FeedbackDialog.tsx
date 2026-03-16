@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Star, ExternalLink, MessageSquare } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Star, MessageSquare } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 
+declare global {
+  interface Window {
+    Trustpilot?: {
+      loadFromElement: (element: HTMLElement, reload?: boolean) => void;
+    };
+  }
+}
+
 interface FeedbackDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,7 +33,6 @@ export function FeedbackDialog({
   open,
   onOpenChange,
   stepKey,
-  trustpilotDomain = 'skillmarket.ro',
 }: FeedbackDialogProps) {
   const { user } = useAuth();
   const { t } = useI18n();
@@ -34,6 +41,13 @@ export function FeedbackDialog({
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const trustpilotRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitted && rating >= 4 && trustpilotRef.current) {
+      window.Trustpilot?.loadFromElement(trustpilotRef.current, true);
+    }
+  }, [submitted, rating]);
 
   const handleSubmit = async () => {
     if (!user || rating === 0) return;
@@ -59,7 +73,6 @@ export function FeedbackDialog({
 
   const handleClose = () => {
     onOpenChange(false);
-    // Reset after close animation
     setTimeout(() => {
       setRating(0);
       setHoveredStar(0);
@@ -67,8 +80,6 @@ export function FeedbackDialog({
       setSubmitted(false);
     }, 300);
   };
-
-  const trustpilotUrl = `https://www.trustpilot.com/evaluate/${trustpilotDomain}`;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -173,13 +184,20 @@ export function FeedbackDialog({
                 <p className="text-sm text-muted-foreground">
                   {t.feedback.trustpilotCta}
                 </p>
-                <Button
-                  onClick={() => window.open(trustpilotUrl, '_blank')}
-                  className="gap-2 bg-[#00b67a] hover:bg-[#009567] text-white"
+                <div
+                  ref={trustpilotRef}
+                  className="trustpilot-widget"
+                  data-locale="en-US"
+                  data-template-id="56278e9abfbbba0bdcd568bc"
+                  data-businessunit-id="699bfe8fbda6d8a0b0a5321b"
+                  data-token="83ff2916-ac91-476e-96bb-a00662874438"
+                  data-style-height="52px"
+                  data-style-width="100%"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  {t.feedback.leaveReviewOnTrustpilot}
-                </Button>
+                  <a href="https://www.trustpilot.com/review/skillmarket.ro" target="_blank" rel="noopener noreferrer">
+                    Trustpilot
+                  </a>
+                </div>
               </motion.div>
             )}
 
