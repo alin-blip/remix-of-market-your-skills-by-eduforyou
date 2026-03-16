@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FileText, Loader2, Copy, RefreshCw, Download, ChevronDown } from 'lucide-react';
 import { CVUpload } from '@/components/shared/CVUpload';
 import { AvatarUpload } from '@/components/shared/AvatarUpload';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 export default function CVBuilder() {
   const { user } = useAuth();
