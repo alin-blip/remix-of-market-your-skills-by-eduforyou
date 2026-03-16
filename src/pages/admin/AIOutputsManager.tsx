@@ -54,12 +54,26 @@ export default function AIOutputsManager() {
   const fetchOutputs = async () => {
     const { data, error } = await supabase
       .from('ai_outputs')
-      .select('*, profiles!ai_outputs_user_id_fkey(full_name, email)')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(500);
 
-    if (!error && data) {
-      setOutputs(data as unknown as AIOutputRow[]);
+    if (!error && data && data.length > 0) {
+      const userIds = [...new Set(data.map((o) => o.user_id).filter(Boolean))] as string[];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+
+      setOutputs(
+        data.map((o) => ({
+          ...o,
+          user_name: o.user_id ? profileMap.get(o.user_id)?.full_name || undefined : undefined,
+          user_email: o.user_id ? profileMap.get(o.user_id)?.email || undefined : undefined,
+        }))
+      );
     }
     setLoading(false);
   };
