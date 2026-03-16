@@ -198,27 +198,6 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={currentPath === '/dream100'}
-                tooltip={t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/dream100"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/dream100' && "bg-primary/10 text-primary font-medium"
-                  )}
-                  activeClassName=""
-                >
-                  <Crosshair className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
                 isActive={currentPath === '/dream100-scanner'}
                 tooltip={t.sidebar?.dream100Scanner || 'Scanner'}
                 className="h-10 rounded-lg"
@@ -233,6 +212,27 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 >
                   <Search className="h-5 w-5" />
                   {!collapsed && <span>{t.sidebar?.dream100Scanner || 'Scanner'}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === '/dream100'}
+                tooltip={t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}
+                className="h-10 rounded-lg"
+              >
+                <NavLink
+                  to="/dream100"
+                  className={cn(
+                    "flex items-center gap-3 px-3 transition-all",
+                    currentPath === '/dream100' && "bg-primary/10 text-primary font-medium"
+                  )}
+                  activeClassName=""
+                >
+                  <Crosshair className="h-5 w-5" />
+                  {!collapsed && <span>{t.sidebar?.dream100Tracker || 'Dream 100 Tracker'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
