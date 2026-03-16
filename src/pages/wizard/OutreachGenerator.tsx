@@ -269,6 +269,7 @@ export default function OutreachGenerator() {
         description: t.outreachGenerator.templatesSavedDescription
       });
 
+      triggerFeedback();
       navigate('/dashboard');
     } catch (error) {
       console.error('Save error:', error);
