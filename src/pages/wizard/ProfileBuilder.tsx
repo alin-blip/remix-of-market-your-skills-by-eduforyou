@@ -301,6 +301,7 @@ export default function ProfileBuilder() {
         setGeneratingPlatform(null);
         setSelectedPlatform(platform);
         setStep('results');
+        triggerFeedback();
       }, 500);
 
     } catch (error: any) {
