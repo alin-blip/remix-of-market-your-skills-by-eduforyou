@@ -26,6 +26,8 @@ import {
   Zap,
   Globe,
 } from "lucide-react";
+import logoImg from '@/assets/logo.png';
+import laptopMockupImg from '@/assets/laptop-mockup.png';
 import "./skillmarket.css";
 
 /* ─── Language Selector ─── */
@@ -64,7 +66,6 @@ function LangSelector() {
 }
 
 /* ─── Logo ─── */
-import logoImg from '@/assets/logo.png';
 function Logo() {
   return (
     <div className="flex items-center gap-2">
@@ -149,59 +150,71 @@ function Hero() {
   const connector = lang === "en" ? ", or " : lang === "ro" ? " sau " : " або ";
 
   return (
-    <section className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center">
+    <section className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center overflow-hidden">
       <div className="sm-container">
-        <div className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-6 sm-fade-up">
-            <span className="section-badge">{t.hero.badge}</span>
-            <span className="text-sm text-muted-sm">{t.hero.badgeSub}</span>
-          </div>
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)]">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-3 mb-6 sm-fade-up">
+              <span className="section-badge">{t.hero.badge}</span>
+              <span className="text-sm text-muted-sm">{t.hero.badgeSub}</span>
+            </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-6 sm-fade-up" style={{ animationDelay: "0.1s" }}>
-            {t.hero.headline1}{" "}
-            <span className="text-gold italic">{t.hero.headlineGold}</span>{" "}
-            {t.hero.headline2}
-          </h1>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-6 sm-fade-up" style={{ animationDelay: "0.1s" }}>
+              {t.hero.headline1}{" "}
+              <span className="text-gold italic">{t.hero.headlineGold}</span>{" "}
+              {t.hero.headline2}
+            </h1>
 
-          <p className="text-lg md:text-xl text-light-sm mb-8 max-w-2xl leading-relaxed sm-fade-up" style={{ animationDelay: "0.2s" }}>
-            {t.hero.sub}{" "}
-            <strong className="text-white">{t.hero.subBold1}</strong>,{" "}
-            <strong className="text-white">{t.hero.subBold2}</strong>
-            {connector}
-            <strong className="text-white">{t.hero.subBold3}</strong>{" "}
-            {t.hero.subEnd}
-          </p>
+            <p className="text-lg md:text-xl text-light-sm mb-8 max-w-2xl leading-relaxed sm-fade-up" style={{ animationDelay: "0.2s" }}>
+              {t.hero.sub}{" "}
+              <strong className="text-white">{t.hero.subBold1}</strong>,{" "}
+              <strong className="text-white">{t.hero.subBold2}</strong>
+              {connector}
+              <strong className="text-white">{t.hero.subBold3}</strong>{" "}
+              {t.hero.subEnd}
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
-            <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
-              {t.hero.cta1} <ArrowRight className="h-4 w-4" />
-            </a>
-            <a href="#eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
-              {t.hero.cta2}
-            </a>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
+              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
+                {t.hero.cta1} <ArrowRight className="h-4 w-4" />
+              </a>
+              <a href="#eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
+                {t.hero.cta2}
+              </a>
+            </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-sm text-muted-sm sm-fade-up" style={{ animationDelay: "0.4s" }}>
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500"].map((c, i) => (
-                  <div key={i} className={`w-7 h-7 rounded-full ${c} border-2 border-[#0D1B2A] flex items-center justify-center text-xs font-bold text-white`}>
-                    {["A", "M", "R", "S"][i]}
-                  </div>
-                ))}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-muted-sm sm-fade-up" style={{ animationDelay: "0.4s" }}>
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
+                  {["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500"].map((c, i) => (
+                    <div key={i} className={`w-7 h-7 rounded-full ${c} border-2 border-[#0D1B2A] flex items-center justify-center text-xs font-bold text-white`}>
+                      {["A", "M", "R", "S"][i]}
+                    </div>
+                  ))}
+                </div>
+                <span>{t.hero.social1}</span>
               </div>
-              <span>{t.hero.social1}</span>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-4 w-4 fill-[#D4A843] text-[#D4A843]" />
+                ))}
+                <span className="ml-1">{t.hero.social2}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Shield className="h-4 w-4 text-green-400" />
+                <span>{t.hero.social3}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="h-4 w-4 fill-[#D4A843] text-[#D4A843]" />
-              ))}
-              <span className="ml-1">{t.hero.social2}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Shield className="h-4 w-4 text-green-400" />
-              <span>{t.hero.social3}</span>
-            </div>
+          </div>
+
+          <div className="relative hidden lg:flex justify-center sm-fade-up" style={{ animationDelay: "0.25s" }}>
+            <div className="pointer-events-none absolute inset-x-8 top-1/2 h-56 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(212,168,67,0.28)_0%,_rgba(212,168,67,0.08)_38%,_transparent_72%)] blur-3xl" />
+            <img
+              src={laptopMockupImg}
+              alt="Market Your Skill platform preview"
+              className="relative z-10 w-full max-w-[620px] object-contain drop-shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
+              loading="eager"
+            />
           </div>
         </div>
       </div>
