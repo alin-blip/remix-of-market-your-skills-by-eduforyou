@@ -217,6 +217,7 @@ export default function IkigaiBuilder() {
 
       toast.success(t.ikigaiBuilder.ikigaiSaved);
       setHasSavedResult(true);
+      triggerFeedback();
     } catch (error) {
       console.error('Save error:', error);
       toast.error(t.ikigaiBuilder.saveError);
