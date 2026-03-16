@@ -84,8 +84,8 @@ export default function AIOutputsManager() {
     if (toolFilter !== 'all' && o.tool !== toolFilter) return false;
     if (search) {
       const q = search.toLowerCase();
-      const name = o.profiles?.full_name?.toLowerCase() || '';
-      const email = o.profiles?.email?.toLowerCase() || '';
+      const name = o.user_name?.toLowerCase() || '';
+      const email = o.user_email?.toLowerCase() || '';
       if (!name.includes(q) && !email.includes(q)) return false;
     }
     return true;
