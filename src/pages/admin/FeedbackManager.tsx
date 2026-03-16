@@ -57,11 +57,26 @@ export default function FeedbackManager() {
   const fetchFeedback = async () => {
     const { data, error } = await supabase
       .from('step_feedback')
-      .select('*, profiles!step_feedback_user_id_fkey(full_name, email)')
+      .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      setFeedback(data as unknown as FeedbackRow[]);
+    if (!error && data && data.length > 0) {
+      // Fetch profiles for all user_ids
+      const userIds = [...new Set(data.map((f) => f.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+
+      setFeedback(
+        data.map((f) => ({
+          ...f,
+          user_name: profileMap.get(f.user_id)?.full_name || undefined,
+          user_email: profileMap.get(f.user_id)?.email || undefined,
+        }))
+      );
     }
     setLoading(false);
   };
