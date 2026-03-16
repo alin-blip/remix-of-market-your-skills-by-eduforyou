@@ -20,7 +20,8 @@ interface AIOutputRow {
   input_json: unknown;
   output_json: unknown;
   user_id: string | null;
-  profiles: { full_name: string | null; email: string | null } | null;
+  user_name?: string;
+  user_email?: string;
 }
 
 const TOOL_LABELS: Record<string, string> = {
