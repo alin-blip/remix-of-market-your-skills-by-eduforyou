@@ -611,8 +611,9 @@ function SkillMarketPage() {
 
 /* ─── Wrapper with lang from route ─── */
 export default function SkillMarketLanding() {
-  const { lang } = useParams<{ lang: string }>();
-  const validLang = (["ro", "en", "ua"].includes(lang || "") ? lang : "ro") as Lang;
+  const location = useLocation();
+  const pathLang = location.pathname.replace("/", "") as Lang;
+  const validLang = (["ro", "en", "ua"].includes(pathLang) ? pathLang : "ro") as Lang;
 
   return (
     <SkillMarketLangProvider lang={validLang}>
