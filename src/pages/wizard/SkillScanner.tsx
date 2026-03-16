@@ -638,3 +638,8 @@ export default function SkillScanner() {
     </MainLayout>
   );
 }
+
+// Append FeedbackDialog wrapper
+function SkillScannerWithFeedback() {
+  return null; // unused, feedback is inline
+}
