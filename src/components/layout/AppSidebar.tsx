@@ -2,7 +2,6 @@ import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import {
   LayoutDashboard,
-  Sparkles,
   Compass,
   Globe,
   Sun,
