@@ -224,6 +224,12 @@ export default function FreedomPlanExport() {
   const allCompleted = completedCount === moduleStatuses.length;
   const progressPercentage = (completedCount / moduleStatuses.length) * 100;
 
+  useEffect(() => {
+    if (allCompleted && !isLoading) {
+      triggerFeedback();
+    }
+  }, [allCompleted, isLoading]);
+
   if (isLoading) {
     return (
       <MainLayout>
