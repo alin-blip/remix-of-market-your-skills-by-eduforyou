@@ -359,7 +359,7 @@ export default function Dashboard() {
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {/* Freedom Score */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.freedomScore}</span>
               <TrendingUp className="w-5 h-5 text-primary" />
