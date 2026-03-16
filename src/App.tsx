@@ -316,6 +316,22 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
+                <Route 
+                  path="/admin/feedback" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <FeedbackManager />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/ai-outputs" 
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AIOutputsManager />
+                    </ProtectedRoute>
+                  } 
+                />
                 {/* Dream 100 Routes */}
                 <Route path="/dream100" element={<ProtectedRoute><Dream100Tracker /></ProtectedRoute>} />
                 <Route path="/dream100-scanner" element={<ProtectedRoute><Dream100Scanner /></ProtectedRoute>} />

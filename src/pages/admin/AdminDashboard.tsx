@@ -320,6 +320,20 @@ export default function AdminDashboard() {
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/feedback">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Feedback Utilizatori
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/ai-outputs">
+                  <Cpu className="h-4 w-4 mr-2" />
+                  Generări AI
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
