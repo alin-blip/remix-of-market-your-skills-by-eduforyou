@@ -76,7 +76,7 @@ ${avatarUrl ? `IMPORTANT: Include the profile photo at the top of the CV using t
 
 Format: Output as clean HTML. Include sections: Contact Info (use placeholders), Professional Summary, Key Skills, Professional Experience, Education. Use keywords from the target role. Keep it clean and scannable. Use semantic HTML with inline styles.`;
     } else if (documentType === "sales_cv") {
-      systemPrompt = "You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles. IMPORTANT STYLING RULES: Use a professional color palette - dark text (#1a1a1a) for body, navy (#1e3a5f) or dark charcoal for headings. Do NOT use purple or violet colors. Use reasonable font sizes (14-16px body, 20-24px headings). Do NOT include any buttons or interactive elements - this is a document, not a website. Keep it clean and professional.";
+      systemPrompt = `You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}. IMPORTANT STYLING RULES: Use a professional color palette - dark text (#1a1a1a) for body, navy (#1e3a5f) or dark charcoal for headings. Do NOT use purple or violet colors. Use reasonable font sizes (14-16px body, 20-24px headings). Do NOT include any buttons or interactive elements - this is a document, not a website. Keep it clean and professional.`;
       userPrompt = `Create a CV Sales Page for approaching this company. This is NOT a traditional CV - it's a personal sales page document.
 
 Skills: ${skillsList}
