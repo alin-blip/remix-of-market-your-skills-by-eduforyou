@@ -65,7 +65,10 @@ const App = () => (
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={<Navigate to="/ro" replace />} />
+                <Route path="/ro" element={<SkillMarketLanding />} />
+                <Route path="/en" element={<SkillMarketLanding />} />
+                <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
                 <Route 
