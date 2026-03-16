@@ -18,8 +18,10 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
     const currency = locale === 'ro' ? 'RON' : 'EUR';
-    const priceMultiplier = locale === 'ro' ? 1 : 0.2; // Adjust for EUR
+    const priceMultiplier = locale === 'ro' ? 1 : 0.2;
 
     const systemPrompt = `Ești un expert în pricing și crearea ofertelor de servicii pentru studenți care vor să-și monetizeze abilitățile.
 
