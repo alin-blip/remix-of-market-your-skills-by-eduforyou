@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -75,6 +77,7 @@ export default function OfferBuilder() {
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'standard' | 'premium'>('standard');
   const [hasSavedResult, setHasSavedResult] = useState(false);
   const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('offer-builder');
 
   useEffect(() => {
     loadData();
@@ -241,6 +244,7 @@ export default function OfferBuilder() {
 
       toast.success(t.offerBuilder.offerSaved);
       setHasSavedResult(true);
+      triggerFeedback();
     } catch (error) {
       console.error('Save error:', error);
       toast.error(t.offerBuilder.saveError);
@@ -602,6 +606,7 @@ export default function OfferBuilder() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="offer-builder" />
       </div>
     </MainLayout>
   );

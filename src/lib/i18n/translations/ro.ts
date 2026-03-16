@@ -1353,4 +1353,25 @@ export const ro = {
     avatarSaved: 'Foto de profil salvată!',
     onlyImages: 'Doar fișiere imagine sunt acceptate',
   },
+
+  feedback: {
+    title: 'Cum a fost acest pas?',
+    thankYouTitle: 'Mulțumim!',
+    subtitle: 'Feedback-ul tău ne ajută să îmbunătățim platforma.',
+    positiveThankYou: 'Ne bucurăm că ți-a plăcut! Ai vrea să ne recomanzi?',
+    thankYouDescription: 'Apreciem feedback-ul tău sincer și vom lucra să îmbunătățim.',
+    rateExperience: 'Evaluează experiența ta',
+    ratingLabels: {
+      low: 'Ar putea fi mai bine',
+      medium: 'A fost ok',
+      good: 'Foarte bine!',
+      excellent: 'Excelent! 🎉',
+    },
+    commentPlaceholder: 'Spune-ne mai multe (opțional)...',
+    skip: 'Treci peste',
+    submit: 'Trimite feedback',
+    close: 'Închide',
+    trustpilotCta: 'Ajută alți studenți să ne descopere — lasă un review rapid pe Trustpilot!',
+    leaveReviewOnTrustpilot: 'Review pe Trustpilot ⭐',
+  },
 };

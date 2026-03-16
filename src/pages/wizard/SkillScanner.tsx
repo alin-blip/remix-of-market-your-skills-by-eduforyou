@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,6 +62,7 @@ export default function SkillScanner() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [savedSkills, setSavedSkills] = useState<SavedSkill[]>([]);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('skill-scanner');
 
   useEffect(() => {
     loadSavedSkills();
@@ -182,6 +185,7 @@ export default function SkillScanner() {
 
       toast.success(t.skillScanner.skillsSaved);
       await loadSavedSkills();
+      triggerFeedback();
     } catch (error: any) {
       console.error('Save error:', error);
       const errorMessage = error?.message || error?.details || t.skillScanner.saveError;
@@ -630,6 +634,7 @@ export default function SkillScanner() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="skill-scanner" />
       </div>
     </MainLayout>
   );

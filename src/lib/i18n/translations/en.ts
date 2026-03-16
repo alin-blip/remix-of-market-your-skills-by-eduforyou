@@ -1353,4 +1353,25 @@ export const en = {
     avatarSaved: 'Profile photo saved!',
     onlyImages: 'Only image files are accepted',
   },
+
+  feedback: {
+    title: 'How was this step?',
+    thankYouTitle: 'Thank you!',
+    subtitle: 'Your feedback helps us improve the platform.',
+    positiveThankYou: 'We\'re glad you enjoyed it! Would you share your experience?',
+    thankYouDescription: 'We appreciate your honest feedback and will work to improve.',
+    rateExperience: 'Rate your experience',
+    ratingLabels: {
+      low: 'Could be better',
+      medium: 'It was okay',
+      good: 'Very good!',
+      excellent: 'Excellent! 🎉',
+    },
+    commentPlaceholder: 'Tell us more (optional)...',
+    skip: 'Skip',
+    submit: 'Send feedback',
+    close: 'Close',
+    trustpilotCta: 'Help other students discover us — leave a quick review on Trustpilot!',
+    leaveReviewOnTrustpilot: 'Review on Trustpilot ⭐',
+  },
 };

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,6 +68,7 @@ export default function IkigaiBuilder() {
   const [result, setResult] = useState<IkigaiResult | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<number>(0);
   const [hasSavedResult, setHasSavedResult] = useState(false);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('ikigai-builder');
 
   useEffect(() => {
     loadData();
@@ -214,6 +217,7 @@ export default function IkigaiBuilder() {
 
       toast.success(t.ikigaiBuilder.ikigaiSaved);
       setHasSavedResult(true);
+      triggerFeedback();
     } catch (error) {
       console.error('Save error:', error);
       toast.error(t.ikigaiBuilder.saveError);
@@ -543,6 +547,7 @@ export default function IkigaiBuilder() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="ikigai-builder" />
       </div>
     </MainLayout>
   );

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { motion } from 'framer-motion';
 import {
   FileDown,
@@ -44,6 +46,7 @@ export default function FreedomPlanExport() {
   const { t } = useI18n();
 
   const [isLoading, setIsLoading] = useState(true);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('freedom-plan-export');
   const [planData, setPlanData] = useState<FreedomPlanData | null>(null);
   const [moduleStatuses, setModuleStatuses] = useState<ModuleStatus[]>([
     { name: t.wizard.skillScanner, icon: Sparkles, completed: false, route: '/wizard/skill-scanner', data: null },
@@ -221,6 +224,12 @@ export default function FreedomPlanExport() {
   const allCompleted = completedCount === moduleStatuses.length;
   const progressPercentage = (completedCount / moduleStatuses.length) * 100;
 
+  useEffect(() => {
+    if (allCompleted && !isLoading) {
+      triggerFeedback();
+    }
+  }, [allCompleted, isLoading]);
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -347,6 +356,7 @@ export default function FreedomPlanExport() {
             {t.export.backToDashboard}
           </Button>
         </div>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="freedom-plan-export" />
       </div>
     </MainLayout>
   );

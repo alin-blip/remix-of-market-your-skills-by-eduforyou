@@ -1772,6 +1772,33 @@ export type Database = {
         }
         Relationships: []
       }
+      step_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          step_key: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          step_key: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          step_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_applications: {
         Row: {
           application_status: string

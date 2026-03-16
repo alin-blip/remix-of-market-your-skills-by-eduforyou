@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -78,6 +80,7 @@ export default function OutreachGenerator() {
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('outreach-generator');
 
   // Check feature access on mount - Outreach requires Pro plan
   useEffect(() => {
@@ -266,7 +269,19 @@ export default function OutreachGenerator() {
         description: t.outreachGenerator.templatesSavedDescription
       });
 
-      navigate('/dashboard');
+      // Check for feedback before navigating
+      const { data: existingFeedback } = await supabase
+        .from('step_feedback' as any)
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('step_key', 'outreach-generator')
+        .maybeSingle();
+
+      if (!existingFeedback) {
+        setShowFeedback(true);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Save error:', error);
       toast({
@@ -643,6 +658,7 @@ export default function OutreachGenerator() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={(open) => { setShowFeedback(open); if (!open) navigate('/dashboard'); }} stepKey="outreach-generator" />
       </div>
     </MainLayout>
   );

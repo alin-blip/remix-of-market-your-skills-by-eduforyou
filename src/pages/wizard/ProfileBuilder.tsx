@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+import { useFeedback } from '@/hooks/useFeedback';
 import { 
   Facebook, 
   Instagram, 
@@ -79,6 +81,7 @@ export default function ProfileBuilder() {
   });
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [generatingPlatform, setGeneratingPlatform] = useState<Platform | null>(null);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('profile-builder');
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -298,6 +301,7 @@ export default function ProfileBuilder() {
         setGeneratingPlatform(null);
         setSelectedPlatform(platform);
         setStep('results');
+        triggerFeedback();
       }, 500);
 
     } catch (error: any) {
@@ -707,6 +711,7 @@ export default function ProfileBuilder() {
           </div>
         </div>
       </div>
+      <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="profile-builder" />
     </MainLayout>
   );
 }
