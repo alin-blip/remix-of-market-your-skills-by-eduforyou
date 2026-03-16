@@ -17,7 +17,8 @@ interface FeedbackRow {
   comment: string | null;
   created_at: string;
   user_id: string;
-  profiles: { full_name: string | null; email: string | null } | null;
+  user_name?: string;
+  user_email?: string;
 }
 
 const STEP_LABELS: Record<string, string> = {
