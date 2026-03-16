@@ -28,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useFeatureGating } from '@/hooks/useFeatureGating';
 import { UpgradeModal } from '@/components/upgrade/UpgradeModal';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 type Platform = 'facebook' | 'instagram' | 'linkedin' | 'tiktok';
 
