@@ -77,6 +77,7 @@ export default function OfferBuilder() {
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'standard' | 'premium'>('standard');
   const [hasSavedResult, setHasSavedResult] = useState(false);
   const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('offer-builder');
 
   useEffect(() => {
     loadData();
