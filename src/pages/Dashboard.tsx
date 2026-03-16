@@ -395,7 +395,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Domain Card */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.domain}</span>
               <Sparkles className="w-5 h-5 text-primary" />
