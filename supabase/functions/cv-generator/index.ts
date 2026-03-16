@@ -28,7 +28,10 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { targetId, documentType, experience, targetRole, additionalInstructions, avatarUrl } = await req.json();
+    const { targetId, documentType, experience, targetRole, additionalInstructions, avatarUrl, locale } = await req.json();
+
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
 
     // Fetch existing data
     const [skillsRes, offersRes, targetRes] = await Promise.all([
