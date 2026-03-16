@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FileText, Loader2, Copy, RefreshCw, Download, ChevronDown } from 'lucide-react';
 import { CVUpload } from '@/components/shared/CVUpload';
 import { AvatarUpload } from '@/components/shared/AvatarUpload';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 export default function CVBuilder() {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ export default function CVBuilder() {
   const [documents, setDocuments] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [outputLang, setOutputLang] = useState(locale === 'en' ? 'en' : 'ro');
 
   useEffect(() => {
     if (!user) return;
@@ -53,6 +55,7 @@ export default function CVBuilder() {
           targetRole,
           additionalInstructions,
           avatarUrl: avatarUrl || null,
+          locale: outputLang,
         },
       });
       if (error) throw error;
@@ -185,6 +188,9 @@ export default function CVBuilder() {
             <div>
               <Label>{locale === 'ro' ? 'Instrucțiuni suplimentare (opțional)' : 'Additional instructions (optional)'}</Label>
               <Input value={additionalInstructions} onChange={e => setAdditionalInstructions(e.target.value)} placeholder={locale === 'ro' ? 'ex: Accent pe leadership, menționează proiectul X...' : 'e.g. Emphasize leadership, mention project X...'} />
+            </div>
+            <div className="flex items-end">
+              <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
             </div>
           </CardContent>
         </Card>

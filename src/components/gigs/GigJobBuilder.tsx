@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradeModal } from "@/components/upgrade/UpgradeModal";
+import { OutputLanguageSelect } from "@/components/shared/OutputLanguageSelect";
 
 interface PackageData {
   name: string;
@@ -65,6 +66,7 @@ export function GigJobBuilder() {
   } = useSwipeHireIntegration();
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [outputLang, setOutputLang] = useState('ro');
 
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -496,6 +498,7 @@ export function GigJobBuilder() {
                   <p className="text-muted-foreground text-sm">
                     {t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}
                   </p>
+                  <OutputLanguageSelect value={outputLang} onChange={setOutputLang} className="mt-2" />
                 </div>
               </div>
               

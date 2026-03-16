@@ -18,8 +18,10 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
     const currency = locale === 'ro' ? 'RON' : 'EUR';
-    const priceMultiplier = locale === 'ro' ? 1 : 0.2; // Adjust for EUR
+    const priceMultiplier = locale === 'ro' ? 1 : 0.2;
 
     const systemPrompt = `Ești un expert în pricing și crearea ofertelor de servicii pentru studenți care vor să-și monetizeze abilitățile.
 
@@ -30,10 +32,11 @@ Regulile de pricing:
 - Standard: Valoare excelentă pentru preț, livrare medie (5-7 zile)  
 - Premium: Serviciu complet cu suport extins, livrare premium (7-14 zile)
 
-Prețurile trebuie să fie în ${currency} și adaptate pentru piața ${locale === 'ro' ? 'română' : 'europeană'}.
+Prețurile trebuie să fie în ${currency} și adaptate pentru piața ${locale === 'ro' ? 'română' : locale === 'ua' ? 'ucraineană' : 'europeană'}.
 Pentru studenți, prețurile starter încep de la ${locale === 'ro' ? '150-300 RON' : '30-60 EUR'}.
 
 Fii specific cu livrabilele și include metrici concrete.
+IMPORTANT: Write ALL text content in ${outputLanguage}.
 Răspunde DOAR prin tool call, nu text liber.`;
 
     const skillsList = Array.isArray(skills) ? skills.map((s: any) => `${s.skill} (${s.category}, ${s.confidence}% încredere)`).join(', ') : 'Nicio competență';

@@ -28,7 +28,10 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { targetId, pathType, platform, regenerateIndex } = await req.json();
+    const { targetId, pathType, platform, regenerateIndex, locale } = await req.json();
+
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
 
     // Fetch target data
     let target = null;
@@ -91,7 +94,7 @@ MESSAGE 3 — CTA (Day 9):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are an outreach specialist for students and young professionals. Write authentic, non-salesy messages." },
+          { role: "system", content: `You are an outreach specialist for students and young professionals. Write authentic, non-salesy messages. IMPORTANT: Write ALL messages in ${outputLanguage}.` },
           { role: "user", content: prompt },
         ],
         tools: [{

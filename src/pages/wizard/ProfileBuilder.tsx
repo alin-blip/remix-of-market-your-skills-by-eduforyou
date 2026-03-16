@@ -28,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useFeatureGating } from '@/hooks/useFeatureGating';
 import { UpgradeModal } from '@/components/upgrade/UpgradeModal';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 type Platform = 'facebook' | 'instagram' | 'linkedin' | 'tiktok';
 
@@ -81,6 +82,7 @@ export default function ProfileBuilder() {
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [outputLang, setOutputLang] = useState('ro');
 
   // Check feature access on mount
   useEffect(() => {
@@ -252,7 +254,7 @@ export default function ProfileBuilder() {
           offer,
           ikigaiResult: ikigaiData,
           platform,
-          locale: profile?.locale || 'ro',
+          locale: outputLang,
           userName: profile?.full_name || ''
         }
       });
@@ -500,6 +502,7 @@ export default function ProfileBuilder() {
           <p className="text-muted-foreground">
             {t.profileBuilder.subtitle}
           </p>
+          <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
         </div>
 
         {/* Progress */}

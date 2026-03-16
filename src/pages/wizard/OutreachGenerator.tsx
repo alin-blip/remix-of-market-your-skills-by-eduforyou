@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useFeatureGating } from '@/hooks/useFeatureGating';
 import { UpgradeModal } from '@/components/upgrade/UpgradeModal';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 import { 
   Linkedin, 
   Mail, 
@@ -76,6 +77,7 @@ export default function OutreachGenerator() {
     dm: null
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
 
   // Check feature access on mount - Outreach requires Pro plan
   useEffect(() => {
@@ -175,7 +177,7 @@ export default function OutreachGenerator() {
           offer,
           ikigaiResult: ikigaiData,
           platform,
-          locale: profile?.locale || 'ro'
+          locale: outputLang
         }
       });
 
@@ -337,6 +339,7 @@ export default function OutreachGenerator() {
                 <p className="text-muted-foreground max-w-xl mx-auto">
                   {t.outreachGenerator.subtitle}
                 </p>
+                <OutputLanguageSelect value={outputLang} onChange={setOutputLang} className="flex flex-col items-center" />
               </div>
 
               {/* Offer Preview */}

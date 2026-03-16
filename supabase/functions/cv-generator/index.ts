@@ -28,7 +28,10 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { targetId, documentType, experience, targetRole, additionalInstructions, avatarUrl } = await req.json();
+    const { targetId, documentType, experience, targetRole, additionalInstructions, avatarUrl, locale } = await req.json();
+
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
 
     // Fetch existing data
     const [skillsRes, offersRes, targetRes] = await Promise.all([
@@ -62,7 +65,7 @@ Premium Package: ${JSON.stringify(offer.premium_package || {})}` : "";
     let userPrompt = "";
 
     if (documentType === "ats_cv") {
-      systemPrompt = "You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems. Output in clean HTML format with inline styles.";
+      systemPrompt = `You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems. Output in clean HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}.`;
       userPrompt = `Create an ATS-friendly CV optimized for this role: ${targetRole || "professional role"}.
 
 Skills: ${skillsList}
@@ -73,7 +76,7 @@ ${avatarUrl ? `IMPORTANT: Include the profile photo at the top of the CV using t
 
 Format: Output as clean HTML. Include sections: Contact Info (use placeholders), Professional Summary, Key Skills, Professional Experience, Education. Use keywords from the target role. Keep it clean and scannable. Use semantic HTML with inline styles.`;
     } else if (documentType === "sales_cv") {
-      systemPrompt = "You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles. IMPORTANT STYLING RULES: Use a professional color palette - dark text (#1a1a1a) for body, navy (#1e3a5f) or dark charcoal for headings. Do NOT use purple or violet colors. Use reasonable font sizes (14-16px body, 20-24px headings). Do NOT include any buttons or interactive elements - this is a document, not a website. Keep it clean and professional.";
+      systemPrompt = `You are a personal branding expert who creates CV Sales Pages - non-traditional CVs that read like sales pages and focus on results and value. Output in rich HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}. IMPORTANT STYLING RULES: Use a professional color palette - dark text (#1a1a1a) for body, navy (#1e3a5f) or dark charcoal for headings. Do NOT use purple or violet colors. Use reasonable font sizes (14-16px body, 20-24px headings). Do NOT include any buttons or interactive elements - this is a document, not a website. Keep it clean and professional.`;
       userPrompt = `Create a CV Sales Page for approaching this company. This is NOT a traditional CV - it's a personal sales page document.
 
 Skills: ${skillsList}
@@ -92,7 +95,7 @@ Sections to include (output as styled HTML):
 CRITICAL: Use professional styling only. Body text: 14-16px, dark color (#1a1a1a). Headings: 20-24px max, navy (#1e3a5f). No purple/violet. No buttons or links styled as buttons. No CTA buttons. This is a printable document.
 Tone: Adapt to the company's culture. Use compelling, results-focused language.`;
     } else {
-      systemPrompt = "You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.";
+      systemPrompt = `You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.`;
       userPrompt = `Write a Cover Letter as a Sales Letter for this application.
 
 Skills: ${skillsList}

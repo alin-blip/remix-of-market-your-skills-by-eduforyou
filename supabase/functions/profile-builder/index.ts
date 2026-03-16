@@ -51,11 +51,14 @@ serve(async (req) => {
       `
     };
 
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
+
     const systemPrompt = `You are an expert social media strategist and personal branding consultant.
 Your task is to create optimized social media profile content based on the user's offer and unique value proposition.
 
 IMPORTANT RULES:
-1. Write in ${locale === 'ro' ? 'Romanian' : 'English'} language
+1. Write in ${outputLanguage} language
 2. Be specific to the user's niche and services
 3. Make the content authentic and personality-driven
 4. Focus on benefits and transformation, not features

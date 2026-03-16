@@ -26,6 +26,7 @@ import {
   TrendingUp,
   RefreshCw
 } from 'lucide-react';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 interface PackageData {
   name: string;
@@ -73,6 +74,7 @@ export default function OfferBuilder() {
   const [result, setResult] = useState<OfferResult | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'standard' | 'premium'>('standard');
   const [hasSavedResult, setHasSavedResult] = useState(false);
+  const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
 
   useEffect(() => {
     loadData();
@@ -161,7 +163,7 @@ export default function OfferBuilder() {
             skills,
             ikigaiResult: ikigaiData,
             studyField: profile?.study_field || '',
-            locale: profile?.locale || 'ro',
+            locale: outputLang,
           }),
         }
       );
@@ -398,7 +400,8 @@ export default function OfferBuilder() {
                 </div>
               </Card>
 
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
                 <Button 
                   onClick={handleGenerate}
                   className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"

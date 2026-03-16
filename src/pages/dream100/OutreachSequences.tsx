@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Send, Loader2, Copy, RefreshCw, CheckCircle, Clock, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 interface OutreachMessage {
   day: number;
@@ -47,6 +48,7 @@ export default function OutreachSequences() {
   const [generating, setGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [outputLang, setOutputLang] = useState(locale === 'en' ? 'en' : 'ro');
   const [config, setConfig] = useState({
     targetId: preTargetId,
     pathType: 'freelancer',
@@ -75,7 +77,7 @@ export default function OutreachSequences() {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('outreach-sequence', {
-        body: config,
+        body: { ...config, locale: outputLang },
       });
       if (error) throw error;
       if (data?.messages) {
@@ -203,10 +205,13 @@ export default function OutreachSequences() {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={generate} disabled={generating} className="w-full md:w-auto">
-                  {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                  {locale === 'ro' ? 'Generează Secvență' : 'Generate Sequence'}
-                </Button>
+                <div className="flex items-end gap-4 flex-wrap">
+                  <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
+                  <Button onClick={generate} disabled={generating} className="w-full md:w-auto">
+                    {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                    {locale === 'ro' ? 'Generează Secvență' : 'Generate Sequence'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
