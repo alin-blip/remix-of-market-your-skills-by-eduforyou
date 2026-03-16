@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Clock, GraduationCap, Sparkles, Briefcase, Shield, ArrowRight, BarChart3, BookOpen } from 'lucide-react';
+import { Users, UserCheck, Clock, GraduationCap, Sparkles, Briefcase, Shield, ArrowRight, BarChart3, BookOpen, MessageSquare, Cpu } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -317,6 +317,20 @@ export default function AdminDashboard() {
                 <Link to="/admin/course-analytics">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Course Analytics
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/feedback">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Feedback Utilizatori
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/ai-outputs">
+                  <Cpu className="h-4 w-4 mr-2" />
+                  Generări AI
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
