@@ -502,6 +502,7 @@ export default function ProfileBuilder() {
           <p className="text-muted-foreground">
             {t.profileBuilder.subtitle}
           </p>
+          <OutputLanguageSelect value={outputLang} onChange={setOutputLang} />
         </div>
 
         {/* Progress */}

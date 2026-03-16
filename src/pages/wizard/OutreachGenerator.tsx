@@ -339,6 +339,7 @@ export default function OutreachGenerator() {
                 <p className="text-muted-foreground max-w-xl mx-auto">
                   {t.outreachGenerator.subtitle}
                 </p>
+                <OutputLanguageSelect value={outputLang} onChange={setOutputLang} className="flex flex-col items-center" />
               </div>
 
               {/* Offer Preview */}

@@ -498,6 +498,7 @@ export function GigJobBuilder() {
                   <p className="text-muted-foreground text-sm">
                     {t.gigs?.subtitle || "Create and publish gigs and jobs to SwipeHire"}
                   </p>
+                  <OutputLanguageSelect value={outputLang} onChange={setOutputLang} className="mt-2" />
                 </div>
               </div>
               
