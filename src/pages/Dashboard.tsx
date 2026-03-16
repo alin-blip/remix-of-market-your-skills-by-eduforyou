@@ -573,7 +573,7 @@ export default function Dashboard() {
 
           {/* Progress for the day */}
           {totalToday > 0 && (
-            <Card className="mt-4">
+            <Card className="card-gold mt-4">
               <CardContent className="py-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-muted-foreground">
