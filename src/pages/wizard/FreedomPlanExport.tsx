@@ -356,6 +356,7 @@ export default function FreedomPlanExport() {
             {t.export.backToDashboard}
           </Button>
         </div>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="freedom-plan-export" />
       </div>
     </MainLayout>
   );
