@@ -244,6 +244,7 @@ export default function OfferBuilder() {
 
       toast.success(t.offerBuilder.offerSaved);
       setHasSavedResult(true);
+      triggerFeedback();
     } catch (error) {
       console.error('Save error:', error);
       toast.error(t.offerBuilder.saveError);
