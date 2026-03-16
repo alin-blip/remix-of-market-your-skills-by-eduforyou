@@ -362,9 +362,16 @@ export default function Dream100Tracker() {
                                       <MessageSquare className="h-3 w-3 mr-1" />
                                       {locale === 'ro' ? 'Mesaj' : 'Message'}
                                     </Button>
-                                    {target.linkedin_url && (
+                                    {(target.website_url || target.linkedin_url) && (
                                       <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                                        <a href={target.linkedin_url} target="_blank" rel="noopener">
+                                        <a 
+                                          href={(() => {
+                                            const url = target.website_url || target.linkedin_url || '';
+                                            return url.startsWith('http') ? url : `https://${url}`;
+                                          })()}
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                        >
                                           <ExternalLink className="h-3 w-3" />
                                         </a>
                                       </Button>
