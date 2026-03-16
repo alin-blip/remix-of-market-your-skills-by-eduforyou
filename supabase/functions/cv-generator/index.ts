@@ -65,7 +65,7 @@ Premium Package: ${JSON.stringify(offer.premium_package || {})}` : "";
     let userPrompt = "";
 
     if (documentType === "ats_cv") {
-      systemPrompt = "You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems. Output in clean HTML format with inline styles.";
+      systemPrompt = `You are an expert CV writer specializing in ATS-optimized CVs. Create clean, keyword-rich CVs that pass applicant tracking systems. Output in clean HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}.`;
       userPrompt = `Create an ATS-friendly CV optimized for this role: ${targetRole || "professional role"}.
 
 Skills: ${skillsList}
