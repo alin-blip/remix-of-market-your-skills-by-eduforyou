@@ -67,7 +67,10 @@ serve(async (req) => {
   }
 
   try {
-    const { platform, skills, category, experience, targetMarket } = await req.json() as GenerateRequest;
+    const { platform, skills, category, experience, targetMarket, locale } = await req.json() as GenerateRequest & { locale?: string };
+
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale || 'ro'] || 'Romanian';
 
     if (!platform || !skills || skills.length === 0) {
       return new Response(
