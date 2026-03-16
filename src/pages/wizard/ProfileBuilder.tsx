@@ -81,6 +81,7 @@ export default function ProfileBuilder() {
   });
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [generatingPlatform, setGeneratingPlatform] = useState<Platform | null>(null);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('profile-builder');
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
