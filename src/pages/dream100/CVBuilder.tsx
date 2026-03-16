@@ -55,6 +55,7 @@ export default function CVBuilder() {
           targetRole,
           additionalInstructions,
           avatarUrl: avatarUrl || null,
+          locale: outputLang,
         },
       });
       if (error) throw error;
