@@ -163,7 +163,7 @@ export default function OfferBuilder() {
             skills,
             ikigaiResult: ikigaiData,
             studyField: profile?.study_field || '',
-            locale: profile?.locale || 'ro',
+            locale: outputLang,
           }),
         }
       );
