@@ -77,7 +77,7 @@ export default function OutreachSequences() {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('outreach-sequence', {
-        body: config,
+        body: { ...config, locale: outputLang },
       });
       if (error) throw error;
       if (data?.messages) {
