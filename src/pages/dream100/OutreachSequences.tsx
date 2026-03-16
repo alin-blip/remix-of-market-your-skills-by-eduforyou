@@ -48,6 +48,7 @@ export default function OutreachSequences() {
   const [generating, setGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [outputLang, setOutputLang] = useState(locale === 'en' ? 'en' : 'ro');
   const [config, setConfig] = useState({
     targetId: preTargetId,
     pathType: 'freelancer',
