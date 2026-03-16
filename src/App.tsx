@@ -51,6 +51,7 @@ import Dream100Tracker from "./pages/dream100/Dream100Tracker";
 import Dream100Scanner from "./pages/dream100/Dream100Scanner";
 import CVBuilder from "./pages/dream100/CVBuilder";
 import OutreachSequences from "./pages/dream100/OutreachSequences";
+import SkillMarketLanding from "./pages/SkillMarketLanding";
 const queryClient = new QueryClient();
 
 // App component with providers
