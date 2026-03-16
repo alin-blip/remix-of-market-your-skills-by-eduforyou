@@ -303,7 +303,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
           >
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+            <Card className="card-gold-accent">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
