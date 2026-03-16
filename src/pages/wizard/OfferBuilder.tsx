@@ -26,6 +26,7 @@ import {
   TrendingUp,
   RefreshCw
 } from 'lucide-react';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 interface PackageData {
   name: string;
