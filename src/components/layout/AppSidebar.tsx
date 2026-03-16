@@ -84,7 +84,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight">
+              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight italic">
                 Student Freedom
               </span>
               <span className="text-[10px] text-sidebar-foreground/50 uppercase tracking-wider">
@@ -110,7 +110,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/dashboard"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/dashboard' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/dashboard' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -132,7 +132,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/wizard/path"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    isOnWizardPath && "bg-primary/10 text-primary font-medium"
+                    isOnWizardPath && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -153,7 +153,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/life-os"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath.startsWith('/life-os') && "bg-primary/10 text-primary font-medium"
+                    currentPath.startsWith('/life-os') && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -175,7 +175,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/wizard/gig-job-builder"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/wizard/gig-job-builder' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/wizard/gig-job-builder' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -190,7 +190,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         {/* Dream 100 Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+            <SidebarGroupLabel className="text-xs text-primary/60 uppercase tracking-wider px-3 mb-1 font-semibold">
               Dream 100
             </SidebarGroupLabel>
           )}
@@ -206,7 +206,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/dream100-scanner"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/dream100-scanner' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/dream100-scanner' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -227,7 +227,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/dream100"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/dream100' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/dream100' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -248,7 +248,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/cv-builder"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/cv-builder' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/cv-builder' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -269,7 +269,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/outreach-sequences"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/outreach-sequences' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/outreach-sequences' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -284,7 +284,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         {/* Learn Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+            <SidebarGroupLabel className="text-xs text-primary/60 uppercase tracking-wider px-3 mb-1 font-semibold">
               {t.sidebar?.learn || 'Learn'}
             </SidebarGroupLabel>
           )}
@@ -300,7 +300,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/learning-hub"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/learning-hub' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/learning-hub' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -339,7 +339,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
         {/* Business Tools Section */}
         <SidebarGroup className="gap-1">
           {!collapsed && (
-            <SidebarGroupLabel className="text-xs text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-1">
+            <SidebarGroupLabel className="text-xs text-primary/60 uppercase tracking-wider px-3 mb-1 font-semibold">
               {t.sidebar?.businessTools || 'Business'}
             </SidebarGroupLabel>
           )}
@@ -355,7 +355,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/income-tracker"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/income-tracker' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/income-tracker' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -376,7 +376,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/client-crm"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/client-crm' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/client-crm' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
@@ -397,7 +397,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             "mx-1 p-3 rounded-xl border transition-colors",
             isComplete 
               ? "bg-green-500/10 border-green-500/20" 
-              : "bg-sidebar-accent/30 border-sidebar-border"
+              : "bg-sidebar-accent/30 border-primary/15"
           )}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium text-sidebar-foreground/70">

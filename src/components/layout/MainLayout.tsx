@@ -74,7 +74,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
-          <header className="sticky top-0 z-50 glass border-b border-border h-14 flex items-center justify-between px-4">
+          <header className="sticky top-0 z-50 bg-background/60 backdrop-blur-xl border-b border-primary/10 h-14 flex items-center justify-between px-4">
             <SidebarTrigger className="-ml-1" />
 
             {/* User Menu */}

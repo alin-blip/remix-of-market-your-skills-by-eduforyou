@@ -289,7 +289,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            {t.dashboard.greeting}, {profile?.full_name?.split(' ')[0] || 'Student'}! 👋
+            {t.dashboard.greeting}, <span className="text-gradient">{profile?.full_name?.split(' ')[0] || 'Student'}</span>
           </h1>
           <p className="text-muted-foreground text-lg">
             {t.dashboard.subtitle}
@@ -303,7 +303,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
           >
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+            <Card className="card-gold-accent">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
@@ -359,7 +359,7 @@ export default function Dashboard() {
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {/* Freedom Score */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.freedomScore}</span>
               <TrendingUp className="w-5 h-5 text-primary" />
@@ -372,7 +372,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Freedom Path Progress - Simplified */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.freedomPath}</span>
               {allModulesCompleted ? (
@@ -395,7 +395,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Domain Card */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.domain}</span>
               <Sparkles className="w-5 h-5 text-primary" />
@@ -423,7 +423,7 @@ export default function Dashboard() {
           </div>
 
           {/* Week Navigation - Compact */}
-          <Card className="mb-4">
+          <Card className="card-gold mb-4">
             <CardContent className="py-3">
               <div className="flex gap-2 overflow-x-auto">
                 {weekDays.map(({ day, date, isToday: dayIsToday, isSelected, status }) => (
@@ -458,7 +458,7 @@ export default function Dashboard() {
           {/* Tasks Grid */}
           <div className="grid md:grid-cols-2 gap-4">
             {/* Big Task */}
-            <Card className="border-primary/20">
+            <Card className="card-gold border-primary/20">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" />
@@ -510,7 +510,7 @@ export default function Dashboard() {
             </Card>
             
             {/* Small Tasks */}
-            <Card>
+            <Card className="card-gold">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -573,7 +573,7 @@ export default function Dashboard() {
 
           {/* Progress for the day */}
           {totalToday > 0 && (
-            <Card className="mt-4">
+            <Card className="card-gold mt-4">
               <CardContent className="py-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-muted-foreground">
