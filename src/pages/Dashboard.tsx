@@ -458,7 +458,7 @@ export default function Dashboard() {
           {/* Tasks Grid */}
           <div className="grid md:grid-cols-2 gap-4">
             {/* Big Task */}
-            <Card className="border-primary/20">
+            <Card className="card-gold border-primary/20">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" />
