@@ -28,7 +28,10 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { targetId, pathType, platform, regenerateIndex } = await req.json();
+    const { targetId, pathType, platform, regenerateIndex, locale } = await req.json();
+
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
 
     // Fetch target data
     let target = null;
