@@ -372,7 +372,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Freedom Path Progress - Simplified */}
-          <Card className="glass border-white/10 p-6">
+          <Card className="card-gold p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">{t.dashboard.freedomPath}</span>
               {allModulesCompleted ? (
