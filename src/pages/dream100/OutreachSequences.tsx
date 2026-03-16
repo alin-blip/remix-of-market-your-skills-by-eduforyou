@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Send, Loader2, Copy, RefreshCw, CheckCircle, Clock, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OutputLanguageSelect } from '@/components/shared/OutputLanguageSelect';
 
 interface OutreachMessage {
   day: number;
