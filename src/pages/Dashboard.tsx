@@ -289,7 +289,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            {t.dashboard.greeting}, {profile?.full_name?.split(' ')[0] || 'Student'}! 👋
+            {t.dashboard.greeting}, <span className="text-gradient">{profile?.full_name?.split(' ')[0] || 'Student'}</span>
           </h1>
           <p className="text-muted-foreground text-lg">
             {t.dashboard.subtitle}
