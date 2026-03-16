@@ -82,6 +82,7 @@ export default function ProfileBuilder() {
   const [progress, setProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [outputLang, setOutputLang] = useState('ro');
 
   // Check feature access on mount
   useEffect(() => {
