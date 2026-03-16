@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 import { useTheme } from 'next-themes';
 import { 
-  Sparkles, 
   Target, 
   Package, 
   MessageSquare, 
@@ -13,7 +12,9 @@ import {
   Sun,
   Moon,
   Monitor,
+  Sparkles,
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
