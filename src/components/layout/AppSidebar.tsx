@@ -175,7 +175,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/wizard/gig-job-builder"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/wizard/gig-job-builder' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/wizard/gig-job-builder' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
