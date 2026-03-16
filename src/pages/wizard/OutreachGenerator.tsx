@@ -77,6 +77,7 @@ export default function OutreachGenerator() {
     dm: null
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
 
   // Check feature access on mount - Outreach requires Pro plan
   useEffect(() => {
