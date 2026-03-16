@@ -47,6 +47,7 @@ import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useAuth } from '@/lib/auth';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import logoImg from '@/assets/logo.png';
 
 interface AppSidebarProps {
   completedSteps?: number;
