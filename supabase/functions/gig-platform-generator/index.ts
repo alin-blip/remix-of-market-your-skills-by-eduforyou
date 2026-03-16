@@ -88,7 +88,7 @@ Category: ${category || 'General'}
 Experience: ${experience || 'Student/Entry-level'}
 Target Market: ${targetMarket || 'Small businesses and startups'}
 
-Generate platform-specific content that will help them succeed. Return valid JSON only.`;
+Generate platform-specific content that will help them succeed. IMPORTANT: Write ALL content in ${outputLanguage}. Return valid JSON only.`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',

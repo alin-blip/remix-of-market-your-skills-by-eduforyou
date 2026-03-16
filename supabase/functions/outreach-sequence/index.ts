@@ -94,7 +94,7 @@ MESSAGE 3 — CTA (Day 9):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are an outreach specialist for students and young professionals. Write authentic, non-salesy messages." },
+          { role: "system", content: `You are an outreach specialist for students and young professionals. Write authentic, non-salesy messages. IMPORTANT: Write ALL messages in ${outputLanguage}.` },
           { role: "user", content: prompt },
         ],
         tools: [{

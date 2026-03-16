@@ -24,6 +24,9 @@ serve(async (req) => {
       dm: "DM Instagram/Twitter"
     };
 
+    const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
+    const outputLanguage = langMap[locale] || 'Romanian';
+
     const systemPrompt = `Ești un expert în copywriting și outreach pentru freelanceri. 
 Creezi mesaje de outreach care convertesc, bazate pe oferta și poziționarea unică a clientului.
 
@@ -40,7 +43,7 @@ ${platform === 'linkedin' ? '- Mesaj de conexiune (max 300 caractere) + Mesaj de
 ${platform === 'email' ? '- Subject line puternic + Corp email structurat' : ''}
 ${platform === 'dm' ? '- Mesaj scurt și casual + Follow-up' : ''}
 
-Limba: ${locale === 'ro' ? 'Română' : 'Engleză'}
+IMPORTANT: Write ALL content in ${outputLanguage}.
 Răspunde DOAR prin tool call.`;
 
     const smv = offer?.smv || 'Servicii profesionale';

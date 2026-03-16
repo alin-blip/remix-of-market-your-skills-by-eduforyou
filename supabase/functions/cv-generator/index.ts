@@ -95,7 +95,7 @@ Sections to include (output as styled HTML):
 CRITICAL: Use professional styling only. Body text: 14-16px, dark color (#1a1a1a). Headings: 20-24px max, navy (#1e3a5f). No purple/violet. No buttons or links styled as buttons. No CTA buttons. This is a printable document.
 Tone: Adapt to the company's culture. Use compelling, results-focused language.`;
     } else {
-      systemPrompt = "You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.";
+      systemPrompt = `You are a copywriter who writes cover letters as sales letters. Output in clean HTML format with inline styles. IMPORTANT: Write ALL content in ${outputLanguage}. IMPORTANT: Do NOT include section labels like 'Hook', 'Story', 'Offer', 'CTA' in the output - the letter should flow naturally without visible framework labels.`;
       userPrompt = `Write a Cover Letter as a Sales Letter for this application.
 
 Skills: ${skillsList}
