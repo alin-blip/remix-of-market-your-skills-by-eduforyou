@@ -1,43 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Student Freedom OS — Modern Design System
-   Bold, vibrant, contemporary
-   Primary: Electric Indigo
-   Accent: Neon Lime (action, growth)
+/* Midnight Wealth Design System
+   Navy #0D1B2A + Gold #D4A843
    All colors are HSL
 */
 
 @layer base {
   :root {
-    /* Core palette */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 210 52% 11%;
+    --foreground: 210 33% 96%;
     
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
+    --card: 212 40% 17%;
+    --card-foreground: 210 33% 96%;
     
-    --popover: 240 10% 6%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 212 40% 17%;
+    --popover-foreground: 210 33% 96%;
     
-    /* Primary - Electric Indigo */
-    --primary: 252 87% 64%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Gold */
+    --primary: 42 62% 55%;
+    --primary-foreground: 210 52% 11%;
     
     /* Secondary */
-    --secondary: 240 5% 16%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 213 40% 15%;
+    --secondary-foreground: 210 33% 96%;
     
     /* Muted */
-    --muted: 240 5% 16%;
-    --muted-foreground: 240 5% 64%;
+    --muted: 213 40% 15%;
+    --muted-foreground: 212 25% 58%;
     
-    /* Accent - Neon Lime */
-    --accent: 82 85% 55%;
-    --accent-foreground: 240 10% 3.9%;
+    /* Accent - Gold */
+    --accent: 42 62% 55%;
+    --accent-foreground: 210 52% 11%;
     
     /* Success */
     --success: 152 69% 50%;
@@ -52,53 +49,53 @@
     --destructive-foreground: 0 0% 100%;
     
     /* Border & Input */
-    --border: 240 5% 18%;
-    --input: 240 5% 18%;
-    --ring: 252 87% 64%;
+    --border: 212 30% 22%;
+    --input: 212 30% 22%;
+    --ring: 42 62% 55%;
     
     --radius: 0.75rem;
     
     /* Sidebar */
-    --sidebar-background: 240 10% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 82 85% 55%;
-    --sidebar-primary-foreground: 240 10% 3.9%;
-    --sidebar-accent: 240 5% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 5% 16%;
-    --sidebar-ring: 252 87% 64%;
+    --sidebar-background: 210 52% 9%;
+    --sidebar-foreground: 210 33% 96%;
+    --sidebar-primary: 42 62% 55%;
+    --sidebar-primary-foreground: 210 52% 11%;
+    --sidebar-accent: 213 40% 14%;
+    --sidebar-accent-foreground: 210 33% 96%;
+    --sidebar-border: 212 30% 20%;
+    --sidebar-ring: 42 62% 55%;
     
     /* Freedom Path */
-    --path-inactive: 240 5% 20%;
-    --path-active: 82 85% 55%;
-    --path-completed: 252 87% 64%;
+    --path-inactive: 212 30% 22%;
+    --path-active: 42 62% 55%;
+    --path-completed: 42 72% 65%;
   }
 
   .light {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 40 20% 97%;
+    --foreground: 210 52% 11%;
     
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 210 52% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 210 52% 11%;
     
-    --primary: 252 87% 58%;
+    --primary: 42 62% 48%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 3.9%;
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 210 52% 11%;
     
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 5% 46%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 212 25% 40%;
     
-    --accent: 82 85% 45%;
+    --accent: 42 62% 48%;
     --accent-foreground: 0 0% 100%;
     
-    --border: 240 5% 90%;
-    --input: 240 5% 90%;
-    --ring: 252 87% 58%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 42 62% 48%;
   }
 }
 
@@ -113,36 +110,36 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: 'Playfair Display', serif;
   }
 }
 
 @layer components {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(252 87% 64%) 0%, hsl(280 80% 60%) 100%);
+    background: linear-gradient(135deg, hsl(42 62% 55%) 0%, hsl(45 80% 65%) 100%);
   }
   
   .gradient-accent {
-    background: linear-gradient(135deg, hsl(82 85% 55%) 0%, hsl(65 90% 50%) 100%);
+    background: linear-gradient(135deg, hsl(42 62% 55%) 0%, hsl(48 85% 70%) 100%);
   }
   
   .gradient-hero {
-    background: linear-gradient(180deg, hsl(240 10% 3.9%) 0%, hsl(252 40% 12%) 100%);
+    background: linear-gradient(180deg, hsl(210 52% 11%) 0%, hsl(212 40% 17%) 100%);
   }
   
   .gradient-glow {
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(252 87% 64% / 0.3), transparent);
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(42 62% 55% / 0.3), transparent);
   }
   
   .gradient-mesh {
     background: 
-      radial-gradient(at 40% 20%, hsl(252 87% 64% / 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsl(82 85% 55% / 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, hsl(280 80% 60% / 0.1) 0px, transparent 50%);
+      radial-gradient(at 40% 20%, hsl(42 62% 55% / 0.12) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(45 80% 65% / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsl(42 62% 55% / 0.06) 0px, transparent 50%);
   }
   
   .text-gradient {
-    background: linear-gradient(135deg, hsl(252 87% 64%) 0%, hsl(82 85% 55%) 100%);
+    background: linear-gradient(135deg, hsl(42 62% 55%) 0%, hsl(48 85% 70%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -153,11 +150,11 @@
   }
   
   .glow-primary {
-    box-shadow: 0 0 40px -10px hsl(252 87% 64% / 0.5);
+    box-shadow: 0 0 40px -10px hsl(42 62% 55% / 0.5);
   }
   
   .glow-accent {
-    box-shadow: 0 0 40px -10px hsl(82 85% 55% / 0.5);
+    box-shadow: 0 0 40px -10px hsl(42 62% 55% / 0.4);
   }
   
   .hover-lift {
@@ -166,7 +163,7 @@
   
   .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px -15px hsl(252 87% 64% / 0.3);
+    box-shadow: 0 20px 40px -15px hsl(42 62% 55% / 0.3);
   }
   
   .card-shine {
@@ -181,7 +178,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.05), transparent);
+    background: linear-gradient(90deg, transparent, hsl(42 62% 55% / 0.08), transparent);
     transition: 0.5s;
   }
   
