@@ -701,7 +701,7 @@ const t = {
 } as const;
 
 export type Translations = typeof t.en;
-export const translations = t as Record<Lang, Translations>;
+export const translations = t as unknown as Record<Lang, Translations>;
 
 type LangCtx = { lang: Lang; t: Translations };
 const Ctx = createContext<LangCtx>({ lang: DEFAULT_LANG, t: translations[DEFAULT_LANG] });
