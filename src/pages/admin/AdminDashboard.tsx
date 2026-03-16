@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, Clock, GraduationCap, Sparkles, Briefcase, Shield, ArrowRight, BarChart3, BookOpen } from 'lucide-react';
+import { Users, UserCheck, Clock, GraduationCap, Sparkles, Briefcase, Shield, ArrowRight, BarChart3, BookOpen, MessageSquare, Cpu } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { MainLayout } from '@/components/layout/MainLayout';
