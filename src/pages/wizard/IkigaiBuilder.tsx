@@ -68,6 +68,7 @@ export default function IkigaiBuilder() {
   const [result, setResult] = useState<IkigaiResult | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<number>(0);
   const [hasSavedResult, setHasSavedResult] = useState(false);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('ikigai-builder');
 
   useEffect(() => {
     loadData();
