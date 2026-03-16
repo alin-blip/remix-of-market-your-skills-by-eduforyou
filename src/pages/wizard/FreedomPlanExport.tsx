@@ -46,6 +46,7 @@ export default function FreedomPlanExport() {
   const { t } = useI18n();
 
   const [isLoading, setIsLoading] = useState(true);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('freedom-plan-export');
   const [planData, setPlanData] = useState<FreedomPlanData | null>(null);
   const [moduleStatuses, setModuleStatuses] = useState<ModuleStatus[]>([
     { name: t.wizard.skillScanner, icon: Sparkles, completed: false, route: '/wizard/skill-scanner', data: null },

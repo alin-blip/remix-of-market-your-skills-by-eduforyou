@@ -711,6 +711,7 @@ export default function ProfileBuilder() {
           </div>
         </div>
       </div>
+      <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="profile-builder" />
     </MainLayout>
   );
 }

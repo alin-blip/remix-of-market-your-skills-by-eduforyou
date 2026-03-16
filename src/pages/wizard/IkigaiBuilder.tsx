@@ -547,6 +547,7 @@ export default function IkigaiBuilder() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="ikigai-builder" />
       </div>
     </MainLayout>
   );

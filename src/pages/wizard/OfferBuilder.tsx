@@ -606,6 +606,7 @@ export default function OfferBuilder() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="offer-builder" />
       </div>
     </MainLayout>
   );
