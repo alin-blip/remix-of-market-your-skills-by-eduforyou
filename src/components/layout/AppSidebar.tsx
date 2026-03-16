@@ -269,7 +269,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   to="/outreach-sequences"
                   className={cn(
                     "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/outreach-sequences' && "bg-primary/10 text-primary font-medium"
+                    currentPath === '/outreach-sequences' && "bg-primary/15 text-primary font-medium rounded-xl"
                   )}
                   activeClassName=""
                 >
