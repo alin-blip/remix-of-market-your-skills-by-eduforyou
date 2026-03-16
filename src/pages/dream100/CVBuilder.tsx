@@ -29,6 +29,7 @@ export default function CVBuilder() {
   const [documents, setDocuments] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [outputLang, setOutputLang] = useState(locale === 'en' ? 'en' : 'ro');
 
   useEffect(() => {
     if (!user) return;
