@@ -171,8 +171,8 @@ export default function AIOutputsManager() {
                   ) : (
                     filtered.map((o) => (
                       <TableRow key={o.id}>
-                        <TableCell className="font-medium">{o.profiles?.full_name || 'N/A'}</TableCell>
-                        <TableCell className="text-muted-foreground">{o.profiles?.email || 'N/A'}</TableCell>
+                        <TableCell className="font-medium">{o.user_name || 'N/A'}</TableCell>
+                        <TableCell className="text-muted-foreground">{o.user_email || 'N/A'}</TableCell>
                         <TableCell>
                           <Badge variant="secondary">{TOOL_LABELS[o.tool] || o.tool}</Badge>
                         </TableCell>
