@@ -84,7 +84,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight">
+              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight italic">
                 Student Freedom
               </span>
               <span className="text-[10px] text-sidebar-foreground/50 uppercase tracking-wider">
