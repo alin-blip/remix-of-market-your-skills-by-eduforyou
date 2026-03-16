@@ -1,0 +1,173 @@
+/* SkillMarket Landing — Midnight Wealth Design System */
+/* Scoped under .skillmarket-landing to avoid conflicts */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap');
+
+.skillmarket-landing {
+  background-color: #0D1B2A;
+  color: #F0F4F8;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.skillmarket-landing h1,
+.skillmarket-landing h2,
+.skillmarket-landing h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+.skillmarket-landing .sm-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .skillmarket-landing .sm-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .skillmarket-landing .sm-container {
+    padding: 0 2rem;
+  }
+}
+
+/* Gold shimmer button */
+.skillmarket-landing .btn-gold {
+  background: linear-gradient(135deg, #D4A843 0%, #F0C96A 50%, #D4A843 100%);
+  background-size: 200% 200%;
+  color: #0D1B2A;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+  animation: sm-shimmer 3s ease infinite;
+  border: none;
+  cursor: pointer;
+}
+
+.skillmarket-landing .btn-gold:hover {
+  background-position: right center;
+  box-shadow: 0 0 30px rgba(212, 168, 67, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Gold outline button */
+.skillmarket-landing .btn-gold-outline {
+  border: 1.5px solid #D4A843;
+  color: #D4A843;
+  background: transparent;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.skillmarket-landing .btn-gold-outline:hover {
+  background: rgba(212, 168, 67, 0.1);
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.2);
+}
+
+/* Card with gold border */
+.skillmarket-landing .card-gold {
+  background: #1A2A3E;
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  transition: all 0.3s ease;
+}
+
+.skillmarket-landing .card-gold:hover {
+  border-color: rgba(212, 168, 67, 0.5);
+  box-shadow: 0 0 30px rgba(212, 168, 67, 0.1);
+}
+
+/* Section badge */
+.skillmarket-landing .section-badge {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #D4A843;
+  background: rgba(212, 168, 67, 0.08);
+}
+
+/* Gold divider */
+.skillmarket-landing .gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4A843, transparent);
+  opacity: 0.4;
+}
+
+/* Gold text */
+.skillmarket-landing .text-gold {
+  color: #D4A843;
+}
+
+/* Navy card bg */
+.skillmarket-landing .bg-navy {
+  background-color: #0D1B2A;
+}
+
+.skillmarket-landing .bg-navy-light {
+  background-color: #162236;
+}
+
+.skillmarket-landing .bg-navy-card {
+  background-color: #1A2A3E;
+}
+
+/* Muted text */
+.skillmarket-landing .text-muted-sm {
+  color: #7A94B0;
+}
+
+.skillmarket-landing .text-light-sm {
+  color: #C8D6E5;
+}
+
+/* Animations */
+@keyframes sm-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes sm-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.skillmarket-landing .sm-fade-up {
+  animation: sm-fade-up 0.6s ease-out forwards;
+}
+
+/* Popular pricing card glow */
+.skillmarket-landing .popular-glow {
+  border: 2px solid #D4A843;
+  box-shadow: 0 0 40px rgba(212, 168, 67, 0.15);
+}
+
+/* Smooth scroll */
+.skillmarket-landing {
+  scroll-behavior: smooth;
+}
+
+/* Nav glass effect */
+.skillmarket-landing .nav-glass {
+  background: rgba(13, 27, 42, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212, 168, 67, 0.1);
+}
+
+/* Hero background grid */
+.skillmarket-landing .hero-bg {
+  background-image: 
+    linear-gradient(rgba(212, 168, 67, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 168, 67, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}

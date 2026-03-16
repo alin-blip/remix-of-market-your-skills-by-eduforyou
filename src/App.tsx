@@ -5,7 +5,7 @@ import FounderAcceleratorUpgrade from "./pages/FounderAcceleratorUpgrade";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
@@ -51,6 +51,7 @@ import Dream100Tracker from "./pages/dream100/Dream100Tracker";
 import Dream100Scanner from "./pages/dream100/Dream100Scanner";
 import CVBuilder from "./pages/dream100/CVBuilder";
 import OutreachSequences from "./pages/dream100/OutreachSequences";
+import SkillMarketLanding from "./pages/SkillMarketLanding";
 const queryClient = new QueryClient();
 
 // App component with providers
@@ -64,7 +65,10 @@ const App = () => (
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={<Navigate to="/ro" replace />} />
+                <Route path="/ro" element={<SkillMarketLanding />} />
+                <Route path="/en" element={<SkillMarketLanding />} />
+                <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
                 <Route 
