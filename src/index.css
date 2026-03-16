@@ -185,6 +185,24 @@
   .card-shine:hover::before {
     left: 100%;
   }
+  
+  .card-gold {
+    @apply border-primary/20 bg-card backdrop-blur-md rounded-2xl transition-all duration-300;
+  }
+  
+  .card-gold:hover {
+    @apply border-primary/40;
+    box-shadow: 0 0 20px -5px hsl(42 62% 55% / 0.15);
+  }
+  
+  .card-gold-accent {
+    @apply border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-md rounded-2xl transition-all duration-300;
+  }
+  
+  .card-gold-accent:hover {
+    @apply border-primary/50;
+    box-shadow: 0 0 25px -5px hsl(42 62% 55% / 0.2);
+  }
 }
 
 @layer utilities {
