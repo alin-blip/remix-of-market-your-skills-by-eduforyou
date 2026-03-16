@@ -79,16 +79,11 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
       {/* Header with Logo */}
       <SidebarHeader className="p-4 pb-6">
         <NavLink to="/dashboard" className="flex items-center gap-3 group">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-shadow">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src={logoImg} alt="Logo" className="h-9 w-9 rounded-lg flex-shrink-0 group-hover:scale-105 transition-transform" />
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight italic">
-                Student Freedom
-              </span>
-              <span className="text-[10px] text-sidebar-foreground/50 uppercase tracking-wider">
-                Path Planner
+              <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight">
+                Market Your <span className="text-primary">Skill</span>
               </span>
             </div>
           )}

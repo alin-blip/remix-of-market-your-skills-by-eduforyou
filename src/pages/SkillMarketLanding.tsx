@@ -64,14 +64,13 @@ function LangSelector() {
 }
 
 /* ─── Logo ─── */
+import logoImg from '@/assets/logo.png';
 function Logo() {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A843] to-[#F0C96A] flex items-center justify-center">
-        <Zap className="h-4 w-4 text-[#0D1B2A]" />
-      </div>
+      <img src={logoImg} alt="Market Your Skill" className="w-8 h-8 rounded-lg" />
       <span className="font-bold text-lg">
-        Skill<span className="text-gold">Market</span>
+        Market Your <span className="text-gold">Skill</span>
       </span>
     </div>
   );

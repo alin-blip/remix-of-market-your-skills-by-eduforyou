@@ -78,11 +78,9 @@ export default function Landing() {
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="container flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl gradient-accent flex items-center justify-center shadow-lg glow-accent group-hover:scale-110 transition-transform">
-              <Sparkles className="h-5 w-5 text-accent-foreground" />
-            </div>
+            <img src={logoImg} alt="Market Your Skill" className="h-10 w-10 rounded-xl shadow-lg group-hover:scale-110 transition-transform" />
             <span className="font-display font-bold text-xl tracking-tight">
-              Student<span className="text-accent">Freedom</span>
+              Market Your <span className="text-accent">Skill</span>
             </span>
           </Link>
           
