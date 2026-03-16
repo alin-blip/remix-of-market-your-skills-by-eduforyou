@@ -185,6 +185,7 @@ export default function SkillScanner() {
 
       toast.success(t.skillScanner.skillsSaved);
       await loadSavedSkills();
+      triggerFeedback();
     } catch (error: any) {
       console.error('Save error:', error);
       const errorMessage = error?.message || error?.details || t.skillScanner.saveError;
