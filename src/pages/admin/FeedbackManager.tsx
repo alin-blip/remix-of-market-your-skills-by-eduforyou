@@ -192,8 +192,8 @@ export default function FeedbackManager() {
                   ) : (
                     filtered.map((f) => (
                       <TableRow key={f.id}>
-                        <TableCell className="font-medium">{f.profiles?.full_name || 'N/A'}</TableCell>
-                        <TableCell className="text-muted-foreground">{f.profiles?.email || 'N/A'}</TableCell>
+                        <TableCell className="font-medium">{f.user_name || 'N/A'}</TableCell>
+                        <TableCell className="text-muted-foreground">{f.user_email || 'N/A'}</TableCell>
                         <TableCell>
                           <Badge variant="secondary">{STEP_LABELS[f.step_key] || f.step_key}</Badge>
                         </TableCell>
