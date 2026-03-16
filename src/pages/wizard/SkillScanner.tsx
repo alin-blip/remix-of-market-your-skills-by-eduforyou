@@ -634,12 +634,8 @@ export default function SkillScanner() {
             </motion.div>
           )}
         </AnimatePresence>
+        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="skill-scanner" />
       </div>
     </MainLayout>
   );
-}
-
-// Append FeedbackDialog wrapper
-function SkillScannerWithFeedback() {
-  return null; // unused, feedback is inline
 }
