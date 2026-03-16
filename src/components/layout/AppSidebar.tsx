@@ -397,7 +397,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             "mx-1 p-3 rounded-xl border transition-colors",
             isComplete 
               ? "bg-green-500/10 border-green-500/20" 
-              : "bg-sidebar-accent/30 border-sidebar-border"
+              : "bg-sidebar-accent/30 border-primary/15"
           )}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium text-sidebar-foreground/70">
