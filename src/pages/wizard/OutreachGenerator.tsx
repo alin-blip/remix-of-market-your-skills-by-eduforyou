@@ -658,7 +658,7 @@ export default function OutreachGenerator() {
             </motion.div>
           )}
         </AnimatePresence>
-        <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="outreach-generator" />
+        <FeedbackDialog open={showFeedback} onOpenChange={(open) => { setShowFeedback(open); if (!open) navigate('/dashboard'); }} stepKey="outreach-generator" />
       </div>
     </MainLayout>
   );
