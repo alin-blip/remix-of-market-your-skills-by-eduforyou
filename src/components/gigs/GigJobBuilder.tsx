@@ -66,6 +66,7 @@ export function GigJobBuilder() {
   } = useSwipeHireIntegration();
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [outputLang, setOutputLang] = useState('ro');
 
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState<Offer | null>(null);
