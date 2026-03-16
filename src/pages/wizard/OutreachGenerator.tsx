@@ -80,6 +80,7 @@ export default function OutreachGenerator() {
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [outputLang, setOutputLang] = useState(profile?.locale || 'ro');
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('outreach-generator');
 
   // Check feature access on mount - Outreach requires Pro plan
   useEffect(() => {
