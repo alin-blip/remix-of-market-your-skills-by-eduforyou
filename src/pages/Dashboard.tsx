@@ -423,7 +423,7 @@ export default function Dashboard() {
           </div>
 
           {/* Week Navigation - Compact */}
-          <Card className="mb-4">
+          <Card className="card-gold mb-4">
             <CardContent className="py-3">
               <div className="flex gap-2 overflow-x-auto">
                 {weekDays.map(({ day, date, isToday: dayIsToday, isSelected, status }) => (
