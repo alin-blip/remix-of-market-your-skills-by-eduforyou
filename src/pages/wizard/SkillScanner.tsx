@@ -62,6 +62,7 @@ export default function SkillScanner() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [savedSkills, setSavedSkills] = useState<SavedSkill[]>([]);
+  const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('skill-scanner');
 
   useEffect(() => {
     loadSavedSkills();
