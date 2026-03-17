@@ -135,7 +135,7 @@ function Navbar() {
               {item.label}
             </a>
           ))}
-          <a href="#pricing" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
+          <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>
         </div>
