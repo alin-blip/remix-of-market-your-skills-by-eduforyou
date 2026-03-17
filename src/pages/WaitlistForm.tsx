@@ -50,7 +50,7 @@ export default function WaitlistForm() {
     setLoading(true);
     const { error } = await supabase.from('waitlist_applications').insert({
       full_name: form.full_name,
-      email: form.email,
+      email: form.email.trim().toLowerCase(),
       phone: form.phone,
       domain: form.domain || null,
       freelance_experience: form.freelance_experience || null,

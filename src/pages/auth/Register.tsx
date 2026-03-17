@@ -40,14 +40,11 @@ export default function Register() {
 
     setLoading(true);
 
-    // Check waitlist approval
-    const { data: waitlistEntry } = await supabase
-      .from('waitlist_applications')
-      .select('status')
-      .eq('email', email.trim().toLowerCase())
-      .maybeSingle();
+    // Check waitlist approval via secure RPC
+    const { data: waitlistStatus } = await supabase
+      .rpc('check_waitlist_status', { check_email: email.trim().toLowerCase() });
 
-    if (!waitlistEntry || waitlistEntry.status !== 'approved') {
+    if (!waitlistStatus || waitlistStatus !== 'approved') {
       toast.error('Email neaprobat', {
         description: 'Trebuie să fii aprobat pe waitlist pentru a te înregistra. Aplică pe pagina de waitlist.',
       });
