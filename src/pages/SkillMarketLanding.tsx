@@ -113,7 +113,7 @@ function Navbar() {
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
-          <a href="#pricing" className="btn-gold text-sm px-4 py-2 rounded-lg">
+          <a href="/waitlist" className="btn-gold text-sm px-4 py-2 rounded-lg">
             {t.nav.getAccess}
           </a>
         </div>
@@ -135,7 +135,7 @@ function Navbar() {
               {item.label}
             </a>
           ))}
-          <a href="#pricing" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
+          <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>
         </div>
@@ -175,7 +175,7 @@ function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
+              <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
                 {t.hero.cta1} <ArrowRight className="h-4 w-4" />
               </a>
               <a href="#eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
@@ -417,7 +417,7 @@ function ValueStack() {
         <div className="text-center mt-12">
           <p className="text-light-sm mb-2">{t.value.totalLabel}</p>
           <p className="text-sm text-muted-sm mb-6">{t.value.totalSub}</p>
-          <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+          <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
             {t.value.totalCta} <ArrowRight className="h-4 w-4" />
           </a>
         </div>
@@ -452,7 +452,7 @@ function EduForYou() {
           </div>
 
           <div className="space-y-4">
-            <a href="/auth/register" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+            <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
               {t.edu.cta1} <ArrowRight className="h-4 w-4" />
             </a>
             <div>
@@ -511,7 +511,7 @@ function Pricing() {
                 ))}
               </ul>
               <a
-                href="/auth/register"
+                href="/waitlist"
                 className={`w-full py-3 rounded-xl text-center text-sm font-semibold ${plan.popular ? "btn-gold" : "btn-gold-outline"}`}
               >
                 {plan.cta}

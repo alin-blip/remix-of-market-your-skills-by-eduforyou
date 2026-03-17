@@ -13,6 +13,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import WaitlistForm from "./pages/WaitlistForm";
+import WaitlistManager from "./pages/admin/WaitlistManager";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import SkillScanner from "./pages/wizard/SkillScanner";
@@ -73,6 +75,7 @@ const App = () => (
                 <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/waitlist" element={<WaitlistForm />} />
                 <Route 
                   path="/onboard" 
                   element={
@@ -337,6 +340,7 @@ const App = () => (
                 <Route path="/dream100-scanner" element={<ProtectedRoute><Dream100Scanner /></ProtectedRoute>} />
                 <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
                 <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
+                <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />

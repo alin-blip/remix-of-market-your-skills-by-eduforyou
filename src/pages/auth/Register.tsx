@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,21 @@ export default function Register() {
     }
 
     setLoading(true);
+
+    // Check waitlist approval
+    const { data: waitlistEntry } = await supabase
+      .from('waitlist_applications')
+      .select('status')
+      .eq('email', email.trim().toLowerCase())
+      .maybeSingle();
+
+    if (!waitlistEntry || waitlistEntry.status !== 'approved') {
+      toast.error('Email neaprobat', {
+        description: 'Trebuie să fii aprobat pe waitlist pentru a te înregistra. Aplică pe pagina de waitlist.',
+      });
+      setLoading(false);
+      return;
+    }
 
     const { error } = await signUp(email, password, fullName);
 

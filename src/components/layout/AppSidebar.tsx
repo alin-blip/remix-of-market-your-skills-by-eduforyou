@@ -19,6 +19,7 @@ import {
   Search,
   FileText,
   Send,
+  ClipboardList,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -487,28 +488,52 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
 
           {/* Admin */}
           {isAdmin && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  asChild
-                  className={cn(
-                    "h-8 w-8 hover:bg-sidebar-accent/50",
-                    currentPath.startsWith('/admin') 
-                      ? "text-primary" 
-                      : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
-                  )}
-                >
-                  <NavLink to="/admin">
-                    <Shield className="h-4 w-4" />
-                  </NavLink>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                {t.admin?.title || 'Admin Panel'}
-              </TooltipContent>
-            </Tooltip>
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    asChild
+                    className={cn(
+                      "h-8 w-8 hover:bg-sidebar-accent/50",
+                      currentPath === '/admin'
+                        ? "text-primary" 
+                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <NavLink to="/admin">
+                      <Shield className="h-4 w-4" />
+                    </NavLink>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {t.admin?.title || 'Admin Panel'}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    asChild
+                    className={cn(
+                      "h-8 w-8 hover:bg-sidebar-accent/50",
+                      currentPath === '/admin/waitlist'
+                        ? "text-primary" 
+                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <NavLink to="/admin/waitlist">
+                      <ClipboardList className="h-4 w-4" />
+                    </NavLink>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  Waitlist
+                </TooltipContent>
+              </Tooltip>
+            </>
           )}
         </div>
 
