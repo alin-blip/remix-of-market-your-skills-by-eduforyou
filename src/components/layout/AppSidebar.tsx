@@ -19,6 +19,7 @@ import {
   Search,
   FileText,
   Send,
+  ClipboardList,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
