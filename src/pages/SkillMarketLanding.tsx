@@ -452,7 +452,7 @@ function EduForYou() {
           </div>
 
           <div className="space-y-4">
-            <a href="/auth/register" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+            <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
               {t.edu.cta1} <ArrowRight className="h-4 w-4" />
             </a>
             <div>
