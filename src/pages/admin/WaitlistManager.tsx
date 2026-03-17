@@ -99,10 +99,19 @@ export default function WaitlistManager() {
         .eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['waitlist'] });
       queryClient.invalidateQueries({ queryKey: ['waitlist-count'] });
       toast.success('Status actualizat!');
+      // Send notification email if approved
+      if (variables.status === 'approved') {
+        const app = applications.find(a => a.id === variables.id);
+        if (app) {
+          supabase.functions.invoke('waitlist-notify', {
+            body: { email: app.email, full_name: app.full_name },
+          }).catch(() => console.error('Failed to send notification'));
+        }
+      }
       setSelectedApp(null);
     },
     onError: () => toast.error('Eroare la actualizare.'),
