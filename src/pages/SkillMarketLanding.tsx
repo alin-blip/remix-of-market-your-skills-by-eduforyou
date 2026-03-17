@@ -113,7 +113,7 @@ function Navbar() {
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
-          <a href="#pricing" className="btn-gold text-sm px-4 py-2 rounded-lg">
+          <a href="/waitlist" className="btn-gold text-sm px-4 py-2 rounded-lg">
             {t.nav.getAccess}
           </a>
         </div>
