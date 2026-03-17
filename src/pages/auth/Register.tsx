@@ -16,6 +16,7 @@ import {
 import { Sparkles, Loader2, CheckCircle2, ArrowLeft, ArrowRight, Globe, Sun, Moon, Monitor } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { lovable } from '@/integrations/lovable/index';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
