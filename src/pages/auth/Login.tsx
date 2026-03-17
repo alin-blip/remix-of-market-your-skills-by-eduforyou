@@ -15,6 +15,7 @@ import {
 import { Sparkles, Loader2, ArrowLeft, Globe, Sun, Moon, Monitor } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { lovable } from '@/integrations/lovable/index';
 
 export default function Login() {
   const [email, setEmail] = useState('');
