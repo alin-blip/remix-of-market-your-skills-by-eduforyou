@@ -340,6 +340,7 @@ const App = () => (
                 <Route path="/dream100-scanner" element={<ProtectedRoute><Dream100Scanner /></ProtectedRoute>} />
                 <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
                 <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
+                <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />
