@@ -213,7 +213,13 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-border text-center">
+          <div className="mt-4 text-center">
+            <Link to="/auth/forgot-password" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Ai uitat parola?
+            </Link>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-muted-foreground">
               {t.auth.noAccount}{' '}
               <Link to="/auth/register" className="text-accent hover:underline font-semibold">
