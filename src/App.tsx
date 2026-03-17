@@ -13,6 +13,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import WaitlistForm from "./pages/WaitlistForm";
 import WaitlistManager from "./pages/admin/WaitlistManager";
 import Onboarding from "./pages/Onboarding";
