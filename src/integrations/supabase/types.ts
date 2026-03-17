@@ -2098,6 +2098,60 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_applications: {
+        Row: {
+          admin_notes: string | null
+          country: string | null
+          created_at: string
+          domain: string | null
+          email: string
+          freelance_experience: string | null
+          full_name: string
+          how_heard: string | null
+          id: string
+          is_eduforyou_member: boolean | null
+          objective: string | null
+          phone: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          country?: string | null
+          created_at?: string
+          domain?: string | null
+          email: string
+          freelance_experience?: string | null
+          full_name: string
+          how_heard?: string | null
+          id?: string
+          is_eduforyou_member?: boolean | null
+          objective?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          country?: string | null
+          created_at?: string
+          domain?: string | null
+          email?: string
+          freelance_experience?: string | null
+          full_name?: string
+          how_heard?: string | null
+          id?: string
+          is_eduforyou_member?: boolean | null
+          objective?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       weekly_sprints: {
         Row: {
           created_at: string | null
