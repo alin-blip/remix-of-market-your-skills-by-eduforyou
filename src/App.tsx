@@ -75,6 +75,7 @@ const App = () => (
                 <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/waitlist" element={<WaitlistForm />} />
                 <Route 
                   path="/onboard" 
                   element={
