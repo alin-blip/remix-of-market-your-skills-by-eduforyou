@@ -196,20 +196,6 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">{t.auth.fullName}</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="John Smith"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                disabled={loading}
-                className="h-12 bg-secondary border-border focus:border-primary"
-              />
-            </div>
-            
-            <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input
                 id="email"

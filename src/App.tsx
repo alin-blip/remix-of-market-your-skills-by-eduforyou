@@ -81,14 +81,6 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<WaitlistForm />} />
                 <Route 
-                  path="/onboard" 
-                  element={
-                    <ProtectedRoute requireOnboarding={false}>
-                      <Onboarding />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
                   path="/dashboard" 
                   element={
                     <ProtectedRoute>

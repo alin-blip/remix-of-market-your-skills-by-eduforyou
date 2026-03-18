@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Sparkles, ArrowLeft, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, ArrowRight, Globe, Calendar, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -20,6 +22,60 @@ import logoImg from '@/assets/logo.png';
 const DOMAIN_OPTIONS = ['IT', 'Marketing', 'Design', 'Business', 'Educație', 'Sănătate', 'Altele'];
 const FREELANCE_OPTIONS = ['Da', 'Nu', 'Puțin'];
 const HOW_HEARD_OPTIONS = ['Social Media', 'Prieten', 'Google', 'TikTok', 'YouTube', 'Altele'];
+
+const eduforyouCourses = [
+  { category: 'Business & Management', name: 'Applied Business Psychology (BSc)' },
+  { category: 'Business & Management', name: 'Global Business Management (BSc)' },
+  { category: 'Business & Management', name: 'Project Management (BSc)' },
+  { category: 'Business & Management', name: 'Accounting & Finance (BSc)' },
+  { category: 'Business & Management', name: 'Business & Tourism (BSc)' },
+  { category: 'Business & Management', name: 'Business (HND)' },
+  { category: 'Business & Management', name: 'Global Business Entrepreneurship (BSc)' },
+  { category: 'Business & Management', name: 'Business Administration (MBA)' },
+  { category: 'Business & Management', name: 'Marketing Management (BSc)' },
+  { category: 'Business & Management', name: 'International Business (BSc)' },
+  { category: 'Business & Management', name: 'Human Resource Management (BSc)' },
+  { category: 'Technology & Computing', name: 'Computing (BSc)' },
+  { category: 'Technology & Computing', name: 'Computer Science (BSc)' },
+  { category: 'Technology & Computing', name: 'Software Engineering (BSc)' },
+  { category: 'Technology & Computing', name: 'Cyber Security (BSc)' },
+  { category: 'Technology & Computing', name: 'Cyber Security (HND)' },
+  { category: 'Technology & Computing', name: 'Data Science (BSc)' },
+  { category: 'Technology & Computing', name: 'Artificial Intelligence (BSc)' },
+  { category: 'Technology & Computing', name: 'Information Technology (BSc)' },
+  { category: 'Technology & Computing', name: 'Web Development (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Psychology & Counselling (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Healthcare Practice (HND)' },
+  { category: 'Healthcare & Social Sciences', name: 'Nursing (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Health & Social Care (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Public Health (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Social Work (BSc)' },
+  { category: 'Healthcare & Social Sciences', name: 'Biomedical Science (BSc)' },
+  { category: 'Construction & Engineering', name: 'Construction Management (BSc)' },
+  { category: 'Construction & Engineering', name: 'Construction Management (HND)' },
+  { category: 'Construction & Engineering', name: 'Civil Engineering (BEng)' },
+  { category: 'Construction & Engineering', name: 'Mechanical Engineering (BEng)' },
+  { category: 'Construction & Engineering', name: 'Electrical Engineering (BEng)' },
+  { category: 'Construction & Engineering', name: 'Architecture (BA)' },
+  { category: 'Construction & Engineering', name: 'Quantity Surveying (BSc)' },
+  { category: 'Creative & Media', name: 'Graphic Design (BA)' },
+  { category: 'Creative & Media', name: 'Digital Marketing (BSc)' },
+  { category: 'Creative & Media', name: 'Media & Communications (BA)' },
+  { category: 'Creative & Media', name: 'Film & Television Production (BA)' },
+  { category: 'Creative & Media', name: 'Photography (BA)' },
+  { category: 'Creative & Media', name: 'Fashion Design (BA)' },
+  { category: 'Law & Humanities', name: 'Law (LLB)' },
+  { category: 'Law & Humanities', name: 'Criminology (BSc)' },
+  { category: 'Law & Humanities', name: 'Politics & International Relations (BA)' },
+  { category: 'Law & Humanities', name: 'History (BA)' },
+  { category: 'Law & Humanities', name: 'English Literature (BA)' },
+];
+
+const coursesByCategory = eduforyouCourses.reduce((acc, course) => {
+  if (!acc[course.category]) acc[course.category] = [];
+  acc[course.category].push(course.name);
+  return acc;
+}, {} as Record<string, string[]>);
 
 export default function WaitlistForm() {
   const [loading, setLoading] = useState(false);
@@ -34,6 +90,9 @@ export default function WaitlistForm() {
     country: '',
     how_heard: '',
     is_eduforyou_member: false,
+    study_field: '',
+    date_of_birth: '',
+    preferred_locale: 'ro',
   });
 
   const updateField = (field: string, value: string | boolean) => {
@@ -58,6 +117,9 @@ export default function WaitlistForm() {
       country: form.country || null,
       how_heard: form.how_heard || null,
       is_eduforyou_member: form.is_eduforyou_member,
+      study_field: form.study_field || null,
+      date_of_birth: form.date_of_birth || null,
+      preferred_locale: form.preferred_locale || 'ro',
     });
 
     setLoading(false);
@@ -176,7 +238,70 @@ export default function WaitlistForm() {
               />
             </div>
 
-            {/* 4. Domeniu */}
+            {/* 4. Data nașterii */}
+            <div className="space-y-1.5">
+              <Label htmlFor="date_of_birth" className="text-sm font-medium flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                Data nașterii
+              </Label>
+              <Input
+                id="date_of_birth"
+                type="date"
+                value={form.date_of_birth}
+                onChange={(e) => updateField('date_of_birth', e.target.value)}
+                disabled={loading}
+                className="h-11 bg-secondary border-border focus:border-primary"
+              />
+            </div>
+
+            {/* 5. Curs universitar */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1.5">
+                <GraduationCap className="h-3.5 w-3.5" />
+                Curs universitar (Eduforyou)
+              </Label>
+              <Select value={form.study_field} onValueChange={(v) => updateField('study_field', v)}>
+                <SelectTrigger className="h-11 bg-secondary border-border">
+                  <SelectValue placeholder="Alege cursul tău" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {Object.entries(coursesByCategory).map(([category, courses]) => (
+                    <SelectGroup key={category}>
+                      <SelectLabel className="text-primary font-semibold">{category}</SelectLabel>
+                      {courses.map((course) => (
+                        <SelectItem key={course} value={course}>{course}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                  <SelectGroup>
+                    <SelectLabel className="text-primary font-semibold">Altele</SelectLabel>
+                    <SelectItem value="Altul (specificați)">Altul (specificați)</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Selectează cursul la care ești înscris sau pe care îl urmezi prin Eduforyou.
+              </p>
+            </div>
+
+            {/* 6. Limba preferată */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1.5">
+                <Globe className="h-3.5 w-3.5" />
+                Limba preferată
+              </Label>
+              <Select value={form.preferred_locale} onValueChange={(v) => updateField('preferred_locale', v)}>
+                <SelectTrigger className="h-11 bg-secondary border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ro">🇷🇴 Română</SelectItem>
+                  <SelectItem value="en">🇬🇧 English</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 7. Domeniu */}
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">În ce domeniu lucrezi/studiezi?</Label>
               <Select value={form.domain} onValueChange={(v) => updateField('domain', v)}>
@@ -191,7 +316,7 @@ export default function WaitlistForm() {
               </Select>
             </div>
 
-            {/* 5. Experienta freelancing */}
+            {/* 8. Experienta freelancing */}
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Ai experiență cu freelancing?</Label>
               <RadioGroup
@@ -208,7 +333,7 @@ export default function WaitlistForm() {
               </RadioGroup>
             </div>
 
-            {/* 6. Obiectiv */}
+            {/* 9. Obiectiv */}
             <div className="space-y-1.5">
               <Label htmlFor="objective" className="text-sm font-medium">Ce obiectiv ai cu platforma?</Label>
               <Textarea
@@ -221,7 +346,7 @@ export default function WaitlistForm() {
               />
             </div>
 
-            {/* 7. Tara */}
+            {/* 10. Tara */}
             <div className="space-y-1.5">
               <Label htmlFor="country" className="text-sm font-medium">Țara de rezidență</Label>
               <Input
@@ -234,7 +359,7 @@ export default function WaitlistForm() {
               />
             </div>
 
-            {/* 8. De unde ai auzit */}
+            {/* 11. De unde ai auzit */}
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">De unde ai auzit de noi?</Label>
               <Select value={form.how_heard} onValueChange={(v) => updateField('how_heard', v)}>
@@ -249,7 +374,7 @@ export default function WaitlistForm() {
               </Select>
             </div>
 
-            {/* 9. Eduforyou - ULTIMUL */}
+            {/* 12. Eduforyou - ULTIMUL */}
             <div className="space-y-1.5 pt-2 border-t border-border">
               <Label className="text-sm font-medium">Ești înscris cu Eduforyou?</Label>
               <RadioGroup
