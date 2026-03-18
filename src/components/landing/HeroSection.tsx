@@ -96,16 +96,28 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right - Laptop Mockup */}
+          {/* Right - Video / Laptop Mockup */}
           <div className="relative flex items-center justify-center animate-slide-up delay-200">
-            <div className="relative">
-              {/* Gold glow behind laptop */}
+            <div className="relative w-full max-w-[600px]">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/10 rounded-3xl blur-3xl scale-110" />
-              <img 
-                src={laptopImg} 
-                alt="Platform preview" 
-                className="relative w-full max-w-[600px] drop-shadow-2xl"
-              />
+              {locale === 'ro' ? (
+                <div
+                  ref={videoRef}
+                  className="voomly-embed relative rounded-xl overflow-hidden"
+                  data-id="pcggwgMkQcgIoE6LkyREjJ5aSMMPD0DJjb9Rl5Z1HZnaNoRNe"
+                  data-ratio="1.777778"
+                  data-type="v"
+                  data-skin-color="#2758EB"
+                  data-shadow=""
+                  style={{ width: '100%', aspectRatio: '1.77778 / 1', background: 'linear-gradient(45deg, rgb(142, 150, 164) 0%, rgb(201, 208, 222) 100%)', borderRadius: '10px' }}
+                />
+              ) : (
+                <img 
+                  src={laptopImg} 
+                  alt="Platform preview" 
+                  className="relative w-full drop-shadow-2xl"
+                />
+              )}
             </div>
           </div>
         </div>
