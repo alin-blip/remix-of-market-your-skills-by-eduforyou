@@ -190,13 +190,6 @@ export const en = {
   onboarding: {
     steps: [
       { title: 'Personal info', description: 'Tell us who you are' },
-      { title: 'Interests', description: 'What you like to do' },
-      { title: 'Experience', description: 'Projects and achievements' },
-      { title: 'Goals', description: 'Where you want to go' },
-      { title: 'Values', description: 'What matters to you' },
-      { title: 'Skill Scanner', description: 'Discover your skills' },
-      { title: 'Ikigai', description: 'Find your direction' },
-      { title: 'Offer', description: 'Create your packages' },
     ],
     completeSuccess: 'Congratulations! You have completed the onboarding!',
     saveError: 'An error occurred. Please try again.',

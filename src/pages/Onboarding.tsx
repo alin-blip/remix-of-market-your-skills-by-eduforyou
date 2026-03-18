@@ -6,125 +6,46 @@ import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Loader2 } from 'lucide-react';
 import OnboardingStep1 from '@/components/onboarding/OnboardingStep1';
-import OnboardingStep2 from '@/components/onboarding/OnboardingStep2';
-import OnboardingStep3 from '@/components/onboarding/OnboardingStep3';
-import OnboardingStep4 from '@/components/onboarding/OnboardingStep4';
-import OnboardingStep5 from '@/components/onboarding/OnboardingStep5';
-import OnboardingStep6Skills from '@/components/onboarding/OnboardingStep6Skills';
-import OnboardingStep7Ikigai from '@/components/onboarding/OnboardingStep7Ikigai';
-import OnboardingStep8Offer from '@/components/onboarding/OnboardingStep8Offer';
 
 interface OnboardingData {
   full_name: string;
   date_of_birth: string;
   study_field: string;
   other_course?: string;
-  interests: string[];
-  projects_experience: string;
-  goals: string[];
-  values: string[];
 }
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
   const { t } = useI18n();
-  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasSkills, setHasSkills] = useState(false);
-  const [hasIkigai, setHasIkigai] = useState(false);
-  const [hasOffer, setHasOffer] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     full_name: '',
     date_of_birth: '',
     study_field: '',
     other_course: '',
-    interests: [],
-    projects_experience: '',
-    goals: [],
-    values: [],
   });
-
-  const steps = t.onboarding.steps;
 
   const updateData = (updates: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...updates }));
   };
 
-  const saveProfileData = async () => {
-    if (!user) return;
-    
-    const studyField = data.study_field === t.onboardingStep1.otherCourse && data.other_course 
-      ? data.other_course 
-      : data.study_field;
-
-    await supabase
-      .from('profiles')
-      .update({
-        full_name: data.full_name,
-        date_of_birth: data.date_of_birth || null,
-        study_field: studyField,
-        interests: data.interests,
-        projects_experience: data.projects_experience,
-        goals: data.goals,
-        values: data.values,
-      })
-      .eq('id', user.id);
-  };
-
-  const canProceed = () => {
-    switch (currentStep) {
-      case 0:
-        const hasValidCourse = data.study_field === t.onboardingStep1.otherCourse 
-          ? (data.other_course?.trim() ?? '') !== ''
-          : data.study_field.trim() !== '';
-        return data.full_name.trim() !== '' && hasValidCourse;
-      case 1:
-        return data.interests.length > 0;
-      case 2:
-        return data.projects_experience.trim() !== '';
-      case 3:
-        return data.goals.length > 0;
-      case 4:
-        return data.values.length > 0;
-      case 5:
-        return hasSkills;
-      case 6:
-        return hasIkigai;
-      case 7:
-        return hasOffer;
-      default:
-        return false;
-    }
-  };
-
-  const handleNext = async () => {
-    // Save profile data after step 5 (before AI steps)
-    if (currentStep === 4) {
-      await saveProfileData();
-    }
-    
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
+  const canSubmit = () => {
+    const hasValidCourse = data.study_field === t.onboardingStep1.otherCourse
+      ? (data.other_course?.trim() ?? '') !== ''
+      : data.study_field.trim() !== '';
+    return data.full_name.trim() !== '' && hasValidCourse;
   };
 
   const handleSubmit = async () => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
-      const studyField = data.study_field === t.onboardingStep1.otherCourse && data.other_course 
-        ? data.other_course 
+      const studyField = data.study_field === t.onboardingStep1.otherCourse && data.other_course
+        ? data.other_course
         : data.study_field;
 
       const { error } = await supabase
@@ -133,10 +54,6 @@ export default function Onboarding() {
           full_name: data.full_name,
           date_of_birth: data.date_of_birth || null,
           study_field: studyField,
-          interests: data.interests,
-          projects_experience: data.projects_experience,
-          goals: data.goals,
-          values: data.values,
           onboarding_completed: true,
         })
         .eq('id', user.id);
@@ -154,144 +71,22 @@ export default function Onboarding() {
     }
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 0:
-        return <OnboardingStep1 data={data} updateData={updateData} />;
-      case 1:
-        return <OnboardingStep2 data={data} updateData={updateData} />;
-      case 2:
-        return <OnboardingStep3 data={data} updateData={updateData} />;
-      case 3:
-        return <OnboardingStep4 data={data} updateData={updateData} />;
-      case 4:
-        return <OnboardingStep5 data={data} updateData={updateData} />;
-      case 5:
-        return <OnboardingStep6Skills data={data} onSkillsGenerated={setHasSkills} />;
-      case 6:
-        return <OnboardingStep7Ikigai data={data} onIkigaiGenerated={setHasIkigai} />;
-      case 7:
-        return <OnboardingStep8Offer onOfferGenerated={setHasOffer} />;
-      default:
-        return null;
-    }
-  };
-
-  const progressPercent = ((currentStep + 1) / steps.length) * 100;
-
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background effects */}
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-      
-      <div className="relative z-10 container max-w-3xl mx-auto px-4 py-8">
-        {/* Progress indicator header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              Pas {currentStep + 1} din {steps.length}
-            </span>
-            <span className="text-sm font-medium text-primary">
-              {Math.round(progressPercent)}% completat
-            </span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
-        </div>
 
-        {/* Step indicators */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4 overflow-x-auto pb-2">
-            {steps.map((step, index) => (
-              <div key={index} className="flex items-center flex-shrink-0">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
-                      index < currentStep
-                        ? 'bg-primary text-primary-foreground'
-                        : index === currentStep
-                        ? 'bg-primary text-primary-foreground ring-4 ring-primary/30 scale-110'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
-                  </div>
-                  <span className={`hidden md:block text-xs mt-1 max-w-[60px] text-center truncate ${
-                    index <= currentStep ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>
-                    {step.title.split(' ').slice(0, 2).join(' ')}
-                  </span>
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`hidden sm:block w-8 lg:w-12 h-1 mx-1 rounded-full transition-all duration-300 ${
-                      index < currentStep ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          
-          {/* Current step info */}
-          <Card className="bg-primary/5 border-primary/20 p-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {currentStep + 1}
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-foreground">{steps[currentStep].title}</h2>
-                <p className="text-sm text-muted-foreground">{steps[currentStep].description}</p>
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-              <span>📍 {steps.length - currentStep - 1} pași rămași</span>
-              <span>•</span>
-              <span>⏱️ ~{(steps.length - currentStep) * 2} minute</span>
-            </div>
-          </Card>
-        </div>
-
-        {/* Step content */}
+      <div className="relative z-10 container max-w-lg mx-auto px-4 py-8">
         <Card className="glass border-white/10 p-6 md:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderStep()}
-            </motion.div>
-          </AnimatePresence>
-        </Card>
+          <OnboardingStep1 data={data} updateData={updateData} />
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 0}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t.common.back}
-          </Button>
-          
-          {currentStep === steps.length - 1 ? (
+          <div className="mt-8">
             <Button
               onClick={handleSubmit}
-              disabled={!canProceed() || isSubmitting}
-              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              disabled={!canSubmit() || isSubmitting}
+              className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              size="lg"
             >
               {isSubmitting ? (
                 <>
@@ -305,17 +100,8 @@ export default function Onboarding() {
                 </>
               )}
             </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className="gap-2"
-            >
-              {t.common.next}
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
