@@ -51,7 +51,7 @@ export default function Register() {
       return;
     }
 
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, '');
 
     if (error) {
       toast.error(t.auth.registerFailed, {
@@ -61,10 +61,13 @@ export default function Register() {
       return;
     }
 
+    // Auto-populate profile from waitlist data
+    await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
+
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    navigate('/onboard');
+    navigate('/dashboard');
   };
 
   return (
