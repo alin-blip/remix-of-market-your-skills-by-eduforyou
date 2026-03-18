@@ -1,77 +1,248 @@
 
+# Plan: E.D.U Method Platform -- Eduforyou Student Application Portal
 
-## Plan: Adaugă limba preferată în waitlist + elimină onboarding complet
+## Overview
 
-### Rezumat
-Mutăm **toate** datele din onboarding (nume, DOB, curs universitar, limbă) în waitlist form. La signup, profilul se populează automat din datele waitlist → `onboarding_completed: true` → redirect direct pe Dashboard.
+Transform the current "Student Freedom Path Planner" into the **E.D.U Method** platform for **Eduforyou**, a UK university recruitment agency. The platform will guide students through three phases: **E**valuate, **D**eliver, **U**nlock -- tracking their entire journey from first contact to enrollment and beyond.
 
-### Database migration
-```sql
-ALTER TABLE waitlist_applications 
-  ADD COLUMN study_field text,
-  ADD COLUMN date_of_birth date,
-  ADD COLUMN preferred_locale text DEFAULT 'ro';
+## Current State
+
+The platform already has:
+- Authentication system with profiles (name, date of birth, study field, interests)
+- Onboarding flow with UK university courses already listed (Eduforyou courses)
+- Ikigai Builder (can become AI Course Matching)
+- Learning Hub with courses, ebooks, funnels
+- Quiz system for course verification
+- SwipeHire integration for job/gig matching
+- Life OS for goal tracking
+- Stripe payments integration
+
+## E.D.U Method Architecture
+
+```text
++-----------------------------------------------------------+
+|                    E.D.U Method Platform                   |
++-----------------------------------------------------------+
+|                                                           |
+|  E - EVALUATE          D - DELIVER         U - UNLOCK     |
+|  +--------------+   +--------------+   +--------------+   |
+|  | Eligibility  |   | Document     |   | Student      |   |
+|  | Check (AI)   |   | Collection   |   | Finance App  |   |
+|  +--------------+   +--------------+   +--------------+   |
+|  | AI Course    |   | CV / Personal|   | 10 Bonuses   |   |
+|  | Matching     |   | Statement    |   | (courses)    |   |
+|  +--------------+   +--------------+   +--------------+   |
+|  | E.D.U Plan   |   | University   |   | Enrollment   |   |
+|  | Roadmap      |   | Response     |   | Confirmed    |   |
+|  +--------------+   +--------------+   +--------------+   |
+|  | Test Prep    |   | Offer Accept |   | Freedom      |   |
+|  | Platform     |   |              |   | Circle       |   |
+|  +--------------+   +--------------+   +--------------+   |
+|                                                           |
++-----------------------------------------------------------+
 ```
 
-### Fișiere modificate
+## Implementation Phases
 
-| Fișier | Ce se schimbă |
-|--------|--------------|
-| `src/pages/WaitlistForm.tsx` | Adaug 3 câmpuri noi: select curs universitar (lista eduforyou din OnboardingStep1), input data nașterii, select limbă (RO/EN) |
-| `src/pages/auth/Register.tsx` | Elimin câmpul "Full Name" (vine din waitlist). După signup reușit, copiez datele din waitlist în profiles via RPC |
-| `src/lib/auth.tsx` | În `signUp`, după creare cont, apelez funcție de populare profil din waitlist |
-| `src/components/ProtectedRoute.tsx` | Elimin logica `requireOnboarding` — toți userii au deja profil complet |
-| `src/App.tsx` | Elimin ruta `/onboard` |
+---
 
-### Logica de auto-populare profil
+### PHASE 1: Foundation and Rebranding
 
-Creez o funcție RPC `populate_profile_from_waitlist(user_email text)` (SECURITY DEFINER) care:
-1. Caută waitlist application by email
-2. Updatează profiles cu `full_name`, `study_field`, `date_of_birth`, `locale`, `onboarding_completed = true`
+**1.1 Rebrand to E.D.U Method**
+- Update sidebar logo from "Student Freedom" to "E.D.U Method" with Eduforyou branding
+- Update Landing page with E.D.U Method messaging
+- Update platform colors/theme if needed
 
-Aceasta se apelează din `Register.tsx` după signup reușit.
+**1.2 Create Application Tracker Database**
+- New `student_applications` table to track each student's journey through E-D-U phases
+- Fields: user_id, current_phase (evaluate/deliver/unlock), current_step, assigned_consultant, university_choice, course_choice, application_status, documents_status, finance_status, etc.
+- New `application_steps` table for granular step tracking with timestamps
+- New `application_documents` table for document management (CV, personal statement, ID, etc.)
+- New `application_notes` table for consultant notes per student
 
-### Migration SQL completă
-```sql
--- Add fields to waitlist
-ALTER TABLE waitlist_applications 
-  ADD COLUMN study_field text,
-  ADD COLUMN date_of_birth date,
-  ADD COLUMN preferred_locale text DEFAULT 'ro';
+**1.3 Student Dashboard Redesign**
+- Replace current dashboard with an **E.D.U Journey Tracker**
+- Visual pipeline showing E > D > U progress with the current step highlighted
+- Cards for each active step with status, next actions, and deadlines
+- Quick stats: days since application, next milestone, assigned consultant
 
--- RPC to auto-populate profile from waitlist data
-CREATE OR REPLACE FUNCTION public.populate_profile_from_waitlist(user_email text)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-DECLARE
-  w RECORD;
-BEGIN
-  SELECT full_name, study_field, date_of_birth, preferred_locale
-  INTO w
-  FROM waitlist_applications
-  WHERE LOWER(email) = LOWER(user_email) AND status = 'approved'
-  LIMIT 1;
+---
 
-  IF FOUND THEN
-    UPDATE profiles
-    SET full_name = w.full_name,
-        study_field = w.study_field,
-        date_of_birth = w.date_of_birth,
-        locale = COALESCE(w.preferred_locale, 'ro'),
-        onboarding_completed = true
-    WHERE email = LOWER(user_email);
-  END IF;
-END;
-$$;
+### PHASE 2: E - EVALUATE Module
+
+**2.1 Eligibility Check (AI-Powered)**
+- New page `/edu/eligibility` -- a 2-minute AI-powered assessment
+- Collects: nationality, age, education level, English proficiency, financial situation
+- AI evaluates eligibility for UK university study and returns result
+- Uses Lovable AI (Gemini) for intelligent assessment
+- Auto-updates application status
+
+**2.2 AI Course Matching (Ikigai Adaptation)**
+- Adapt existing Ikigai Builder into a university course matcher
+- New page `/edu/course-match` -- quiz about interests, skills, career goals
+- AI recommends top 3-5 courses from the Eduforyou portfolio (already listed in OnboardingStep1)
+- Results saved and linked to application
+
+**2.3 E.D.U Plan / Roadmap**
+- New page `/edu/my-plan` -- personalized roadmap generated after eligibility + course match
+- Shows the full E-D-U timeline with estimated dates
+- PDF export of the personalized E.D.U plan
+
+**2.4 Test Preparation Platform (AI Practice)**
+- New page `/edu/test-prep` -- AI-powered practice for oral and written interview
+- Categories: English proficiency, subject knowledge, personal statement prep
+- AI generates practice questions and provides feedback
+- Tracks scores and readiness level
+- Uses Lovable AI for generating questions and evaluating answers
+
+---
+
+### PHASE 3: D - DELIVER Module
+
+**3.1 Document Collection System**
+- New page `/edu/documents` -- guided form for collecting personal details
+- Sections: Personal info, Education history, Work experience, References
+- File upload for supporting documents (passport, certificates)
+- Progress tracker showing what's been submitted vs what's needed
+
+**3.2 CV and Personal Statement Builder**
+- New page `/edu/cv-builder` -- AI-assisted CV builder
+- Collects structured info and generates a formatted CV
+- Personal statement generator with AI guidance
+- Both exportable as PDF
+
+**3.3 Application Status Tracking**
+- Real-time status updates on the dashboard:
+  - "Documents Submitted" 
+  - "Under Review by University"
+  - "University Response Received"
+  - "Offer Received"
+  - "Offer Accepted"
+- Admin panel for consultants to update each student's status
+- Email/in-app notifications for status changes
+
+---
+
+### PHASE 4: U - UNLOCK Module
+
+**4.1 Student Finance Application Tracker**
+- New page `/edu/finance` -- guided Student Finance application info
+- Checklist of requirements
+- Status tracking (applied, processing, approved)
+- Info about maximum amounts (up to 18k/year)
+
+**4.2 Bonuses Hub (10 Bonuses / 9k value)**
+- Leverage existing Learning Hub and funnel system
+- Create a dedicated `/edu/bonuses` page
+- Show 10 locked/unlocked bonuses based on enrollment status
+- Links to existing courses, ebooks, and resources
+
+**4.3 Freedom Circle Community**
+- New page `/edu/community` -- the community access portal
+- Links to courses, networking, jobs/gigs
+- Integration with existing SwipeHire for career opportunities
+- Lifetime access tracking
+
+**4.4 Ongoing Support Dashboard**
+- Contact info for assigned consultant
+- Calendly integration link for booking calls
+- Support ticket/message system
+- Year tracking (Year 1-4 of university)
+
+---
+
+### PHASE 5: Admin Panel for Consultants
+
+**5.1 Student Pipeline View**
+- New admin page `/admin/applications` -- Kanban-style board
+- Columns: New Leads, Eligibility Check, Course Matched, Test Prep, Documents, University Review, Offer, Enrolled
+- Click on a student to see full details and update status
+
+**5.2 Consultant Tools**
+- Add notes to student applications
+- Upload documents on behalf of students
+- Send notifications to students
+- Track conversion rates per phase
+
+---
+
+## Technical Details
+
+### New Database Tables
+
+1. **student_applications** -- Main application tracking
+2. **application_steps** -- Step-by-step progress log
+3. **application_documents** -- Uploaded documents metadata
+4. **application_notes** -- Consultant notes per student
+5. **eligibility_results** -- AI eligibility check results
+6. **course_match_results** -- AI course matching results
+7. **test_prep_sessions** -- Test practice sessions and scores
+8. **student_finance** -- Finance application tracking
+
+### New Edge Functions
+
+1. **eligibility-check** -- AI-powered eligibility assessment
+2. **course-matcher** -- AI course recommendation engine
+3. **test-prep-generator** -- AI practice question generation
+4. **cv-generator** -- AI-assisted CV/personal statement creation
+
+### New Pages (approx. 12)
+
+- `/edu/eligibility`
+- `/edu/course-match`
+- `/edu/my-plan`
+- `/edu/test-prep`
+- `/edu/documents`
+- `/edu/cv-builder`
+- `/edu/finance`
+- `/edu/bonuses`
+- `/edu/community`
+- `/admin/applications`
+- E.D.U Dashboard (replaces current dashboard)
+
+### Sidebar Restructure
+
+```text
+Dashboard (E.D.U Journey)
+---
+E - EVALUATE
+  Eligibility Check
+  Course Matching  
+  Test Preparation
+---
+D - DELIVER
+  Documents
+  CV Builder
+  Application Status
+---
+U - UNLOCK
+  Student Finance
+  Bonuses (10)
+  Freedom Circle
+  Support
+---
+Admin (consultants only)
 ```
 
-### Flow nou
-1. Student completează waitlist (nume, email, telefon, domeniu, curs universitar, DOB, limbă, etc.)
-2. Admin aprobă → email cu link register
-3. Student se înregistrează (doar email + parolă)
-4. Profilul se populează automat din waitlist → `onboarding_completed: true`
-5. Redirect direct pe Dashboard
+### Existing Features Mapping
 
+| Current Feature | Maps To | Phase |
+|---|---|---|
+| Onboarding | E - Student intake form | E |
+| Ikigai Builder | E - AI Course Matching | E |
+| Learning Hub | U - Bonuses Hub | U |
+| Quizzes | E - Test Preparation | E |
+| SwipeHire | U - Career Platform | U |
+| Life OS | Can remain as optional tool | -- |
+| Skill Scanner | E - Eligibility inputs | E |
+| Courses/Funnels | U - Bonus courses delivery | U |
+
+## Recommended Build Order
+
+1. **Phase 1** -- Rebrand + Database setup + New dashboard (foundation)
+2. **Phase 2** -- Evaluate module (first student touchpoint)
+3. **Phase 3** -- Deliver module (core application flow)
+4. **Phase 5** -- Admin panel (consultants need this early)
+5. **Phase 4** -- Unlock module (post-enrollment features)
+
+Each phase can be broken into smaller tasks and built incrementally. I recommend starting with Phase 1 to establish the foundation, then moving through the phases in order.

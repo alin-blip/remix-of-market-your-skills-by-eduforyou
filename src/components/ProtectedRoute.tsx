@@ -7,23 +7,17 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
-  requireOnboarding?: boolean;
 }
 
 export function ProtectedRoute({ 
   children, 
   requireAdmin = false,
-  requireOnboarding = true,
 }: ProtectedRouteProps) {
-  const { user, profile, loading } = useAuth();
+  const { user, loading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminRole();
   const location = useLocation();
 
-  // Show loading state while checking auth, admin status, AND profile
-  // We need to wait for profile to be loaded before checking onboarding status
-  const isProfileLoading = user && !profile && loading === false;
-  
-  if (loading || (requireAdmin && adminLoading) || isProfileLoading) {
+  if (loading || (requireAdmin && adminLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -38,12 +32,6 @@ export function ProtectedRoute({
   // Use secure server-side admin check for admin routes
   if (requireAdmin && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
-  }
-
-  // Only redirect to onboarding if profile is loaded and onboarding is NOT completed
-  // If profile exists and onboarding_completed is true, skip onboarding
-  if (requireOnboarding && profile && profile.onboarding_completed === false && location.pathname !== '/onboard') {
-    return <Navigate to="/onboard" replace />;
   }
 
   return <>{children}</>;

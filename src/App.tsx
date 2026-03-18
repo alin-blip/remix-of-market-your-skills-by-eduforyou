@@ -17,7 +17,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import WaitlistForm from "./pages/WaitlistForm";
 import WaitlistManager from "./pages/admin/WaitlistManager";
-import Onboarding from "./pages/Onboarding";
+
 import Dashboard from "./pages/Dashboard";
 import SkillScanner from "./pages/wizard/SkillScanner";
 import IkigaiBuilder from "./pages/wizard/IkigaiBuilder";
@@ -80,14 +80,6 @@ const App = () => (
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<WaitlistForm />} />
-                <Route 
-                  path="/onboard" 
-                  element={
-                    <ProtectedRoute requireOnboarding={false}>
-                      <Onboarding />
-                    </ProtectedRoute>
-                  } 
-                />
                 <Route 
                   path="/dashboard" 
                   element={

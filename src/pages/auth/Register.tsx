@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils';
 import { lovable } from '@/integrations/lovable/index';
 
 export default function Register() {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,7 +51,7 @@ export default function Register() {
       return;
     }
 
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, '');
 
     if (error) {
       toast.error(t.auth.registerFailed, {
@@ -62,10 +61,13 @@ export default function Register() {
       return;
     }
 
+    // Auto-populate profile from waitlist data
+    await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
+
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    navigate('/onboard');
+    navigate('/dashboard');
   };
 
   return (
@@ -193,20 +195,6 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">{t.auth.fullName}</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="John Smith"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                disabled={loading}
-                className="h-12 bg-secondary border-border focus:border-primary"
-              />
-            </div>
-            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input
