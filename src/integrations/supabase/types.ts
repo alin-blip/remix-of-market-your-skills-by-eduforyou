@@ -2214,6 +2214,7 @@ export type Database = {
           admin_notes: string | null
           country: string | null
           created_at: string
+          date_of_birth: string | null
           domain: string | null
           email: string
           freelance_experience: string | null
@@ -2223,14 +2224,17 @@ export type Database = {
           is_eduforyou_member: boolean | null
           objective: string | null
           phone: string | null
+          preferred_locale: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
+          study_field: string | null
         }
         Insert: {
           admin_notes?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           domain?: string | null
           email: string
           freelance_experience?: string | null
@@ -2240,14 +2244,17 @@ export type Database = {
           is_eduforyou_member?: boolean | null
           objective?: string | null
           phone?: string | null
+          preferred_locale?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          study_field?: string | null
         }
         Update: {
           admin_notes?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           domain?: string | null
           email?: string
           freelance_experience?: string | null
@@ -2257,9 +2264,11 @@ export type Database = {
           is_eduforyou_member?: boolean | null
           objective?: string | null
           phone?: string | null
+          preferred_locale?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          study_field?: string | null
         }
         Relationships: []
       }
@@ -2339,6 +2348,10 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      populate_profile_from_waitlist: {
+        Args: { user_email: string }
+        Returns: undefined
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
