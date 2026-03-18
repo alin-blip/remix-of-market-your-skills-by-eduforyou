@@ -190,13 +190,6 @@ export const ro = {
   onboarding: {
     steps: [
       { title: 'Date personale', description: 'Spune-ne cine ești' },
-      { title: 'Interese', description: 'Ce îți place să faci' },
-      { title: 'Experiență', description: 'Proiecte și realizări' },
-      { title: 'Obiective', description: 'Unde vrei să ajungi' },
-      { title: 'Valori', description: 'Ce contează pentru tine' },
-      { title: 'Skill Scanner', description: 'Descoperă-ți competențele' },
-      { title: 'Ikigai', description: 'Găsește-ți direcția' },
-      { title: 'Ofertă', description: 'Creează-ți pachetele' },
     ],
     completeSuccess: 'Felicitări! Ai finalizat onboarding-ul!',
     saveError: 'A apărut o eroare. Încearcă din nou.',
