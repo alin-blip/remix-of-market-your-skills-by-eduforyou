@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils';
 import { lovable } from '@/integrations/lovable/index';
 
 export default function Register() {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
