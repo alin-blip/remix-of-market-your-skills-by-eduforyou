@@ -17,7 +17,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import WaitlistForm from "./pages/WaitlistForm";
 import WaitlistManager from "./pages/admin/WaitlistManager";
-import Onboarding from "./pages/Onboarding";
+
 import Dashboard from "./pages/Dashboard";
 import SkillScanner from "./pages/wizard/SkillScanner";
 import IkigaiBuilder from "./pages/wizard/IkigaiBuilder";
