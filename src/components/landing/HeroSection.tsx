@@ -12,7 +12,20 @@ import {
 import laptopImg from '@/assets/laptop-mockup.png';
 
 export function HeroSection() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const videoRef = useRef<HTMLDivElement>(null);
+
+  // Load Voomly embed script for RO locale
+  useEffect(() => {
+    if (locale !== 'ro') return;
+    const script = document.createElement('script');
+    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [locale]);
 
   const stats = [
     { value: '7,000+', label: t.landing.stats.activeStudents, icon: Users },
