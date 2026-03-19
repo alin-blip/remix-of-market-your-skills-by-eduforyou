@@ -207,6 +207,69 @@ export default function DefineYourPath() {
           </h1>
         </div>
 
+        {/* Step 0: DNA Quiz */}
+        <div className="flex flex-col gap-3">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <Card
+              className={cn(
+                "p-4 cursor-pointer transition-all hover:border-primary/50",
+                "bg-card border-border/50",
+                profileDna && "border-l-4 border-l-primary"
+              )}
+              onClick={() => !profileDna && setShowDnaQuiz(true)}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "p-3 rounded-xl",
+                    profileDna ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                  )}>
+                    {profileDna ? <CheckCircle2 className="h-5 w-5" /> : <Dna className="h-5 w-5" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">
+                        {locale === 'en' ? 'Execution DNA' : locale === 'ua' ? 'ДНК Виконання' : 'ADN-ul de Execuție'}
+                      </span>
+                      {profileDna && (
+                        <Badge className="bg-primary/20 text-primary border-0 text-xs flex items-center gap-1">
+                          {(() => { const I = dnaIcons[profileDna]; return I ? <I className="h-3 w-3" /> : null; })()}
+                          {(dnaLabels[locale] || dnaLabels.ro)[profileDna] || profileDna}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {locale === 'en' ? 'Discover your natural path: Employee, Freelancer or Startup' : locale === 'ua' ? 'Відкрийте свій шлях: Працівник, Фрілансер чи Стартап' : 'Descoperă-ți calea naturală: Angajat, Freelancer sau Startup'}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); setShowDnaQuiz(true); }}>
+                  {profileDna ? (t.common.review || 'Review') : (locale === 'en' ? 'Start' : locale === 'ua' ? 'Почати' : 'Începe')}
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* DNA Quiz Dialog */}
+        <Dialog open={showDnaQuiz} onOpenChange={setShowDnaQuiz}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DnaQuizContainer
+              lang={(locale || 'ro') as QuizLang}
+              isPublic={false}
+              onComplete={() => {
+                setShowDnaQuiz(false);
+                queryClient.invalidateQueries({ queryKey: ['profile-dna'] });
+              }}
+              onNavigate={(path) => {
+                setShowDnaQuiz(false);
+                navigate(path);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+
         {/* Steps List */}
         <div className="flex flex-col gap-3">
           {pathSteps.map((step, index) => {
