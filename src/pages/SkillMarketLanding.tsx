@@ -100,7 +100,7 @@ function Logo() {
 }
 
 /* ─── Navbar ─── */
-function Navbar() {
+function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   const { t } = useSkillMarketLang();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -131,7 +131,7 @@ function Navbar() {
           ))}
         </div>
         <div className="hidden lg:flex items-center gap-3">
-          <LangSelector />
+          <LangSelector forceOpen={autoOpenLangPicker} />
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
