@@ -46,6 +46,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/lib/auth';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import logoImg from '@/assets/logo.png';
