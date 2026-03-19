@@ -130,7 +130,7 @@ const t = {
         { title: "Income Tracker + UK Income Optimizer", value: "£297", desc: "Financial dashboard with Student Finance + freelancing calculation + UK legal limits." },
         { title: "Freedom Plan Export (PDF/DOCX)", value: "£97", desc: "Complete personalized strategy document, exportable and printable." },
         { title: "Jump to Freedom Community (Skool)", value: "£497", desc: "Access to private community + I.N.C.O.M.E course + peer-to-peer support." },
-        { title: "30-Day Guarantee", value: "Priceless", desc: "If you don't get your first client or interview in 30 days, full refund." },
+        { title: "30-Day Guarantee", value: "Priceless", desc: "If you're not satisfied in 30 days, full refund." },
       ],
       totalLabel: "Total estimated value:",
       totalSub: "You pay a fraction of this. See pricing below.",
