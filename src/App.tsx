@@ -59,6 +59,7 @@ import Dream100Scanner from "./pages/dream100/Dream100Scanner";
 import CVBuilder from "./pages/dream100/CVBuilder";
 import OutreachSequences from "./pages/dream100/OutreachSequences";
 import SkillMarketLanding from "./pages/SkillMarketLanding";
+import DnaQuizPublic from "./pages/DnaQuizPublic";
 const queryClient = new QueryClient();
 
 // App component with providers
