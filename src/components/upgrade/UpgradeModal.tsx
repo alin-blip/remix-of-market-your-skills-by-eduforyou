@@ -61,7 +61,7 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const navigate = useNavigate();
   const { plan: currentPlan } = useSubscription();
-  const info = planInfo[requiredPlan];
+  const info = planInfo[requiredPlan] || planInfo.starter!;
 
   const handleUpgrade = () => {
     onOpenChange(false);
