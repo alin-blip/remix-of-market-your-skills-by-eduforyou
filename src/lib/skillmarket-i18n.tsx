@@ -297,14 +297,14 @@ const t = {
     dream100: {
       badge: "Strategia Dream 100",
       title1: "Sistemul Dream 100 —",
-      titleGold: "Nu mai aplica în orb",
+      titleGold: "Nu mai aplica orbește",
       sub: "Inspirat din Traffic Secrets al lui Russell Brunson. Adaptăm strategia de marketing a celor mai mari companii din lume pentru cariera ta studențească.",
-      imgCaption: "100 de ținte. Un sistem. Rezultate garantate.",
+      imgCaption: "100 de ținte. Un sistem. Rezultate reale.",
       paths: [
         {
           tag: "Angajare",
           title: "Dream 100 pentru Angajare",
-          headline: "Nu mai aplica în orb pe Indeed.",
+          headline: "Nu mai aplica orbește pe Indeed.",
           points: [
             "Identifică 100 de companii unde ți-ar plăcea să lucrezi",
             "AI analizează cultura, valorile și nevoile fiecărei",
