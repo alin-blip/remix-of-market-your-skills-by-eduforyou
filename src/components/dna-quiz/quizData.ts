@@ -146,7 +146,7 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
         title: "ADN de Freelancer Independent",
         emoji: "💻",
         description: "Ești un arhitect al propriei libertăți, un creator de valoare care refuză să fie limitat de structuri rigide. Îți place să ai control total asupra proiectelor tale, să-ți alegi clienții și să-ți modelezi programul după propriile reguli. Flexibilitatea, diversitatea provocărilor și potențialul de câștig direct sunt motoarele tale. Ești un expert în domeniul tău, gata să oferi soluții personalizate și să construiești relații puternice cu fiecare client.",
-        cta: "Explorează modulul „Offer Builder" și „Dream 100 pentru Freelancing"",
+        cta: 'Explorează modulul "Offer Builder" și "Dream 100 pentru Freelancing"',
         ctaModule: "/wizard/offer",
       },
       startup: {
