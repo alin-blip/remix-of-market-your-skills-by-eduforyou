@@ -54,7 +54,7 @@ const t = {
       badge: "The 6-Step System",
       title1: 'From "I don\'t know what to do"',
       title2: "to",
-      titleGold: "your first client in 30 minutes",
+      titleGold: "clarity and a plan in 30 minutes",
       sub: "AI-guided platform, step by step. You don't need to know anything about business or marketing. Follow the steps, AI does the heavy lifting.",
       steps: [
         { title: "Skill Scanner AI", desc: "Enter your field of study, experiences, and hobbies. AI automatically extracts your technical, soft, and hidden skills — with their monetization potential." },
