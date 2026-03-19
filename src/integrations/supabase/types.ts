@@ -793,6 +793,39 @@ export type Database = {
           },
         ]
       }
+      dna_quiz_results: {
+        Row: {
+          answers: Json
+          created_at: string
+          email: string | null
+          id: string
+          lang: string
+          result_type: string
+          scores: Json
+          user_id: string | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          email?: string | null
+          id?: string
+          lang?: string
+          result_type: string
+          scores?: Json
+          user_id?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          email?: string | null
+          id?: string
+          lang?: string
+          result_type?: string
+          scores?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       dream100_targets: {
         Row: {
           ai_analysis: Json | null
@@ -1648,6 +1681,7 @@ export type Database = {
           created_at: string | null
           date_of_birth: string | null
           email: string | null
+          execution_dna: string | null
           freedom_score: number | null
           full_name: string | null
           goals: Json | null
@@ -1668,6 +1702,7 @@ export type Database = {
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
+          execution_dna?: string | null
           freedom_score?: number | null
           full_name?: string | null
           goals?: Json | null
@@ -1688,6 +1723,7 @@ export type Database = {
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
+          execution_dna?: string | null
           freedom_score?: number | null
           full_name?: string | null
           goals?: Json | null
