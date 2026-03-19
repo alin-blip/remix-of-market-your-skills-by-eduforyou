@@ -61,6 +61,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
   const { isAdmin } = useAdminRole();
+  const { isEduforyouMember, plan } = useSubscription();
   const { user, signOut } = useAuth();
   const collapsed = state === 'collapsed';
   const location = useLocation();
