@@ -3,13 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
 
-export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'founder';
+export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'founder' | 'eduforyou';
 
 interface SubscriptionState {
   plan: SubscriptionPlan;
   subscribed: boolean;
   subscriptionEnd: string | null;
   isLoading: boolean;
+  isEduforyouMember: boolean;
 }
 
 // Feature limits by plan
@@ -61,6 +62,19 @@ export const PLAN_LIMITS = {
     hasPrioritySupport: true,
     hasAllCourses: true,
     hasExternalCourses: true,
+  },
+  // EduForYou members: full platform access EXCEPT Learning Hub
+  eduforyou: {
+    platforms: Infinity,
+    gigs: Infinity,
+    aiGenerations: Infinity,
+    outreachTemplates: Infinity,
+    hasProfileBuilder: true,
+    hasIncomeTracker: true,
+    hasExport: true,
+    hasPrioritySupport: false,
+    hasAllCourses: false,
+    hasExternalCourses: false,
   },
 } as const;
 
