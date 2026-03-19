@@ -31,28 +31,50 @@ import laptopMockupImg from '@/assets/laptop-mockup.png';
 import "./skillmarket.css";
 
 /* ─── Language Selector ─── */
-function LangSelector() {
+function LangSelector({ forceOpen }: { forceOpen?: boolean }) {
   const { lang } = useSkillMarketLang();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const current = LANGS.find((l) => l.code === lang)!;
+
+  useEffect(() => {
+    if (forceOpen) {
+      const timer = setTimeout(() => {
+        setOpen(true);
+        setShowHint(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [forceOpen]);
+
+  const handleSelect = (code: string) => {
+    navigate(`/${code}`);
+    setOpen(false);
+    setShowHint(false);
+  };
 
   return (
     <div className="relative">
+      {showHint && open && (
+        <div className="absolute right-0 bottom-full mb-2 whitespace-nowrap text-xs text-gold/80 animate-pulse font-medium tracking-wide">
+          ↓ Choose your language
+        </div>
+      )}
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-sm text-light-sm hover:text-gold transition-colors px-2 py-1 rounded-lg border border-[#D4A843]/20 hover:border-[#D4A843]/40 bg-[#0D1B2A]/60"
+        onClick={() => { setOpen(!open); setShowHint(false); }}
+        className={`flex items-center gap-1.5 text-sm text-light-sm hover:text-gold transition-colors px-2 py-1 rounded-lg border hover:border-[#D4A843]/40 bg-[#0D1B2A]/60 ${showHint && open ? "border-[#D4A843]/60 ring-1 ring-[#D4A843]/30" : "border-[#D4A843]/20"}`}
       >
         <Globe className="h-3.5 w-3.5" />
         {current.flag} {current.label}
         <ChevronDown className="h-3 w-3" />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-navy-card rounded-lg border border-[#D4A843]/20 overflow-hidden z-50 min-w-[120px]">
+        <div className="absolute right-0 top-full mt-1 bg-navy-card rounded-lg border border-[#D4A843]/20 overflow-hidden z-50 min-w-[120px] shadow-lg shadow-black/30">
           {LANGS.map((l) => (
             <button
               key={l.code}
-              onClick={() => { navigate(`/${l.code}`); setOpen(false); }}
+              onClick={() => handleSelect(l.code)}
               className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#D4A843]/10 transition-colors ${l.code === lang ? "text-gold font-semibold bg-[#D4A843]/5" : "text-light-sm"}`}
             >
               {l.flag} {l.label}
@@ -78,7 +100,7 @@ function Logo() {
 }
 
 /* ─── Navbar ─── */
-function Navbar() {
+function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   const { t } = useSkillMarketLang();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -109,7 +131,7 @@ function Navbar() {
           ))}
         </div>
         <div className="hidden lg:flex items-center gap-3">
-          <LangSelector />
+          <LangSelector forceOpen={autoOpenLangPicker} />
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
@@ -118,7 +140,7 @@ function Navbar() {
           </a>
         </div>
         <div className="flex lg:hidden items-center gap-3">
-          <LangSelector />
+          <LangSelector forceOpen={autoOpenLangPicker} />
           <button onClick={() => setMobileOpen(!mobileOpen)} className="text-light-sm p-2">
             <div className="space-y-1.5">
               <div className={`w-5 h-0.5 bg-current transition-all ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
@@ -603,10 +625,10 @@ function Footer() {
 }
 
 /* ─── Main Page ─── */
-function SkillMarketPage() {
+function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   return (
     <div className="skillmarket-landing">
-      <Navbar />
+      <Navbar autoOpenLangPicker={autoOpenLangPicker} />
       <Hero />
       <TaglineBanner />
       <Stats />
@@ -622,14 +644,14 @@ function SkillMarketPage() {
 }
 
 /* ─── Wrapper with lang from route ─── */
-export default function SkillMarketLanding() {
+export default function SkillMarketLanding({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean } = {}) {
   const location = useLocation();
   const pathLang = location.pathname.replace("/", "") as Lang;
   const validLang = (["ro", "en", "ua"].includes(pathLang) ? pathLang : "ro") as Lang;
 
   return (
     <SkillMarketLangProvider lang={validLang}>
-      <SkillMarketPage />
+      <SkillMarketPage autoOpenLangPicker={autoOpenLangPicker} />
     </SkillMarketLangProvider>
   );
 }
