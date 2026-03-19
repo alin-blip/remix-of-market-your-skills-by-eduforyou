@@ -385,9 +385,9 @@ const t = {
       badge: "Prețuri Transparente",
       title1: "Alege nivelul tău",
       titleGold: "de libertate",
-      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i transformi în £50,000. Investiția se plătește singură de la primul client.",
+      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i investești inteligent. O investiție mică cu impact mare.",
       guarantee: "Garanție 30 zile — fără întrebări",
-      guaranteeSub: "Dacă nu obții primul client sau interviu în 30 de zile, rambursare completă.",
+      guaranteeSub: "Dacă nu ești mulțumit în 30 de zile, rambursare completă.",
       plans: [
         {
           name: "Starter",
