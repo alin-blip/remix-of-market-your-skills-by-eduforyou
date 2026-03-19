@@ -156,9 +156,9 @@ const t = {
       badge: "Transparent Pricing",
       title1: "Choose your level",
       titleGold: "of freedom",
-      sub: "The state gives you £15,000/year. We teach you to turn it into £50,000. The investment pays for itself from your first client.",
+      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i investești inteligent. O investiție mică cu impact mare.",
       guarantee: "30-day money-back guarantee — no questions asked",
-      guaranteeSub: "If you don't get your first client or interview in 30 days, full refund.",
+      guaranteeSub: "If you're not satisfied in 30 days, full refund.",
       plans: [
         {
           name: "Starter",
