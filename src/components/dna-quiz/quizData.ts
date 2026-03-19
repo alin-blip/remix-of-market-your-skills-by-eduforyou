@@ -22,6 +22,9 @@ export interface QuizResult {
 export interface QuizTranslation {
   title: string;
   subtitle: string;
+  heroHeadline: string;
+  heroSubheadline: string;
+  heroCta: string;
   startButton: string;
   nextButton: string;
   questionOf: string;

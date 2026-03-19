@@ -1,0 +1,1 @@
+ALTER TABLE public.dna_quiz_results ADD COLUMN followup_sent boolean NOT NULL DEFAULT false;

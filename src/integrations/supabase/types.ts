@@ -798,6 +798,7 @@ export type Database = {
           answers: Json
           created_at: string
           email: string | null
+          followup_sent: boolean
           id: string
           lang: string
           result_type: string
@@ -808,6 +809,7 @@ export type Database = {
           answers?: Json
           created_at?: string
           email?: string | null
+          followup_sent?: boolean
           id?: string
           lang?: string
           result_type: string
@@ -818,6 +820,7 @@ export type Database = {
           answers?: Json
           created_at?: string
           email?: string | null
+          followup_sent?: boolean
           id?: string
           lang?: string
           result_type?: string
