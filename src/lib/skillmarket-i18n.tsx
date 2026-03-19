@@ -48,13 +48,13 @@ const t = {
       s1: { value: "200+", label: "Active students in the system" },
       s2: { value: "30 min", label: "From zero to complete offer" },
       s3: { value: "£15,000", label: "Average Student Finance/year" },
-      s4: { value: "98%", label: "Satisfaction rate" },
+      s4: { value: "95%", label: "Satisfaction rate" },
     },
     how: {
       badge: "The 6-Step System",
       title1: 'From "I don\'t know what to do"',
       title2: "to",
-      titleGold: "your first client in 30 minutes",
+      titleGold: "clarity and a plan in 30 minutes",
       sub: "AI-guided platform, step by step. You don't need to know anything about business or marketing. Follow the steps, AI does the heavy lifting.",
       steps: [
         { title: "Skill Scanner AI", desc: "Enter your field of study, experiences, and hobbies. AI automatically extracts your technical, soft, and hidden skills — with their monetization potential." },
@@ -70,7 +70,7 @@ const t = {
       title1: "The Dream 100 System —",
       titleGold: "Stop Applying Blindly",
       sub: "Inspired by Russell Brunson's Traffic Secrets. We adapt the marketing strategy of the world's biggest companies for your student career.",
-      imgCaption: "100 targets. One system. Guaranteed results.",
+      imgCaption: "100 targets. One system. Real results.",
       paths: [
         {
           tag: "Job Hunting",
@@ -130,7 +130,7 @@ const t = {
         { title: "Income Tracker + UK Income Optimizer", value: "£297", desc: "Financial dashboard with Student Finance + freelancing calculation + UK legal limits." },
         { title: "Freedom Plan Export (PDF/DOCX)", value: "£97", desc: "Complete personalized strategy document, exportable and printable." },
         { title: "Jump to Freedom Community (Skool)", value: "£497", desc: "Access to private community + I.N.C.O.M.E course + peer-to-peer support." },
-        { title: "30-Day Guarantee", value: "Priceless", desc: "If you don't get your first client or interview in 30 days, full refund." },
+        { title: "30-Day Guarantee", value: "Priceless", desc: "If you're not satisfied in 30 days, full refund." },
       ],
       totalLabel: "Total estimated value:",
       totalSub: "You pay a fraction of this. See pricing below.",
@@ -156,9 +156,9 @@ const t = {
       badge: "Transparent Pricing",
       title1: "Choose your level",
       titleGold: "of freedom",
-      sub: "The state gives you £15,000/year. We teach you to turn it into £50,000. The investment pays for itself from your first client.",
+      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i investești inteligent. O investiție mică cu impact mare.",
       guarantee: "30-day money-back guarantee — no questions asked",
-      guaranteeSub: "If you don't get your first client or interview in 30 days, full refund.",
+      guaranteeSub: "If you're not satisfied in 30 days, full refund.",
       plans: [
         {
           name: "Starter",
@@ -277,13 +277,13 @@ const t = {
       s1: { value: "200+", label: "Studenți activi în sistem" },
       s2: { value: "30 min", label: "De la zero la ofertă completă" },
       s3: { value: "£15,000", label: "Student Finance mediu/an" },
-      s4: { value: "98%", label: "Rată de satisfacție" },
+      s4: { value: "95%", label: "Rată de satisfacție" },
     },
     how: {
       badge: "Sistemul în 6 Pași",
       title1: 'De la "nu știu ce să fac"',
       title2: "la",
-      titleGold: "primul tău client în 30 de minute",
+      titleGold: "claritate și plan în 30 de minute",
       sub: "Platformă ghidată de AI, pas cu pas. Nu trebuie să știi nimic despre business sau marketing. Urmează pașii, AI face munca grea.",
       steps: [
         { title: "Skill Scanner AI", desc: "Introdu domeniul de studiu, experiențele și hobby-urile. AI extrage automat skill-urile tehnice, soft și ascunse — cu potențialul lor de monetizare." },
@@ -297,14 +297,14 @@ const t = {
     dream100: {
       badge: "Strategia Dream 100",
       title1: "Sistemul Dream 100 —",
-      titleGold: "Nu mai aplica în orb",
+      titleGold: "Nu mai aplica orbește",
       sub: "Inspirat din Traffic Secrets al lui Russell Brunson. Adaptăm strategia de marketing a celor mai mari companii din lume pentru cariera ta studențească.",
-      imgCaption: "100 de ținte. Un sistem. Rezultate garantate.",
+      imgCaption: "100 de ținte. Un sistem. Rezultate reale.",
       paths: [
         {
           tag: "Angajare",
           title: "Dream 100 pentru Angajare",
-          headline: "Nu mai aplica în orb pe Indeed.",
+          headline: "Nu mai aplica orbește pe Indeed.",
           points: [
             "Identifică 100 de companii unde ți-ar plăcea să lucrezi",
             "AI analizează cultura, valorile și nevoile fiecărei",
@@ -359,7 +359,7 @@ const t = {
         { title: "Income Tracker + UK Income Optimizer", value: "£297", desc: "Dashboard financiar cu calcul Student Finance + freelancing + limite legale UK." },
         { title: "Freedom Plan Export (PDF/DOCX)", value: "£97", desc: "Document complet de strategie personalizat, exportabil și printabil." },
         { title: "Comunitate Jump to Freedom (Skool)", value: "£497", desc: "Acces la comunitate privată + curs I.N.C.O.M.E + suport peer-to-peer." },
-        { title: "Garanție 30 Zile", value: "Fără preț", desc: "Dacă nu obții primul client sau interviu în 30 de zile, rambursare completă." },
+        { title: "Garanție 30 Zile", value: "Fără preț", desc: "Dacă nu ești mulțumit în 30 de zile, rambursare completă." },
       ],
       totalLabel: "Valoare totală estimată:",
       totalSub: "Plătești o fracțiune din asta. Vezi prețurile mai jos.",
@@ -385,9 +385,9 @@ const t = {
       badge: "Prețuri Transparente",
       title1: "Alege nivelul tău",
       titleGold: "de libertate",
-      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i transformi în £50,000. Investiția se plătește singură de la primul client.",
+      sub: "Statul îți dă £15,000/an. Noi te învățăm să-i investești inteligent. O investiție mică cu impact mare.",
       guarantee: "Garanție 30 zile — fără întrebări",
-      guaranteeSub: "Dacă nu obții primul client sau interviu în 30 de zile, rambursare completă.",
+      guaranteeSub: "Dacă nu ești mulțumit în 30 de zile, rambursare completă.",
       plans: [
         {
           name: "Starter",
@@ -506,13 +506,13 @@ const t = {
       s1: { value: "200+", label: "Активних студентів у системі" },
       s2: { value: "30 хв", label: "Від нуля до повної пропозиції" },
       s3: { value: "£15,000", label: "Середній Student Finance/рік" },
-      s4: { value: "98%", label: "Рівень задоволеності" },
+      s4: { value: "95%", label: "Рівень задоволеності" },
     },
     how: {
       badge: "Система з 6 Кроків",
       title1: "Від «Не знаю, що робити»",
       title2: "до",
-      titleGold: "першого клієнта за 30 хвилин",
+      titleGold: "ясність і план за 30 хвилин",
       sub: "Платформа з AI-підтримкою, крок за кроком. Вам не потрібно знати нічого про бізнес чи маркетинг. Слідуйте крокам, AI зробить важку роботу.",
       steps: [
         { title: "Skill Scanner AI", desc: "Введіть свою спеціальність, досвід та хобі. AI автоматично визначить ваші технічні, soft та приховані навички — з потенціалом монетизації." },
@@ -528,7 +528,7 @@ const t = {
       title1: "Система Dream 100 —",
       titleGold: "Припиніть подавати наосліп",
       sub: "Натхнення Traffic Secrets Рассела Брансона. Ми адаптуємо маркетингову стратегію найбільших компаній світу для вашої студентської кар'єри.",
-      imgCaption: "100 цілей. Одна система. Гарантовані результати.",
+      imgCaption: "100 цілей. Одна система. Реальні результати.",
       paths: [
         {
           tag: "Працевлаштування",
@@ -588,7 +588,7 @@ const t = {
         { title: "Income Tracker + UK Income Optimizer", value: "£297", desc: "Фінансовий дешборд з розрахунком Student Finance + фріланс + правові обмеження UK." },
         { title: "Freedom Plan Export (PDF/DOCX)", value: "£97", desc: "Повний персоналізований стратегічний документ." },
         { title: "Спільнота Jump to Freedom (Skool)", value: "£497", desc: "Доступ до приватної спільноти + курс I.N.C.O.M.E + peer-to-peer підтримка." },
-        { title: "Гарантія 30 Днів", value: "Безцінно", desc: "Якщо ви не отримуєте першого клієнта або співбесіду за 30 днів, повне повернення коштів." },
+        { title: "Гарантія 30 Днів", value: "Безцінно", desc: "Якщо ви не задоволені за 30 днів, повне повернення коштів." },
       ],
       totalLabel: "Загальна оціночна вартість:",
       totalSub: "Ви платите лише частину. Дивіться ціни нижче.",
@@ -614,9 +614,9 @@ const t = {
       badge: "Прозорі ціни",
       title1: "Оберіть свій рівень",
       titleGold: "свободи",
-      sub: "Держава дає вам £15,000/рік. Ми навчаємо перетворити їх на £50,000. Інвестиція окупається з першого клієнта.",
+      sub: "Держава дає вам £15,000/рік. Ми навчаємо інвестувати розумно. Невелика інвестиція з великим впливом.",
       guarantee: "Гарантія повернення коштів 30 днів — без питань",
-      guaranteeSub: "Якщо ви не отримуєте першого клієнта або співбесіди за 30 днів, повне повернення коштів.",
+      guaranteeSub: "Якщо ви не задоволені за 30 днів, повне повернення коштів.",
       plans: [
         {
           name: "Starter",
