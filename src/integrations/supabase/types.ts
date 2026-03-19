@@ -1690,6 +1690,7 @@ export type Database = {
           goals: Json | null
           id: string
           interests: Json | null
+          is_eduforyou_member: boolean
           locale: string | null
           onboarding_completed: boolean | null
           projects_experience: string | null
@@ -1711,6 +1712,7 @@ export type Database = {
           goals?: Json | null
           id: string
           interests?: Json | null
+          is_eduforyou_member?: boolean
           locale?: string | null
           onboarding_completed?: boolean | null
           projects_experience?: string | null
@@ -1732,6 +1734,7 @@ export type Database = {
           goals?: Json | null
           id?: string
           interests?: Json | null
+          is_eduforyou_member?: boolean
           locale?: string | null
           onboarding_completed?: boolean | null
           projects_experience?: string | null
