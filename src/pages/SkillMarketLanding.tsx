@@ -625,10 +625,10 @@ function Footer() {
 }
 
 /* ─── Main Page ─── */
-function SkillMarketPage() {
+function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   return (
     <div className="skillmarket-landing">
-      <Navbar />
+      <Navbar autoOpenLangPicker={autoOpenLangPicker} />
       <Hero />
       <TaglineBanner />
       <Stats />
@@ -644,14 +644,14 @@ function SkillMarketPage() {
 }
 
 /* ─── Wrapper with lang from route ─── */
-export default function SkillMarketLanding() {
+export default function SkillMarketLanding({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean } = {}) {
   const location = useLocation();
   const pathLang = location.pathname.replace("/", "") as Lang;
   const validLang = (["ro", "en", "ua"].includes(pathLang) ? pathLang : "ro") as Lang;
 
   return (
     <SkillMarketLangProvider lang={validLang}>
-      <SkillMarketPage />
+      <SkillMarketPage autoOpenLangPicker={autoOpenLangPicker} />
     </SkillMarketLangProvider>
   );
 }

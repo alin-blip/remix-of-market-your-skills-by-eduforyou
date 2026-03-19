@@ -72,7 +72,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<SkillMarketLanding autoOpenLangPicker />} />
                 <Route path="/ro" element={<SkillMarketLanding />} />
                 <Route path="/en" element={<SkillMarketLanding />} />
                 <Route path="/ua" element={<SkillMarketLanding />} />

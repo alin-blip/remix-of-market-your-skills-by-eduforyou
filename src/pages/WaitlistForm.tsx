@@ -141,16 +141,48 @@ export default function WaitlistForm() {
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         <div className="fixed inset-0 gradient-mesh pointer-events-none" />
         <div className="fixed inset-0 gradient-glow pointer-events-none" />
-        <div className="w-full max-w-md relative z-10 text-center">
-          <div className="p-8 rounded-2xl glass animate-slide-up">
+        <div className="w-full max-w-lg relative z-10">
+          {/* Success Card */}
+          <div className="p-8 rounded-2xl glass animate-slide-up text-center mb-6">
             <div className="h-16 w-16 rounded-full gradient-accent flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="h-8 w-8 text-accent-foreground" />
             </div>
-            <h1 className="font-display text-3xl font-bold mb-4">Mulțumim! 🎉</h1>
-            <p className="text-muted-foreground mb-6">
-              Aplicația ta a fost trimisă cu succes. Vom reveni cu un răspuns în cel mai scurt timp posibil.
+            <h1 className="font-display text-3xl font-bold mb-3">Ești în! 🎉</h1>
+            <p className="text-muted-foreground">
+              Aplicația ta a fost trimisă cu succes. Te vom contacta în curând cu următorii pași.
             </p>
-            <Link to="/" className="text-primary hover:underline font-semibold">
+          </div>
+
+          {/* Skool Community CTA */}
+          <div className="p-8 rounded-2xl glass animate-slide-up border border-accent/20" style={{ animationDelay: '0.15s' }}>
+            <div className="text-center">
+              <span className="inline-block text-xs font-semibold uppercase tracking-wider text-accent mb-3 px-3 py-1 rounded-full bg-accent/10">
+                Pasul următor
+              </span>
+              <h2 className="font-display text-2xl font-bold mb-4">
+                Intră în comunitatea <span className="text-accent">Market Your Skill</span>
+              </h2>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                Am creat această comunitate special pentru tine. Aici primești <strong className="text-foreground">suport direct</strong>, resurse exclusive și faci parte din echipa de beta testeri care modelează viitorul platformei.
+              </p>
+              <p className="text-muted-foreground mb-8 text-sm italic">
+                Feedback-ul tău contează enorm — ești parte din fundație. Sunt onorat de ajutorul tău. 🙏
+              </p>
+              <a
+                href="https://www.skool.com/marketyourskill"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full h-12 gradient-accent text-accent-foreground font-semibold text-base rounded-xl glow-accent hover:scale-[1.02] transition-transform"
+              >
+                Intră în comunitate
+                <ArrowRight className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Back link */}
+          <div className="text-center mt-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <Link to="/ro" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
               ← Înapoi la pagina principală
             </Link>
           </div>
