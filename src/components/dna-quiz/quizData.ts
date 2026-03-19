@@ -44,6 +44,9 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
   ro: {
     title: "Descoperă-ți ADN-ul de Execuție",
     subtitle: "10 întrebări. 2 minute. Descoperă calea ta naturală spre succes.",
+    heroHeadline: "Mulți urcă o scară...\ndar pe zidul greșit.",
+    heroSubheadline: "Ești destinat să fii Angajat, Freelancer sau Antreprenor? Nu irosi timp și bani construind ceva greșit.",
+    heroCta: "Verifică-ți ADN-ul — Gratuit",
     startButton: "Începe testul",
     nextButton: "Următoarea",
     questionOf: "din",
