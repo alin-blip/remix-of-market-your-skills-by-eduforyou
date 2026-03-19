@@ -31,28 +31,50 @@ import laptopMockupImg from '@/assets/laptop-mockup.png';
 import "./skillmarket.css";
 
 /* ─── Language Selector ─── */
-function LangSelector() {
+function LangSelector({ forceOpen }: { forceOpen?: boolean }) {
   const { lang } = useSkillMarketLang();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const current = LANGS.find((l) => l.code === lang)!;
+
+  useEffect(() => {
+    if (forceOpen) {
+      const timer = setTimeout(() => {
+        setOpen(true);
+        setShowHint(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [forceOpen]);
+
+  const handleSelect = (code: string) => {
+    navigate(`/${code}`);
+    setOpen(false);
+    setShowHint(false);
+  };
 
   return (
     <div className="relative">
+      {showHint && open && (
+        <div className="absolute right-0 bottom-full mb-2 whitespace-nowrap text-xs text-gold/80 animate-pulse font-medium tracking-wide">
+          ↓ Choose your language
+        </div>
+      )}
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-sm text-light-sm hover:text-gold transition-colors px-2 py-1 rounded-lg border border-[#D4A843]/20 hover:border-[#D4A843]/40 bg-[#0D1B2A]/60"
+        onClick={() => { setOpen(!open); setShowHint(false); }}
+        className={`flex items-center gap-1.5 text-sm text-light-sm hover:text-gold transition-colors px-2 py-1 rounded-lg border hover:border-[#D4A843]/40 bg-[#0D1B2A]/60 ${showHint && open ? "border-[#D4A843]/60 ring-1 ring-[#D4A843]/30" : "border-[#D4A843]/20"}`}
       >
         <Globe className="h-3.5 w-3.5" />
         {current.flag} {current.label}
         <ChevronDown className="h-3 w-3" />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-navy-card rounded-lg border border-[#D4A843]/20 overflow-hidden z-50 min-w-[120px]">
+        <div className="absolute right-0 top-full mt-1 bg-navy-card rounded-lg border border-[#D4A843]/20 overflow-hidden z-50 min-w-[120px] shadow-lg shadow-black/30">
           {LANGS.map((l) => (
             <button
               key={l.code}
-              onClick={() => { navigate(`/${l.code}`); setOpen(false); }}
+              onClick={() => handleSelect(l.code)}
               className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#D4A843]/10 transition-colors ${l.code === lang ? "text-gold font-semibold bg-[#D4A843]/5" : "text-light-sm"}`}
             >
               {l.flag} {l.label}
