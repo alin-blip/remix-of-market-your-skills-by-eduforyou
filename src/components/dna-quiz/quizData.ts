@@ -139,7 +139,7 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
         title: "ADN de Angajat de Top",
         emoji: "💼",
         description: "Ești o forță stabilă, un pilon de încredere în orice organizație. Nu ești doar un executant, ești un strateg intern, un specialist care aduce valoare consistentă și predictibilitate. Îți place să te dezvolți într-un cadru clar, să contribui la o viziune mai mare și să avansezi pe o cale bine definită. Siguranța, beneficiile și oportunitățile de creștere într-o companie sunt combustibilul tău. Ești gata să preiei responsabilități, să inovezi din interior și să devii un lider respectat.",
-        cta: "Accesează modulul „CV ca Sales Page" și „Dream 100 pentru Angajare"",
+        cta: 'Accesează modulul "CV ca Sales Page" și "Dream 100 pentru Angajare"',
         ctaModule: "/cv-builder",
       },
       freelancer: {
