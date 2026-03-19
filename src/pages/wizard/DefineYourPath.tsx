@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,6 +11,10 @@ import {
   ArrowRight,
   CheckCircle2,
   Download,
+  Dna,
+  Briefcase,
+  Laptop,
+  Rocket,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card } from '@/components/ui/card';
@@ -17,9 +22,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
+import { DnaQuizContainer } from '@/components/dna-quiz/DnaQuizContainer';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import type { DnaProfile, QuizLang } from '@/components/dna-quiz/quizData';
 
 const pathSteps = [
   {
