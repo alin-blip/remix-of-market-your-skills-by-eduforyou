@@ -71,7 +71,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<Navigate to="/ro" replace />} />
+                <Route path="/" element={<Index />} />
                 <Route path="/ro" element={<SkillMarketLanding />} />
                 <Route path="/en" element={<SkillMarketLanding />} />
                 <Route path="/ua" element={<SkillMarketLanding />} />
