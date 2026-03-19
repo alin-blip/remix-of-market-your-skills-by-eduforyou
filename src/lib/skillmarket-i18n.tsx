@@ -70,7 +70,7 @@ const t = {
       title1: "The Dream 100 System —",
       titleGold: "Stop Applying Blindly",
       sub: "Inspired by Russell Brunson's Traffic Secrets. We adapt the marketing strategy of the world's biggest companies for your student career.",
-      imgCaption: "100 targets. One system. Guaranteed results.",
+      imgCaption: "100 targets. One system. Real results.",
       paths: [
         {
           tag: "Job Hunting",
