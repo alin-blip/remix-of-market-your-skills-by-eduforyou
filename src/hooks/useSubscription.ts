@@ -191,7 +191,9 @@ export function useSubscription() {
 
   const requiresUpgrade = useCallback((requiredPlan: SubscriptionPlan) => {
     const planOrder: SubscriptionPlan[] = ['free', 'starter', 'pro', 'founder'];
-    const currentIndex = planOrder.indexOf(state.plan);
+    // EduForYou members have 'pro'-equivalent access for tools
+    const effectivePlan = state.plan === 'eduforyou' ? 'pro' : state.plan;
+    const currentIndex = planOrder.indexOf(effectivePlan);
     const requiredIndex = planOrder.indexOf(requiredPlan);
     return currentIndex < requiredIndex;
   }, [state.plan]);
