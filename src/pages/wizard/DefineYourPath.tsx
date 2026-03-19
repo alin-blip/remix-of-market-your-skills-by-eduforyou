@@ -229,7 +229,7 @@ export default function DefineYourPath() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-foreground">
-                        {locale === 'en' ? 'Execution DNA' : locale === 'ua' ? 'ДНК Виконання' : 'ADN-ul de Execuție'}
+                        {locale === 'en' ? 'Execution DNA' : (locale as string) === 'ua' ? 'ДНК Виконання' : 'ADN-ul de Execuție'}
                       </span>
                       {profileDna && (
                         <Badge className="bg-primary/20 text-primary border-0 text-xs flex items-center gap-1">
