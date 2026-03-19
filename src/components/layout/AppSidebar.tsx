@@ -46,6 +46,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/lib/i18n';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/lib/auth';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import logoImg from '@/assets/logo.png';
@@ -60,6 +61,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
   const { isAdmin } = useAdminRole();
+  const { isEduforyouMember, plan } = useSubscription();
   const { user, signOut } = useAuth();
   const collapsed = state === 'collapsed';
   const location = useLocation();
@@ -285,6 +287,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </SidebarGroupLabel>
           )}
           <SidebarMenu className="gap-1">
+            {!isEduforyouMember && (
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -305,6 +308,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            )}
 
             {/* Founder Accelerator - Premium */}
             <SidebarMenuItem>

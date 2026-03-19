@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -137,7 +137,14 @@ export default function LearningHub() {
   const { isAdmin } = useAdminRole();
   const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
   const { hasAccessToCourse, isFounder, isLoading: isAccessLoading } = useCoursesAccess();
-  const { plan } = useSubscription();
+  const { plan, isEduforyouMember } = useSubscription();
+
+  // Redirect EduForYou members away from Learning Hub
+  useEffect(() => {
+    if (isEduforyouMember && !isAdmin) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isEduforyouMember, isAdmin, navigate]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showCourseDialog, setShowCourseDialog] = useState(false);

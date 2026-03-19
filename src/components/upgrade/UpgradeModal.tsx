@@ -13,7 +13,7 @@ interface UpgradeModalProps {
   featureDescription?: string;
 }
 
-const planInfo: Record<SubscriptionPlan, { name: string; price: string; features: string[] }> = {
+const planInfo: Partial<Record<SubscriptionPlan, { name: string; price: string; features: string[] }>> = {
   free: { name: 'Free', price: '0€', features: [] },
   starter: { 
     name: 'Starter', 
@@ -61,7 +61,7 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const navigate = useNavigate();
   const { plan: currentPlan } = useSubscription();
-  const info = planInfo[requiredPlan];
+  const info = planInfo[requiredPlan] || planInfo.starter!;
 
   const handleUpgrade = () => {
     onOpenChange(false);
