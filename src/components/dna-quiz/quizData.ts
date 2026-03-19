@@ -22,6 +22,9 @@ export interface QuizResult {
 export interface QuizTranslation {
   title: string;
   subtitle: string;
+  heroHeadline: string;
+  heroSubheadline: string;
+  heroCta: string;
   startButton: string;
   nextButton: string;
   questionOf: string;
@@ -41,6 +44,9 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
   ro: {
     title: "Descoperă-ți ADN-ul de Execuție",
     subtitle: "10 întrebări. 2 minute. Descoperă calea ta naturală spre succes.",
+    heroHeadline: "Mulți urcă o scară...\ndar pe zidul greșit.",
+    heroSubheadline: "Ești destinat să fii Angajat, Freelancer sau Antreprenor? Nu irosi timp și bani construind ceva greșit.",
+    heroCta: "Verifică-ți ADN-ul — Gratuit",
     startButton: "Începe testul",
     nextButton: "Următoarea",
     questionOf: "din",
@@ -161,6 +167,9 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
   en: {
     title: "Discover Your Execution DNA",
     subtitle: "10 questions. 2 minutes. Find your natural path to success.",
+    heroHeadline: "Many climb a ladder...\non the wrong wall.",
+    heroSubheadline: "Are you meant to be an Employee, Freelancer or Entrepreneur? Don't waste time and money building the wrong thing.",
+    heroCta: "Check Your DNA — Free",
     startButton: "Start the test",
     nextButton: "Next",
     questionOf: "of",
@@ -281,6 +290,9 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
   ua: {
     title: "Відкрий свою ДНК Виконання",
     subtitle: "10 питань. 2 хвилини. Знайди свій природний шлях до успіху.",
+    heroHeadline: "Багато хто піднімається сходами...\nале біля неправильної стіни.",
+    heroSubheadline: "Ви створені бути Працівником, Фрілансером чи Підприємцем? Не витрачайте час і гроші на побудову чогось неправильного.",
+    heroCta: "Перевірте свою ДНК — Безкоштовно",
     startButton: "Почати тест",
     nextButton: "Далі",
     questionOf: "з",

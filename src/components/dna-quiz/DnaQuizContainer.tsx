@@ -77,13 +77,18 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
         result_type: res.primary,
       });
 
-      // If public, also save to leads
+      // If public, also save to leads and send result email
       if (isPublic && email) {
         await supabase.from('leads').insert({
           email,
           source: 'dna_quiz',
           name: null,
         });
+
+        // Send result email via edge function (fire and forget)
+        supabase.functions.invoke('dna-quiz-email', {
+          body: { email, result_type: res.primary, lang },
+        }).catch((err) => console.error('Email send error:', err));
       }
 
       // If authenticated, update profile
