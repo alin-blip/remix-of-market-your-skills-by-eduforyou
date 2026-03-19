@@ -283,7 +283,7 @@ const t = {
       badge: "Sistemul în 6 Pași",
       title1: 'De la "nu știu ce să fac"',
       title2: "la",
-      titleGold: "primul tău client în 30 de minute",
+      titleGold: "claritate și plan în 30 de minute",
       sub: "Platformă ghidată de AI, pas cu pas. Nu trebuie să știi nimic despre business sau marketing. Urmează pașii, AI face munca grea.",
       steps: [
         { title: "Skill Scanner AI", desc: "Introdu domeniul de studiu, experiențele și hobby-urile. AI extrage automat skill-urile tehnice, soft și ascunse — cu potențialul lor de monetizare." },
