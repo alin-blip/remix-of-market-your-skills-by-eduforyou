@@ -13,7 +13,7 @@ interface UpgradeModalProps {
   featureDescription?: string;
 }
 
-const planInfo: Record<SubscriptionPlan, { name: string; price: string; features: string[] }> = {
+const planInfo: Partial<Record<SubscriptionPlan, { name: string; price: string; features: string[] }>> = {
   free: { name: 'Free', price: '0€', features: [] },
   starter: { 
     name: 'Starter', 

@@ -85,6 +85,7 @@ export function useSubscription() {
     subscribed: false,
     subscriptionEnd: null,
     isLoading: true,
+    isEduforyouMember: false,
   });
 
   const checkSubscription = useCallback(async () => {
@@ -94,16 +95,25 @@ export function useSubscription() {
         subscribed: false,
         subscriptionEnd: null,
         isLoading: false,
+        isEduforyouMember: false,
       });
       return;
     }
 
     try {
+      // Check if user is EduForYou member
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_eduforyou_member')
+        .eq('id', user.id)
+        .single();
+
+      const isEdu = profile?.is_eduforyou_member === true;
+
       const { data, error } = await supabase.functions.invoke('check-subscription');
       
       if (error) {
         console.error('Error checking subscription:', error);
-        // Fallback to local database
         const { data: localSub } = await supabase
           .from('subscriptions')
           .select('plan, status, current_period_end')
@@ -111,22 +121,46 @@ export function useSubscription() {
           .single();
         
         if (localSub) {
+          const paidPlan = localSub.plan as SubscriptionPlan;
           setState({
-            plan: localSub.plan as SubscriptionPlan,
-            subscribed: localSub.status === 'active',
+            plan: (paidPlan === 'free' && isEdu) ? 'eduforyou' : paidPlan,
+            subscribed: localSub.status === 'active' || isEdu,
             subscriptionEnd: localSub.current_period_end,
             isLoading: false,
+            isEduforyouMember: isEdu,
+          });
+          return;
+        }
+
+        // No subscription at all
+        if (isEdu) {
+          setState({
+            plan: 'eduforyou',
+            subscribed: true,
+            subscriptionEnd: null,
+            isLoading: false,
+            isEduforyouMember: true,
           });
           return;
         }
       }
       
       if (data) {
+        const paidPlan = data.plan as SubscriptionPlan;
         setState({
-          plan: data.plan as SubscriptionPlan,
-          subscribed: data.subscribed,
+          plan: (paidPlan === 'free' && isEdu) ? 'eduforyou' : paidPlan,
+          subscribed: data.subscribed || isEdu,
           subscriptionEnd: data.subscription_end,
           isLoading: false,
+          isEduforyouMember: isEdu,
+        });
+      } else if (isEdu) {
+        setState({
+          plan: 'eduforyou',
+          subscribed: true,
+          subscriptionEnd: null,
+          isLoading: false,
+          isEduforyouMember: true,
         });
       }
     } catch (error) {
