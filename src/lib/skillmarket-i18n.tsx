@@ -277,7 +277,7 @@ const t = {
       s1: { value: "200+", label: "Studenți activi în sistem" },
       s2: { value: "30 min", label: "De la zero la ofertă completă" },
       s3: { value: "£15,000", label: "Student Finance mediu/an" },
-      s4: { value: "98%", label: "Rată de satisfacție" },
+      s4: { value: "95%", label: "Rată de satisfacție" },
     },
     how: {
       badge: "Sistemul în 6 Pași",
