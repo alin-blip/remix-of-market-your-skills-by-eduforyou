@@ -68,10 +68,39 @@ const pathSteps = [
   },
 ];
 
+const dnaIcons: Record<string, typeof Briefcase> = {
+  employee: Briefcase,
+  freelancer: Laptop,
+  startup: Rocket,
+};
+
+const dnaLabels: Record<string, Record<string, string>> = {
+  ro: { employee: 'Angajat', freelancer: 'Freelancer', startup: 'Startup' },
+  en: { employee: 'Employee', freelancer: 'Freelancer', startup: 'Startup' },
+  ua: { employee: 'Працівник', freelancer: 'Фрілансер', startup: 'Стартап' },
+};
+
 export default function DefineYourPath() {
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [showDnaQuiz, setShowDnaQuiz] = useState(false);
+
+  // Fetch execution_dna from profile
+  const { data: profileDna } = useQuery({
+    queryKey: ['profile-dna', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('execution_dna')
+        .eq('id', user.id)
+        .single();
+      return (data as any)?.execution_dna as string | null;
+    },
+    enabled: !!user?.id,
+  });
 
   // Query to check completion status and count for each step
   const { data: completionData } = useQuery({
