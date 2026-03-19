@@ -239,7 +239,7 @@ export default function DefineYourPath() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {locale === 'en' ? 'Discover your natural path: Employee, Freelancer or Startup' : locale === 'ua' ? 'Відкрийте свій шлях: Працівник, Фрілансер чи Стартап' : 'Descoperă-ți calea naturală: Angajat, Freelancer sau Startup'}
+                      {locale === 'en' ? 'Discover your natural path: Employee, Freelancer or Startup' : (locale as string) === 'ua' ? 'Відкрийте свій шлях: Працівник, Фрілансер чи Стартап' : 'Descoperă-ți calea naturală: Angajat, Freelancer sau Startup'}
                     </p>
                   </div>
                 </div>
