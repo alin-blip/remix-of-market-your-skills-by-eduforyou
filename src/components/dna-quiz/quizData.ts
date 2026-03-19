@@ -153,7 +153,7 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
         title: "ADN de Fondator de Startup",
         emoji: "🚀",
         description: "Ești un vizionar neînfricat, un inovator care vede lumea nu așa cum este, ci așa cum ar putea fi. Nu te mulțumești cu status quo-ul, ci ești gata să-l zgudui din temelii. Riscul este aliatul tău, eșecul o lecție, iar incertitudinea un teren fertil pentru oportunități. Ești motivat de dorința de a crea ceva măreț, de a rezolva probleme la scară largă și de a lăsa o amprentă durabilă.",
-        cta: "Aprofundează modulul „Founder Accelerator" și „Dream 100 pentru Startup"",
+        cta: 'Aprofundează modulul "Founder Accelerator" și "Dream 100 pentru Startup"',
         ctaModule: "/upgrade",
       },
     },
