@@ -287,6 +287,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </SidebarGroupLabel>
           )}
           <SidebarMenu className="gap-1">
+            {!isEduforyouMember && (
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -307,6 +308,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            )}
 
             {/* Founder Accelerator - Premium */}
             <SidebarMenuItem>
