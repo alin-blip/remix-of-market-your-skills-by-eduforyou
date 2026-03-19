@@ -359,7 +359,7 @@ const t = {
         { title: "Income Tracker + UK Income Optimizer", value: "£297", desc: "Dashboard financiar cu calcul Student Finance + freelancing + limite legale UK." },
         { title: "Freedom Plan Export (PDF/DOCX)", value: "£97", desc: "Document complet de strategie personalizat, exportabil și printabil." },
         { title: "Comunitate Jump to Freedom (Skool)", value: "£497", desc: "Acces la comunitate privată + curs I.N.C.O.M.E + suport peer-to-peer." },
-        { title: "Garanție 30 Zile", value: "Fără preț", desc: "Dacă nu obții primul client sau interviu în 30 de zile, rambursare completă." },
+        { title: "Garanție 30 Zile", value: "Fără preț", desc: "Dacă nu ești mulțumit în 30 de zile, rambursare completă." },
       ],
       totalLabel: "Valoare totală estimată:",
       totalSub: "Plătești o fracțiune din asta. Vezi prețurile mai jos.",
