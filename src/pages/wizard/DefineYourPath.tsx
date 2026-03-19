@@ -244,7 +244,7 @@ export default function DefineYourPath() {
                   </div>
                 </div>
                 <Button variant="outline" size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); setShowDnaQuiz(true); }}>
-                  {profileDna ? (t.common.review || 'Review') : (locale === 'en' ? 'Start' : locale === 'ua' ? 'Почати' : 'Începe')}
+                  {profileDna ? (t.common.review || 'Review') : (locale === 'en' ? 'Start' : (locale as string) === 'ua' ? 'Почати' : 'Începe')}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
