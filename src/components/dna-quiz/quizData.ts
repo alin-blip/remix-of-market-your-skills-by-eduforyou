@@ -167,6 +167,9 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
   en: {
     title: "Discover Your Execution DNA",
     subtitle: "10 questions. 2 minutes. Find your natural path to success.",
+    heroHeadline: "Many climb a ladder...\non the wrong wall.",
+    heroSubheadline: "Are you meant to be an Employee, Freelancer or Entrepreneur? Don't waste time and money building the wrong thing.",
+    heroCta: "Check Your DNA — Free",
     startButton: "Start the test",
     nextButton: "Next",
     questionOf: "of",
