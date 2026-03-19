@@ -140,7 +140,7 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
           </a>
         </div>
         <div className="flex lg:hidden items-center gap-3">
-          <LangSelector />
+          <LangSelector forceOpen={autoOpenLangPicker} />
           <button onClick={() => setMobileOpen(!mobileOpen)} className="text-light-sm p-2">
             <div className="space-y-1.5">
               <div className={`w-5 h-0.5 bg-current transition-all ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
