@@ -1,46 +1,21 @@
+## Plan: Integrare Strategică Imagini de Referință — DONE
 
+### Ce s-a implementat:
 
-## Plan: Premium Login Page Redesign
+1. **Step 0 — ADN Test** adăugat în How It Works pe SkillMarketLanding
+   - Card evidențiat cu border auriu dublu și glow
+   - CTA direct către `/adn-test/:lang`
+   - Traduceri RO/EN/UA
 
-### Current State
-The login page is a centered single-column form with basic glass card, gradient mesh background, and minimal animation (one `animate-slide-up`). It looks functional but flat — no visual drama, no layered depth, no staggered entrance.
+2. **Secțiune Mindset Shift** nouă între TaglineBanner și Stats
+   - 2 carduri vizuale cu imaginile de referință (facultate-bani, cv-nescris)
+   - Grid responsive 2 coloane
 
-### Design Direction
-Align with the **Midnight Wealth** theme: navy + gold, editorial luxury feel with subtle motion.
+3. **Thumbnail pe Step 01** (Skill Scanner) cu imaginea iceberg
 
-### Changes to `src/pages/auth/Login.tsx`
+4. **Landing.tsx Steps** actualizat de la 3 la 4 pași (incluzând DNA Test ca Step 0)
 
-**1. Solid background fix** — Add `bg-background` to root div (same fix as Register).
+5. **Imagini copiate** în `public/images/landing/`
 
-**2. Animated gold accent elements** — Add 2-3 floating decorative shapes (gold gradient circles/rings) with CSS `animate-float` and `animate-pulse-soft` at different speeds, positioned absolutely behind the form. Creates depth and luxury feel.
-
-**3. Staggered entrance animations** — Instead of one `animate-slide-up` on the card:
-- Logo: `animate-fade-in`
-- Card: `animate-slide-up`  
-- Title: `animate-slide-up delay-100`
-- Social buttons: `animate-slide-up delay-200`
-- Form fields: `animate-slide-up delay-300`
-- Submit button: `animate-scale-in delay-400`
-
-**4. Gold border glow on card** — Replace plain `glass` with `glass card-shine` + a subtle gold border (`border-primary/20`) and hover glow effect.
-
-**5. Logo upgrade** — Use Playfair Display italic for "Market" + bold for "YourSkill" to match the brand, with a gold gradient icon background.
-
-**6. Input field polish** — Add gold focus ring (`focus:ring-primary/30`), slightly larger rounded corners, and subtle transition on focus.
-
-**7. Submit button gold gradient** — Replace `gradient-primary` with the gold shimmer style (matching the landing page `btn-gold` aesthetic): `background: linear-gradient(135deg, #D4A843, #F0C96A, #D4A843)` with hover glow.
-
-**8. Decorative gold line** — A thin horizontal gold gradient divider above/below the form card for editorial separation.
-
-### Changes to `src/pages/auth/Register.tsx`
-Apply the same visual upgrades for consistency (floating accents, staggered animations, gold styling).
-
-### Files Modified
-
-| File | Change |
-|------|--------|
-| `src/pages/auth/Login.tsx` | Full premium redesign with floating accents, staggered animations, gold styling |
-| `src/pages/auth/Register.tsx` | Match same premium styling for consistency |
-
-### No new dependencies needed — uses existing CSS utilities and Tailwind classes.
-
+### Imagini disponibile pentru viitoare integrări:
+- Ikigai, Pachete, Dream100 Kanban, CV Ofertă — necesită re-upload pentru a fi integrate ca thumbnails pe pașii respectivi
