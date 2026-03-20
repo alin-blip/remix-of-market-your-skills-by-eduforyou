@@ -350,7 +350,7 @@ function HowItWorks() {
         <div className="max-w-5xl mx-auto mb-12">
           <div className="card-gold rounded-2xl overflow-hidden">
             <img
-              src="/images/landing/banner-7-steps.png"
+              src={lang === 'en' ? "/images/landing/banner-7-steps-en.png" : "/images/landing/banner-7-steps.png"}
               alt="Market Your Skill - 7 Steps Process"
               className="w-full h-auto object-contain"
               loading="lazy"
