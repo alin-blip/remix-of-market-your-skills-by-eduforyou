@@ -160,6 +160,9 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
               {item.label}
             </a>
           ))}
+          <Link to="/auth/login" onClick={() => setMobileOpen(false)} className="block text-sm text-light-sm hover:text-gold py-2">
+            {t.nav.login}
+          </Link>
           <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>

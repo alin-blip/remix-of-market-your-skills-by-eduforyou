@@ -481,6 +481,7 @@ const t = {
       pricing: "Ціни",
       eduBtn: "Студент EduForYou",
       getAccess: "Отримати доступ",
+      login: "Увійти",
     },
     hero: {
       badge: "AI-POWERED",
