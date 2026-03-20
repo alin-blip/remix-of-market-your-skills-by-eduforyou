@@ -326,7 +326,7 @@ function HowItWorks() {
   const stepImages: (string | null)[] = [
     "/images/landing/step-skill-scanner.png",
     "/images/landing/step-ikigai-builder.png",
-    null,
+    "/images/landing/step-offer-builder.png",
     null,
     null,
     null,
