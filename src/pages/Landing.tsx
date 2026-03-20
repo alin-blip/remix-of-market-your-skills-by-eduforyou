@@ -182,7 +182,7 @@ export default function Landing() {
             </h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {steps.map((item, i) => (
               <div key={i} className="relative text-center group">
                 {/* Connector line */}
