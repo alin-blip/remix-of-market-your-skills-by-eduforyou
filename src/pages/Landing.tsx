@@ -186,8 +186,8 @@ export default function Landing() {
             {steps.map((item, i) => (
               <div key={i} className="relative text-center group">
                 {/* Connector line */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-10 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-border to-transparent" />
+                {i < 3 && (
+                  <div className="hidden lg:block absolute top-10 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-border to-transparent" />
                 )}
                 
                 <div className="inline-flex h-20 w-20 rounded-2xl glass items-center justify-center mb-6 group-hover:scale-110 transition-transform">
