@@ -469,18 +469,14 @@ function Dream100() {
           <p className="text-light-sm max-w-2xl mx-auto">{t.dream100.sub}</p>
         </div>
 
-        {/* Network Image */}
-        <div className="mb-16 text-center">
-          <div className="card-gold rounded-2xl p-8 max-w-3xl mx-auto">
-            <img
-              src="https://d2b37ey2z8plhf.cloudfront.net/dream100-network.png"
-              alt="Dream 100 Network"
-              className="w-full rounded-lg"
-              loading="lazy"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-            <p className="text-sm text-muted-sm mt-4 italic">{t.dream100.imgCaption}</p>
-          </div>
+        {/* Dream100 Banner */}
+        <div className="mb-16">
+          <img
+            src="/images/landing/dream100-banner-wide.png"
+            alt="Dream 100 - 3 Căi"
+            className="w-full h-auto rounded-2xl"
+            loading="lazy"
+          />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
