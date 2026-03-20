@@ -54,6 +54,7 @@ const t = {
         { alt: "Your life is an unwritten CV" },
       ],
     },
+    stats: {
       s1: { value: "200+", label: "Active students in the system" },
       s2: { value: "30 min", label: "From zero to complete offer" },
       s3: { value: "£15,000", label: "Average Student Finance/year" },
