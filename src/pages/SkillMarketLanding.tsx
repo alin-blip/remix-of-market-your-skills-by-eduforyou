@@ -346,6 +346,18 @@ function HowItWorks() {
           <p className="text-light-sm max-w-2xl mx-auto">{t.how.sub}</p>
         </div>
 
+        {/* 7-Steps Banner */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <div className="card-gold rounded-2xl overflow-hidden">
+            <img
+              src="/images/landing/banner-7-steps.png"
+              alt="Market Your Skill - 7 Steps Process"
+              className="w-full h-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
         {/* Step 0 — DNA Test (highlighted card) */}
         <div className="mb-8">
           <div className="card-gold rounded-2xl p-8 relative overflow-hidden border-2 border-[#D4A843]/40"
