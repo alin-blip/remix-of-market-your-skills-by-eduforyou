@@ -83,7 +83,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
       {/* Background effects */}
       <div className="fixed inset-0 gradient-mesh pointer-events-none" />
       <div className="fixed inset-0 gradient-glow pointer-events-none" />
