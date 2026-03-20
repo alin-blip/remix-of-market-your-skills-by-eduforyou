@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +26,8 @@ export default function Register() {
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+  const dnaResult = new URLSearchParams(location.search).get('dna');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +66,16 @@ export default function Register() {
     // Auto-populate profile from waitlist data
     await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
 
+    // Save DNA quiz result if coming from the quiz
+    if (dnaResult) {
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser?.id) {
+        await supabase.from('profiles').update({
+          execution_dna: dnaResult,
+        } as any).eq('id', newUser.id);
+      }
+    }
+
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
@@ -71,7 +83,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
       {/* Background effects */}
       <div className="fixed inset-0 gradient-mesh pointer-events-none" />
       <div className="fixed inset-0 gradient-glow pointer-events-none" />

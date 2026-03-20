@@ -93,7 +93,7 @@ export function DnaQuizResult({ primary, secondary, scores, t, isPublic, onRetak
           <Button
             size="lg"
             className="w-full"
-            onClick={() => onCta('/auth/register')}
+            onClick={() => onCta(`/auth/register?dna=${primary}`)}
           >
             {t.registerCta}
             <ArrowRight className="h-4 w-4 ml-2" />
