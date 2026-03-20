@@ -57,6 +57,11 @@ const t = {
       title2: "to",
       titleGold: "clarity and a plan in 30 minutes",
       sub: "AI-guided platform, step by step. You don't need to know anything about business or marketing. Follow the steps, AI does the heavy lifting.",
+      step0: {
+        title: "Execution DNA Test",
+        desc: "Discover your professional profile: Employee, Freelancer, or Startup Founder. A 2-minute diagnostic that personalizes your entire journey.",
+        cta: "Take the Free Test",
+      },
       steps: [
         { title: "Skill Scanner AI", desc: "Enter your field of study, experiences, and hobbies. AI automatically extracts your technical, soft, and hidden skills — with their monetization potential." },
         { title: "Ikigai Builder", desc: "Find the intersection of what you love, what you're good at, what the market needs, and what pays. Walk out with a clear niche and unique positioning." },
