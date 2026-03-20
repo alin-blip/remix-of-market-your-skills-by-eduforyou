@@ -66,6 +66,16 @@ export default function Register() {
     // Auto-populate profile from waitlist data
     await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
 
+    // Save DNA quiz result if coming from the quiz
+    if (dnaResult) {
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser?.id) {
+        await supabase.from('profiles').update({
+          execution_dna: dnaResult,
+        } as any).eq('id', newUser.id);
+      }
+    }
+
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
