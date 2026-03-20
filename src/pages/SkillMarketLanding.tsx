@@ -327,7 +327,7 @@ function HowItWorks() {
     "/images/landing/step-skill-scanner.png",
     "/images/landing/step-ikigai-builder.png",
     "/images/landing/step-offer-builder.png",
-    null,
+    "/images/landing/step-dream100-tracker.png",
     null,
     null,
   ];
