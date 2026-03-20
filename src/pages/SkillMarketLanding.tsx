@@ -402,34 +402,45 @@ function HowItWorks() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6">
           {t.how.steps.map((step, i) => {
             const Icon = icons[i];
             const img = stepImages[i];
+            const isEven = i % 2 === 0; // even: image left, odd: image right
             return (
-              <div key={i} className="card-gold rounded-xl p-6 relative group">
-                <div className="flex items-start gap-4 mb-4">
-                  <span className="text-gold/30 text-4xl font-bold font-['Playfair_Display'] leading-none">
-                    {numbers[i]}
-                  </span>
-                  <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-5 w-5 text-gold" />
+              <div key={i} className="card-gold rounded-2xl overflow-hidden">
+                <div className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-stretch`}>
+                  {/* Image side */}
+                  <div className="md:w-72 lg:w-80 flex-shrink-0 bg-[#0D1B2A]">
+                    {img ? (
+                      <img
+                        src={img}
+                        alt={step.title}
+                        className="w-full h-full object-cover aspect-square md:aspect-auto"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-[#D4A843]/5">
+                        <Icon className="h-16 w-16 text-gold/20" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Text side */}
+                  <div className="flex-grow p-8 flex flex-col justify-center">
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
+                        {numbers[i]}
+                      </span>
+                      <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-5 w-5 text-gold" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 font-['Playfair_Display'] text-gold">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-muted-sm leading-relaxed max-w-lg">{step.desc}</p>
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2 font-['Playfair_Display']">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-muted-sm leading-relaxed">{step.desc}</p>
-                {img && (
-                  <div className="hidden sm:block mt-4 rounded-lg overflow-hidden border border-[#D4A843]/15">
-                    <img
-                      src={img}
-                      alt={step.title}
-                      className="w-full h-24 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
