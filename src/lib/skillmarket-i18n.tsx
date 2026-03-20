@@ -311,7 +311,7 @@ const t = {
       titleGold: "claritate și plan în 30 de minute",
       sub: "Platformă ghidată de AI, pas cu pas. Nu trebuie să știi nimic despre business sau marketing. Urmează pașii, AI face munca grea.",
       step0: {
-        title: "Testul ADN de Execuție",
+        title: "START - Testul ADN de Execuție",
         desc: "Descoperă-ți profilul profesional: Angajat, Freelancer sau Fondator de Startup. Un diagnostic de 2 minute care îți personalizează întregul parcurs.",
         cta: "Fă Testul Gratuit",
       },
