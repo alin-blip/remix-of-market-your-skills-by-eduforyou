@@ -347,7 +347,7 @@ function HowItWorks() {
         </div>
 
         {/* 7-Steps Banner */}
-        <div className="max-w-5xl mx-auto mb-12">
+        <div className="w-full mb-12">
           <div className="card-gold rounded-2xl overflow-hidden">
             <img
               src={lang === 'en' ? "/images/landing/banner-7-steps-en.png" : "/images/landing/banner-7-steps.png"}
