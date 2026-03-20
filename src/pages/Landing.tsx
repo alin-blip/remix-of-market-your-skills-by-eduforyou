@@ -63,6 +63,7 @@ export default function Landing() {
   ];
 
   const steps = [
+    { step: '00', title: t.landing.steps.step0?.title || 'DNA Execution Test', desc: t.landing.steps.step0?.desc || 'Discover your professional profile' },
     { step: '01', title: t.landing.steps.step1.title, desc: t.landing.steps.step1.desc },
     { step: '02', title: t.landing.steps.step2.title, desc: t.landing.steps.step2.desc },
     { step: '03', title: t.landing.steps.step3.title, desc: t.landing.steps.step3.desc },
