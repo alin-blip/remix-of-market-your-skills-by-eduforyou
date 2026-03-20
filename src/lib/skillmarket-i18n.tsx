@@ -251,6 +251,7 @@ const t = {
       pricing: "Prețuri",
       eduBtn: "Student EduForYou",
       getAccess: "Obține Acces",
+      login: "Autentificare",
     },
     hero: {
       badge: "AI-POWERED",
