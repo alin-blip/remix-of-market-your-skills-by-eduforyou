@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   type Lang,
@@ -171,6 +171,18 @@ function Hero() {
   const { t, lang } = useSkillMarketLang();
   const connector = lang === "en" ? ", or " : lang === "ro" ? " sau " : " або ";
 
+  // Load Voomly embed script for RO locale
+  useEffect(() => {
+    if (lang !== 'ro') return;
+    const script = document.createElement('script');
+    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [lang]);
+
   return (
     <section className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center overflow-hidden">
       <div className="sm-container">
@@ -231,12 +243,24 @@ function Hero() {
 
           <div className="relative hidden lg:flex justify-center sm-fade-up" style={{ animationDelay: "0.25s" }}>
             <div className="pointer-events-none absolute inset-x-8 top-1/2 h-56 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(212,168,67,0.28)_0%,_rgba(212,168,67,0.08)_38%,_transparent_72%)] blur-3xl" />
-            <img
-              src={laptopMockupImg}
-              alt="Market Your Skill platform preview"
-              className="relative z-10 w-full max-w-[620px] object-contain drop-shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
-              loading="eager"
-            />
+            {lang === 'ro' ? (
+              <div
+                className="voomly-embed relative z-10 w-full max-w-[620px] rounded-xl overflow-hidden"
+                data-id="pcggwgMkQcgIoE6LkyREjJ5aSMMPD0DJjb9Rl5Z1HZnaNoRNe"
+                data-ratio="1.777778"
+                data-type="v"
+                data-skin-color="#2758EB"
+                data-shadow=""
+                style={{ width: '100%', aspectRatio: '1.77778 / 1', background: 'linear-gradient(45deg, rgb(142, 150, 164) 0%, rgb(201, 208, 222) 100%)', borderRadius: '10px' }}
+              />
+            ) : (
+              <img
+                src={laptopMockupImg}
+                alt="Market Your Skill platform preview"
+                className="relative z-10 w-full max-w-[620px] object-contain drop-shadow-[0_24px_70px_rgba(0,0,0,0.55)]"
+                loading="eager"
+              />
+            )}
           </div>
         </div>
       </div>
