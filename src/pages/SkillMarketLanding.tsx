@@ -329,7 +329,7 @@ function HowItWorks() {
     "/images/landing/step-offer-builder.png",
     "/images/landing/step-dream100-tracker.png",
     "/images/landing/step-cv-sales-page.png",
-    null,
+    "/images/landing/step-freedom-plan-export.png",
   ];
 
   return (
