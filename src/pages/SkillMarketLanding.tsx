@@ -363,17 +363,17 @@ function HowItWorks() {
           <div className="card-gold rounded-2xl relative overflow-hidden border-2 border-[#D4A843]/40"
             style={{ boxShadow: '0 0 40px rgba(212, 168, 67, 0.15)' }}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle,_rgba(212,168,67,0.12)_0%,_transparent_70%)] pointer-events-none" />
-            <div className="flex flex-col md:flex-row items-stretch relative z-10">
-              {/* Left — ADN image */}
+            <div className="flex flex-col md:flex-row-reverse items-stretch relative z-10">
+              {/* Right on desktop — ADN image */}
               <div className="md:w-64 lg:w-80 flex-shrink-0">
                 <img
                   src="/images/landing/step-adn-test.png"
                   alt="Verifică ADN-ul Tău"
-                  className="w-full h-48 md:h-full object-cover md:rounded-l-2xl"
+                  className="w-full h-48 md:h-full object-cover md:rounded-r-2xl"
                   loading="lazy"
                 />
               </div>
-              {/* Right — content */}
+              {/* Left on desktop — content */}
               <div className="flex flex-col justify-center gap-6 p-8 flex-grow">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4">
