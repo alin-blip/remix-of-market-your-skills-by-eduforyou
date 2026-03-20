@@ -21,6 +21,7 @@ const t = {
       pricing: "Pricing",
       eduBtn: "EduForYou Student",
       getAccess: "Get Access",
+      login: "Login",
     },
     hero: {
       badge: "AI-POWERED",
