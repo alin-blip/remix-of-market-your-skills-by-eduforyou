@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +26,8 @@ export default function Register() {
   const { t, locale, setLocale } = useI18n();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+  const dnaResult = new URLSearchParams(location.search).get('dna');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
