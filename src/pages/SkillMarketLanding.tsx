@@ -360,30 +360,44 @@ function HowItWorks() {
 
         {/* Step 0 — DNA Test (highlighted card) */}
         <div className="mb-8">
-          <div className="card-gold rounded-2xl p-8 relative overflow-hidden border-2 border-[#D4A843]/40"
+          <div className="card-gold rounded-2xl relative overflow-hidden border-2 border-[#D4A843]/40"
             style={{ boxShadow: '0 0 40px rgba(212, 168, 67, 0.15)' }}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle,_rgba(212,168,67,0.12)_0%,_transparent_70%)] pointer-events-none" />
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative z-10">
-              <div className="flex items-center gap-4">
-                <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
-                  00
-                </span>
-                <div className="w-12 h-12 rounded-xl bg-[#D4A843]/15 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-gold" />
+            <div className="flex flex-col md:flex-row items-stretch relative z-10">
+              {/* Left — ADN image */}
+              <div className="hidden md:block md:w-64 lg:w-80 flex-shrink-0">
+                <img
+                  src="/images/landing/step-adn-test.png"
+                  alt="Verifică ADN-ul Tău"
+                  className="w-full h-full object-cover rounded-l-2xl"
+                  loading="lazy"
+                />
+              </div>
+              {/* Right — content */}
+              <div className="flex flex-col justify-center gap-6 p-8 flex-grow">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
+                      00
+                    </span>
+                    <div className="w-12 h-12 rounded-xl bg-[#D4A843]/15 flex items-center justify-center">
+                      <Zap className="h-6 w-6 text-gold" />
+                    </div>
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-bold mb-2 font-['Playfair_Display'] text-gold">
+                      {t.how.step0.title}
+                    </h3>
+                    <p className="text-sm text-light-sm leading-relaxed max-w-xl">{t.how.step0.desc}</p>
+                  </div>
                 </div>
+                <Link
+                  to={`/adn-test/${lang}`}
+                  className="btn-gold px-6 py-3 rounded-xl text-sm flex items-center gap-2 whitespace-nowrap self-start"
+                >
+                  {t.how.step0.cta} <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-bold mb-2 font-['Playfair_Display'] text-gold">
-                  {t.how.step0.title}
-                </h3>
-                <p className="text-sm text-light-sm leading-relaxed max-w-xl">{t.how.step0.desc}</p>
-              </div>
-              <Link
-                to={`/adn-test/${lang}`}
-                className="btn-gold px-6 py-3 rounded-xl text-sm flex items-center gap-2 whitespace-nowrap flex-shrink-0"
-              >
-                {t.how.step0.cta} <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
           </div>
         </div>
