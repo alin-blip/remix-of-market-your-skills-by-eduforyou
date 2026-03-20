@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   type Lang,
   LANGS,
@@ -132,6 +132,9 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
         </div>
         <div className="hidden lg:flex items-center gap-3">
           <LangSelector forceOpen={autoOpenLangPicker} />
+          <Link to="/auth/login" className="text-sm text-light-sm hover:text-gold transition-colors">
+            {t.nav.login}
+          </Link>
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
@@ -157,6 +160,9 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
               {item.label}
             </a>
           ))}
+          <Link to="/auth/login" onClick={() => setMobileOpen(false)} className="block text-sm text-light-sm hover:text-gold py-2">
+            {t.nav.login}
+          </Link>
           <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>

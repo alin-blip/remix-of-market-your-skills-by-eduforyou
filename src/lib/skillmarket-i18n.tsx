@@ -21,6 +21,7 @@ const t = {
       pricing: "Pricing",
       eduBtn: "EduForYou Student",
       getAccess: "Get Access",
+      login: "Login",
     },
     hero: {
       badge: "AI-POWERED",
@@ -250,6 +251,7 @@ const t = {
       pricing: "Prețuri",
       eduBtn: "Student EduForYou",
       getAccess: "Obține Acces",
+      login: "Autentificare",
     },
     hero: {
       badge: "AI-POWERED",
@@ -479,6 +481,7 @@ const t = {
       pricing: "Ціни",
       eduBtn: "Студент EduForYou",
       getAccess: "Отримати доступ",
+      login: "Увійти",
     },
     hero: {
       badge: "AI-POWERED",
