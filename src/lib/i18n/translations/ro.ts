@@ -94,9 +94,10 @@ export const ro = {
         description: 'Generează mesaje personalizate pentru primii tăi clienți.',
       },
     },
-    stepsTitle: 'Trei pași către',
+    stepsTitle: 'Patru pași către',
     stepsTitleHighlight: 'libertate',
     steps: {
+      step0: { title: 'Descoperă-ți ADN-ul', desc: 'Fă testul ADN de Execuție în 2 minute și află-ți calea profesională.' },
       step1: { title: 'Completează onboarding', desc: '5 minute de întrebări despre tine, studii și obiective financiare.' },
       step2: { title: 'AI-ul creează planul', desc: 'Skill Scanner, Ikigai și Offer Builder îți generează strategia.' },
       step3: { title: 'Trimite primul mesaj', desc: 'Folosește template-urile generate pentru a contacta clienții.' },
