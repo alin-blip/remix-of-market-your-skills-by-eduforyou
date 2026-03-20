@@ -292,34 +292,7 @@ function TaglineBanner() {
   );
 }
 
-/* ─── Mindset Shift ─── */
-function MindsetShift() {
-  const { t } = useSkillMarketLang();
-
-  return (
-    <section className="py-16">
-      <div className="sm-container">
-        <div className="text-center mb-10">
-          <span className="section-badge">{t.mindset.badge}</span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-6 mb-2">
-            {t.mindset.title}{" "}
-            <span className="text-gold italic">{t.mindset.titleGold}</span>
-          </h2>
-        </div>
-        <div className="max-w-5xl mx-auto">
-          <div className="card-gold rounded-2xl overflow-hidden">
-            <img
-              src="/images/landing/banner-7-steps.png"
-              alt="Market Your Skill - 7 Steps Process"
-              className="w-full h-auto object-contain"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+/* ─── MindsetShift removed — banner moved to HowItWorks ─── */
 
 
 function Stats() {
@@ -371,6 +344,18 @@ function HowItWorks() {
             {t.how.title2} <span className="text-gold italic">{t.how.titleGold}</span>
           </h2>
           <p className="text-light-sm max-w-2xl mx-auto">{t.how.sub}</p>
+        </div>
+
+        {/* 7-Steps Banner */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <div className="card-gold rounded-2xl overflow-hidden">
+            <img
+              src="/images/landing/banner-7-steps.png"
+              alt="Market Your Skill - 7 Steps Process"
+              className="w-full h-auto object-contain"
+              loading="lazy"
+            />
+          </div>
         </div>
 
         {/* Step 0 — DNA Test (highlighted card) */}
@@ -740,7 +725,7 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
       <Navbar autoOpenLangPicker={autoOpenLangPicker} />
       <Hero />
       <TaglineBanner />
-      <MindsetShift />
+      
       <Stats />
       <HowItWorks />
       <Dream100 />
