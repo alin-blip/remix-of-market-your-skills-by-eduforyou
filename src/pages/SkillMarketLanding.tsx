@@ -171,6 +171,18 @@ function Hero() {
   const { t, lang } = useSkillMarketLang();
   const connector = lang === "en" ? ", or " : lang === "ro" ? " sau " : " або ";
 
+  // Load Voomly embed script for RO locale
+  useEffect(() => {
+    if (lang !== 'ro') return;
+    const script = document.createElement('script');
+    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [lang]);
+
   return (
     <section className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center overflow-hidden">
       <div className="sm-container">
