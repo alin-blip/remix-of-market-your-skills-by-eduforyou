@@ -292,7 +292,42 @@ function TaglineBanner() {
   );
 }
 
-/* ─── Stats ─── */
+/* ─── Mindset Shift ─── */
+function MindsetShift() {
+  const { t } = useSkillMarketLang();
+  const images = [
+    "/images/landing/mindset-facultate-bani.png",
+    "/images/landing/mindset-cv-nescris.png",
+  ];
+
+  return (
+    <section className="py-16">
+      <div className="sm-container">
+        <div className="text-center mb-10">
+          <span className="section-badge">{t.mindset.badge}</span>
+          <h2 className="text-3xl md:text-4xl font-bold mt-6 mb-2">
+            {t.mindset.title}{" "}
+            <span className="text-gold italic">{t.mindset.titleGold}</span>
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {images.map((img, i) => (
+            <div key={i} className="card-gold rounded-2xl overflow-hidden group hover:border-[#D4A843]/50 transition-all">
+              <img
+                src={img}
+                alt={t.mindset.cards[i]?.alt || ""}
+                className="w-full aspect-[4/5] object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 function Stats() {
   const { t } = useSkillMarketLang();
   const stats = [t.stats.s1, t.stats.s2, t.stats.s3, t.stats.s4];
