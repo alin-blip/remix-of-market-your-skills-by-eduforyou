@@ -94,9 +94,10 @@ export const en = {
         description: 'Generate personalized messages for your first clients.',
       },
     },
-    stepsTitle: 'Three steps to',
+    stepsTitle: 'Four steps to',
     stepsTitleHighlight: 'freedom',
     steps: {
+      step0: { title: 'Discover Your DNA', desc: 'Take the 2-minute Execution DNA Test to find your professional path.' },
       step1: { title: 'Complete onboarding', desc: '5 minutes of questions about you, studies and financial goals.' },
       step2: { title: 'AI creates the plan', desc: 'Skill Scanner, Ikigai and Offer Builder generate your strategy.' },
       step3: { title: 'Send the first message', desc: 'Use the generated templates to contact clients.' },

@@ -45,18 +45,31 @@ const t = {
       part1: "Stop Studying for a Degree.",
       part2: "Start Studying for an Income.",
     },
-    stats: {
+    mindset: {
+      badge: "MINDSET SHIFT",
+      title: "Change How You",
+      titleGold: "Think About Your Career",
+      cards: [
+        { alt: "Your studies equal real income" },
+        { alt: "Your life is an unwritten CV" },
+      ],
+    },
       s1: { value: "200+", label: "Active students in the system" },
       s2: { value: "30 min", label: "From zero to complete offer" },
       s3: { value: "£15,000", label: "Average Student Finance/year" },
       s4: { value: "95%", label: "Satisfaction rate" },
     },
     how: {
-      badge: "The 6-Step System",
+      badge: "The 7-Step System",
       title1: 'From "I don\'t know what to do"',
       title2: "to",
       titleGold: "clarity and a plan in 30 minutes",
       sub: "AI-guided platform, step by step. You don't need to know anything about business or marketing. Follow the steps, AI does the heavy lifting.",
+      step0: {
+        title: "Execution DNA Test",
+        desc: "Discover your professional profile: Employee, Freelancer, or Startup Founder. A 2-minute diagnostic that personalizes your entire journey.",
+        cta: "Take the Free Test",
+      },
       steps: [
         { title: "Skill Scanner AI", desc: "Enter your field of study, experiences, and hobbies. AI automatically extracts your technical, soft, and hidden skills — with their monetization potential." },
         { title: "Ikigai Builder", desc: "Find the intersection of what you love, what you're good at, what the market needs, and what pays. Walk out with a clear niche and unique positioning." },
@@ -275,6 +288,15 @@ const t = {
       part1: "Nu mai studia pentru o diplomă.",
       part2: "Începe să studiezi pentru un venit.",
     },
+    mindset: {
+      badge: "SCHIMBARE DE MENTALITATE",
+      title: "Schimbă Cum",
+      titleGold: "Gândești Despre Cariera Ta",
+      cards: [
+        { alt: "Ce studiezi = venit real" },
+        { alt: "Viața ta e un CV nescris" },
+      ],
+    },
     stats: {
       s1: { value: "200+", label: "Studenți activi în sistem" },
       s2: { value: "30 min", label: "De la zero la ofertă completă" },
@@ -282,11 +304,16 @@ const t = {
       s4: { value: "95%", label: "Rată de satisfacție" },
     },
     how: {
-      badge: "Sistemul în 6 Pași",
+      badge: "Sistemul în 7 Pași",
       title1: 'De la "nu știu ce să fac"',
       title2: "la",
       titleGold: "claritate și plan în 30 de minute",
       sub: "Platformă ghidată de AI, pas cu pas. Nu trebuie să știi nimic despre business sau marketing. Urmează pașii, AI face munca grea.",
+      step0: {
+        title: "Testul ADN de Execuție",
+        desc: "Descoperă-ți profilul profesional: Angajat, Freelancer sau Fondator de Startup. Un diagnostic de 2 minute care îți personalizează întregul parcurs.",
+        cta: "Fă Testul Gratuit",
+      },
       steps: [
         { title: "Skill Scanner AI", desc: "Introdu domeniul de studiu, experiențele și hobby-urile. AI extrage automat skill-urile tehnice, soft și ascunse — cu potențialul lor de monetizare." },
         { title: "Ikigai Builder", desc: "Găsește intersecția dintre ce iubești, ce știi să faci, ce are nevoie piața și ce plătește. Ieși cu o nișă clară și poziționare unică." },
@@ -505,6 +532,15 @@ const t = {
       part1: "Припиніть вчитися заради диплому.",
       part2: "Почніть вчитися заради доходу.",
     },
+    mindset: {
+      badge: "ЗМІНА МИСЛЕННЯ",
+      title: "Змініть Те, Як Ви",
+      titleGold: "Думаєте Про Свою Кар'єру",
+      cards: [
+        { alt: "Ваше навчання = реальний дохід" },
+        { alt: "Ваше життя — ненаписане CV" },
+      ],
+    },
     stats: {
       s1: { value: "200+", label: "Активних студентів у системі" },
       s2: { value: "30 хв", label: "Від нуля до повної пропозиції" },
@@ -512,11 +548,16 @@ const t = {
       s4: { value: "95%", label: "Рівень задоволеності" },
     },
     how: {
-      badge: "Система з 6 Кроків",
+      badge: "Система з 7 Кроків",
       title1: "Від «Не знаю, що робити»",
       title2: "до",
       titleGold: "ясність і план за 30 хвилин",
       sub: "Платформа з AI-підтримкою, крок за кроком. Вам не потрібно знати нічого про бізнес чи маркетинг. Слідуйте крокам, AI зробить важку роботу.",
+      step0: {
+        title: "Тест ДНК Виконання",
+        desc: "Відкрийте свій професійний профіль: Працівник, Фрілансер або Засновник Стартапу. 2-хвилинний діагностик, що персоналізує весь ваш шлях.",
+        cta: "Пройти Безкоштовний Тест",
+      },
       steps: [
         { title: "Skill Scanner AI", desc: "Введіть свою спеціальність, досвід та хобі. AI автоматично визначить ваші технічні, soft та приховані навички — з потенціалом монетизації." },
         { title: "Ikigai Builder", desc: "Знайдіть перетин того, що ви любите, вмієте, що потрібно ринку і що платять. Вийдіть з чіткою нішею та унікальним позиціонуванням." },
