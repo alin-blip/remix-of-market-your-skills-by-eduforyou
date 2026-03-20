@@ -288,6 +288,15 @@ const t = {
       part1: "Nu mai studia pentru o diplomă.",
       part2: "Începe să studiezi pentru un venit.",
     },
+    mindset: {
+      badge: "SCHIMBARE DE MENTALITATE",
+      title: "Schimbă Cum",
+      titleGold: "Gândești Despre Cariera Ta",
+      cards: [
+        { alt: "Ce studiezi = venit real" },
+        { alt: "Viața ta e un CV nescris" },
+      ],
+    },
     stats: {
       s1: { value: "200+", label: "Studenți activi în sistem" },
       s2: { value: "30 min", label: "De la zero la ofertă completă" },
