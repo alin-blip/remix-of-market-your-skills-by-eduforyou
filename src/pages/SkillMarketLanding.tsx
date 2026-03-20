@@ -725,7 +725,7 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
       <Navbar autoOpenLangPicker={autoOpenLangPicker} />
       <Hero />
       <TaglineBanner />
-      <MindsetShift />
+      
       <Stats />
       <HowItWorks />
       <Dream100 />
