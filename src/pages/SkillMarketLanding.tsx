@@ -365,11 +365,11 @@ function HowItWorks() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle,_rgba(212,168,67,0.12)_0%,_transparent_70%)] pointer-events-none" />
             <div className="flex flex-col md:flex-row items-stretch relative z-10">
               {/* Left — ADN image */}
-              <div className="hidden md:block md:w-64 lg:w-80 flex-shrink-0">
+              <div className="md:w-64 lg:w-80 flex-shrink-0">
                 <img
                   src="/images/landing/step-adn-test.png"
                   alt="Verifică ADN-ul Tău"
-                  className="w-full h-full object-cover rounded-l-2xl"
+                  className="w-full h-48 md:h-full object-cover md:rounded-l-2xl"
                   loading="lazy"
                 />
               </div>
