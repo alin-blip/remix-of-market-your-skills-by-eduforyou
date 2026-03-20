@@ -281,7 +281,7 @@ function TaglineBanner() {
     <div className="gold-divider" >
       <div className="bg-[#162236] py-8 text-center">
         <div className="sm-container">
-          <p className="text-xl md:text-2xl font-semibold">
+          <p className="text-base sm:text-xl md:text-2xl font-semibold leading-relaxed px-4">
             <span className="text-light-sm">{t.tagline.part1}</span>{" "}
             <span className="text-gold">{t.tagline.part2}</span>
           </p>
