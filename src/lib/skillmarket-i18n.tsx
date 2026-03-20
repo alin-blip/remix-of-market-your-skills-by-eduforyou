@@ -287,11 +287,16 @@ const t = {
       s4: { value: "95%", label: "Rată de satisfacție" },
     },
     how: {
-      badge: "Sistemul în 6 Pași",
+      badge: "Sistemul în 7 Pași",
       title1: 'De la "nu știu ce să fac"',
       title2: "la",
       titleGold: "claritate și plan în 30 de minute",
       sub: "Platformă ghidată de AI, pas cu pas. Nu trebuie să știi nimic despre business sau marketing. Urmează pașii, AI face munca grea.",
+      step0: {
+        title: "Testul ADN de Execuție",
+        desc: "Descoperă-ți profilul profesional: Angajat, Freelancer sau Fondator de Startup. Un diagnostic de 2 minute care îți personalizează întregul parcurs.",
+        cta: "Fă Testul Gratuit",
+      },
       steps: [
         { title: "Skill Scanner AI", desc: "Introdu domeniul de studiu, experiențele și hobby-urile. AI extrage automat skill-urile tehnice, soft și ascunse — cu potențialul lor de monetizare." },
         { title: "Ikigai Builder", desc: "Găsește intersecția dintre ce iubești, ce știi să faci, ce are nevoie piața și ce plătește. Ieși cu o nișă clară și poziționare unică." },
