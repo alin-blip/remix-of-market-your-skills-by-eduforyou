@@ -317,9 +317,18 @@ function Stats() {
 
 /* ─── How It Works ─── */
 function HowItWorks() {
-  const { t } = useSkillMarketLang();
+  const { t, lang } = useSkillMarketLang();
   const icons = [Search, Target, Package, Users, FileText, Download];
   const numbers = ["01", "02", "03", "04", "05", "06"];
+
+  const stepImages: (string | null)[] = [
+    "/images/landing/step-skill-scanner.png",
+    null,
+    null,
+    null,
+    null,
+    null,
+  ];
 
   return (
     <section id="how" className="py-20">
@@ -335,9 +344,40 @@ function HowItWorks() {
           <p className="text-light-sm max-w-2xl mx-auto">{t.how.sub}</p>
         </div>
 
+        {/* Step 0 — DNA Test (highlighted card) */}
+        <div className="mb-8">
+          <div className="card-gold rounded-2xl p-8 relative overflow-hidden border-2 border-[#D4A843]/40"
+            style={{ boxShadow: '0 0 40px rgba(212, 168, 67, 0.15)' }}>
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle,_rgba(212,168,67,0.12)_0%,_transparent_70%)] pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 relative z-10">
+              <div className="flex items-center gap-4">
+                <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
+                  00
+                </span>
+                <div className="w-12 h-12 rounded-xl bg-[#D4A843]/15 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-gold" />
+                </div>
+              </div>
+              <div className="flex-grow">
+                <h3 className="text-xl font-bold mb-2 font-['Playfair_Display'] text-gold">
+                  {t.how.step0.title}
+                </h3>
+                <p className="text-sm text-light-sm leading-relaxed max-w-xl">{t.how.step0.desc}</p>
+              </div>
+              <Link
+                to={`/adn-test/${lang}`}
+                className="btn-gold px-6 py-3 rounded-xl text-sm flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+              >
+                {t.how.step0.cta} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {t.how.steps.map((step, i) => {
             const Icon = icons[i];
+            const img = stepImages[i];
             return (
               <div key={i} className="card-gold rounded-xl p-6 relative group">
                 <div className="flex items-start gap-4 mb-4">
@@ -352,6 +392,16 @@ function HowItWorks() {
                   {step.title}
                 </h3>
                 <p className="text-sm text-muted-sm leading-relaxed">{step.desc}</p>
+                {img && (
+                  <div className="hidden sm:block mt-4 rounded-lg overflow-hidden border border-[#D4A843]/15">
+                    <img
+                      src={img}
+                      alt={step.title}
+                      className="w-full h-24 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
