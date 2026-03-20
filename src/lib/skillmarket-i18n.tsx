@@ -52,7 +52,7 @@ const t = {
       s4: { value: "95%", label: "Satisfaction rate" },
     },
     how: {
-      badge: "The 6-Step System",
+      badge: "The 7-Step System",
       title1: 'From "I don\'t know what to do"',
       title2: "to",
       titleGold: "clarity and a plan in 30 minutes",
