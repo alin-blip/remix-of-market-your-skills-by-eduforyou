@@ -500,11 +500,14 @@ function StepCard({ step, icon: Icon, img, isEven, number, index }: {
 function Dream100() {
   const { t } = useSkillMarketLang();
   const pathIcons = [Briefcase, Laptop, Rocket];
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: bannerRef, isVisible: bannerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: cardsRef, isVisible: cardsVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
     <section id="dream100" className="py-20 bg-navy-light">
       <div className="sm-container">
-        <div className="text-center mb-16">
+        <div ref={headerRef} className={`text-center mb-16 sm-reveal ${headerVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.dream100.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
             {t.dream100.title1}
@@ -516,7 +519,7 @@ function Dream100() {
         </div>
 
         {/* Dream100 Banner */}
-        <div className="mb-16">
+        <div ref={bannerRef} className={`mb-16 sm-reveal ${bannerVisible ? 'sm-visible' : ''}`}>
           <img
             src="/images/landing/dream100-banner-wide.png"
             alt="Dream 100 - 3 Căi"
@@ -525,11 +528,11 @@ function Dream100() {
           />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div ref={cardsRef} className="grid lg:grid-cols-3 gap-6">
           {t.dream100.paths.map((path, i) => {
             const Icon = pathIcons[i];
             return (
-              <div key={i} className="card-gold rounded-xl p-6 flex flex-col">
+              <div key={i} className={`card-gold rounded-xl p-6 flex flex-col sm-scale-in sm-stagger-${i + 1} ${cardsVisible ? 'sm-visible' : ''}`}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center">
                     <Icon className="h-5 w-5 text-gold" />
@@ -557,7 +560,6 @@ function Dream100() {
     </section>
   );
 }
-
 /* ─── Value Stack ─── */
 function ValueStack() {
   const { t } = useSkillMarketLang();
