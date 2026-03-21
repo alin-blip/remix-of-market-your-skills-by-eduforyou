@@ -36,6 +36,15 @@ export interface QuizTranslation {
   registerCtaDesc: string;
   retakeButton: string;
   tieText: string;
+  signupTitle: string;
+  signupSubtitle: string;
+  passwordPlaceholder: string;
+  signupButton: string;
+  loginLink: string;
+  loginLinkAction: string;
+  enterPlatform: string;
+  orContinueWith: string;
+  signupError: string;
   questions: QuizQuestion[];
   results: Record<DnaProfile, QuizResult>;
 }
@@ -58,6 +67,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Primește planul complet personalizat pe tipologia ta.",
     retakeButton: "Refă testul",
     tieText: "cu tendințe de",
+    signupTitle: "Rezultatul tău e gata! 🎯",
+    signupSubtitle: "Creează-ți cont gratuit pentru a vedea profilul complet și a accesa platforma.",
+    passwordPlaceholder: "Parolă (min. 6 caractere)",
+    signupButton: "Creează cont și vezi rezultatul",
+    loginLink: "Ai deja cont?",
+    loginLinkAction: "Loghează-te",
+    enterPlatform: "Intră în platformă",
+    orContinueWith: "sau continuă cu",
+    signupError: "Eroare la crearea contului. Încearcă din nou.",
     questions: [
       {
         question: "Ce te motivează cel mai mult într-un proiect nou?",
@@ -181,6 +199,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Get a complete plan personalised to your profile type.",
     retakeButton: "Retake test",
     tieText: "with tendencies of",
+    signupTitle: "Your result is ready! 🎯",
+    signupSubtitle: "Create a free account to see your full profile and access the platform.",
+    passwordPlaceholder: "Password (min. 6 characters)",
+    signupButton: "Create account & see result",
+    loginLink: "Already have an account?",
+    loginLinkAction: "Log in",
+    enterPlatform: "Enter the platform",
+    orContinueWith: "or continue with",
+    signupError: "Error creating account. Please try again.",
     questions: [
       {
         question: "What motivates you most in a new project?",
@@ -304,6 +331,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Отримайте повний план, персоналізований під ваш тип.",
     retakeButton: "Пройти ще раз",
     tieText: "з тенденціями до",
+    signupTitle: "Ваш результат готовий! 🎯",
+    signupSubtitle: "Створіть безкоштовний акаунт, щоб побачити повний профіль та отримати доступ до платформи.",
+    passwordPlaceholder: "Пароль (мін. 6 символів)",
+    signupButton: "Створити акаунт і побачити результат",
+    loginLink: "Вже є акаунт?",
+    loginLinkAction: "Увійти",
+    enterPlatform: "Увійти в платформу",
+    orContinueWith: "або продовжити з",
+    signupError: "Помилка створення акаунту. Спробуйте ще раз.",
     questions: [
       {
         question: "Що мотивує вас найбільше в новому проєкті?",
