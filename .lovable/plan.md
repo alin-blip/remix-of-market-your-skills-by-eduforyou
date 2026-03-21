@@ -1,40 +1,63 @@
 
 
-## Plan: Imbunatatiri Vizuale Landing Page
+## Plan: Quiz → Cont Direct (fără waitlist gate)
 
-### Ce vom adauga:
+### Problema actuală
+Când un vizitator face quiz-ul ADN public (`/adn-test/:lang`), fluxul este:
+1. Răspunde la 10 întrebări
+2. Introduce email-ul (DnaQuizLeadCapture)
+3. Vede rezultatul
+4. CTA: "Creează cont" → redirect la `/auth/register?dna=...`
+5. La Register, se verifică waitlist → **blocat** dacă nu e aprobat
 
-**1. Scroll-triggered fade-in animations (Intersection Observer)**
-- Fiecare sectiune (Stats, HowItWorks, Dream100, ValueStack, etc.) va aparea cu animatie fade-up cand userul scrolleaza pana la ea
-- Custom hook `useScrollReveal` care foloseste IntersectionObserver
-- Stagger delay pe elementele din grid (carduri, steps) pentru efect cascada
+**Pierzi clientul** pentru că nu poate crea cont direct din quiz.
 
-**2. Image hover effects pe step cards**
-- Scale + subtle shadow glow pe hover pe imaginile din How It Works
-- Tranzitie smooth 300ms
+### Soluția
+Transformăm pasul de email capture într-un formular de **înregistrare directă** (email + parolă), care creează contul, salvează rezultatul ADN și redirecționează direct în platformă.
 
-**3. Parallax subtil pe hero background**
-- Grid-ul din hero se misca usor la scroll, creand efect de profunzime
-- Implementat cu CSS transform translateY bazat pe scroll position
+### Ce se modifică
 
-**4. Counter animation pe Stats**
-- Numerele din sectiunea Stats (7+, 100+, etc.) vor conta de la 0 la valoarea finala cand devin vizibile
-- Efect clasic de "counting up" care atrage atentia
+**1. `DnaQuizLeadCapture.tsx` → `DnaQuizSignupCapture`**
+- Adăugăm câmp de parolă lângă email
+- Titlu: "Rezultatul tău e gata! Creează cont pentru a-l vedea."
+- La submit: creează cont via `supabase.auth.signUp`, salvează `execution_dna` în profil, apoi arată rezultatul
+- **Fără verificare waitlist** — quiz-ul ADN devine un canal direct de achiziție
+- Afișăm și opțiunile de Google/Apple sign-in
 
-**5. Smooth image transitions pe step cards**
-- Imaginile din How It Works vor avea un efect de slide-in din lateral (stanga sau dreapta, alternand) cand apar in viewport
-- Coordonat cu directia layout-ului (alternant stanga/dreapta)
+**2. `DnaQuizContainer.tsx`**
+- Faza `email` devine `signup`
+- `handleEmailSubmit` devine `handleSignupSubmit(email, password)`
+- După signup reușit: salvează scorul + rezultatul, actualizează profilul cu `execution_dna`, apoi trece la faza `result`
+- Dacă userul are deja cont → afișăm link "Ai cont? Loghează-te"
 
-**6. Gold shimmer accent pe section badges**
-- Animatie subtila de shimmer/glow pe badge-urile de sectiune la hover
+**3. `quizData.ts` — traduceri noi**
+- Adăugăm chei: `passwordPlaceholder`, `signupButton`, `loginLink`, `signupTitle`, `signupSubtitle`
+- Pentru RO, EN, UA
 
-### Fisiere modificate:
-- `src/pages/SkillMarketLanding.tsx` — adaugare hooks, clase de animatie, counter logic
-- `src/pages/skillmarket.css` — keyframes noi pentru slide-in, fade-up cu stagger, parallax, counter
+**4. `DnaQuizResult.tsx`**
+- Dacă userul e acum autentificat (tocmai a creat cont): CTA-ul devine "Intră în platformă" → redirect la `/dashboard`
+- Nu mai arătăm "Creează cont" dacă e deja logat
 
-### Abordare tehnica:
-- Custom hook `useScrollReveal(ref)` cu IntersectionObserver (threshold 0.15)
-- CSS classes conditionale aplicate cand elementul devine vizibil
-- Counter animation cu `requestAnimationFrame` in useEffect
-- Zero dependinte externe noi — totul nativ React + CSS
+**5. Build issue (preview)**
+- Se va verifica și remedia importul `useCallback` neutilizat din `useScrollReveal.ts` (cleanup)
+
+### Flow nou
+```text
+Quiz (10 întrebări)
+  ↓
+Email + Parolă + Google/Apple
+  ↓
+Cont creat automat (fără waitlist)
+  ↓
+Rezultat ADN afișat
+  ↓
+CTA: "Intră în platformă" → /dashboard
+```
+
+### Fișiere modificate
+- `src/components/dna-quiz/DnaQuizLeadCapture.tsx` — refactor în signup form
+- `src/components/dna-quiz/DnaQuizContainer.tsx` — signup logic
+- `src/components/dna-quiz/DnaQuizResult.tsx` — CTA adaptat
+- `src/components/dna-quiz/quizData.ts` — traduceri noi
+- `src/hooks/useScrollReveal.ts` — cleanup import neutilizat
 
