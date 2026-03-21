@@ -36,6 +36,15 @@ export interface QuizTranslation {
   registerCtaDesc: string;
   retakeButton: string;
   tieText: string;
+  signupTitle: string;
+  signupSubtitle: string;
+  passwordPlaceholder: string;
+  signupButton: string;
+  loginLink: string;
+  loginLinkAction: string;
+  enterPlatform: string;
+  orContinueWith: string;
+  signupError: string;
   questions: QuizQuestion[];
   results: Record<DnaProfile, QuizResult>;
 }
