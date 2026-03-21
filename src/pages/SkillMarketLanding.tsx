@@ -723,11 +723,12 @@ function Pricing() {
 function FAQ() {
   const { t } = useSkillMarketLang();
   const [open, setOpen] = useState<number | null>(null);
+  const { ref, isVisible } = useScrollReveal<HTMLElement>();
 
   return (
-    <section id="faq" className="py-20 bg-navy-light">
+    <section ref={ref} id="faq" className="py-20 bg-navy-light">
       <div className="sm-container max-w-3xl">
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 sm-reveal ${isVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.faq.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
             {t.faq.title1}
@@ -739,7 +740,7 @@ function FAQ() {
 
         <div className="space-y-3">
           {t.faq.items.map((faq, i) => (
-            <div key={i} className="card-gold rounded-xl overflow-hidden">
+            <div key={i} className={`card-gold rounded-xl overflow-hidden sm-reveal sm-stagger-${Math.min(i + 1, 6)} ${isVisible ? 'sm-visible' : ''}`}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 className="w-full flex items-center justify-between p-5 text-left"
@@ -763,7 +764,6 @@ function FAQ() {
     </section>
   );
 }
-
 /* ─── Footer ─── */
 function Footer() {
   const { t } = useSkillMarketLang();
