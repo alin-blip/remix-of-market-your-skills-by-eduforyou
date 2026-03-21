@@ -177,6 +177,8 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
 function Hero() {
   const { t, lang } = useSkillMarketLang();
   const connector = lang === "en" ? ", or " : lang === "ro" ? " sau " : " або ";
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [parallaxY, setParallaxY] = useState(0);
 
   // Load Voomly embed script for RO locale
   useEffect(() => {
@@ -190,8 +192,19 @@ function Hero() {
     };
   }, [lang]);
 
+  // Parallax on hero grid
+  useEffect(() => {
+    const handler = () => setParallaxY(window.scrollY * 0.15);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
   return (
-    <section className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center overflow-hidden">
+    <section
+      ref={heroRef}
+      className="hero-bg pt-32 pb-20 min-h-[90vh] flex items-center overflow-hidden relative"
+      style={{ backgroundPositionY: `${parallaxY}px` }}
+    >
       <div className="sm-container">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)]">
           <div className="max-w-3xl">
@@ -274,7 +287,6 @@ function Hero() {
     </section>
   );
 }
-
 /* ─── Tagline Banner ─── */
 function TaglineBanner() {
   const { t } = useSkillMarketLang();
