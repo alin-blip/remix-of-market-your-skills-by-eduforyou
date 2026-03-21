@@ -351,6 +351,9 @@ function HowItWorks() {
   const { t, lang } = useSkillMarketLang();
   const icons = [Search, Target, Package, Users, FileText, Download];
   const numbers = ["01", "02", "03", "04", "05", "06"];
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: bannerRef, isVisible: bannerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: step0Ref, isVisible: step0Visible } = useScrollReveal<HTMLDivElement>();
 
   const stepImages: (string | null)[] = [
     "/images/landing/step-skill-scanner.png",
@@ -364,7 +367,7 @@ function HowItWorks() {
   return (
     <section id="how" className="py-20">
       <div className="sm-container">
-        <div className="text-center mb-16">
+        <div ref={headerRef} className={`text-center mb-16 sm-reveal ${headerVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.how.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
             {t.how.title1}
@@ -376,7 +379,7 @@ function HowItWorks() {
         </div>
 
         {/* 7-Steps Banner */}
-        <div className="w-full mb-12">
+        <div ref={bannerRef} className={`w-full mb-12 sm-reveal ${bannerVisible ? 'sm-visible' : ''}`}>
           <div className="card-gold rounded-2xl overflow-hidden">
             <img
               src={lang === 'en' ? "/images/landing/banner-7-steps-en.png" : "/images/landing/banner-7-steps.png"}
@@ -388,21 +391,19 @@ function HowItWorks() {
         </div>
 
         {/* Step 0 — DNA Test (highlighted card) */}
-        <div className="mb-8">
+        <div ref={step0Ref} className={`mb-8 sm-scale-in ${step0Visible ? 'sm-visible' : ''}`}>
           <div className="card-gold rounded-2xl relative overflow-hidden border-2 border-[#D4A843]/40"
             style={{ boxShadow: '0 0 40px rgba(212, 168, 67, 0.15)' }}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle,_rgba(212,168,67,0.12)_0%,_transparent_70%)] pointer-events-none" />
             <div className="flex flex-col md:flex-row-reverse items-stretch relative z-10">
-              {/* Right on desktop — ADN image */}
               <div className="md:w-64 lg:w-80 flex-shrink-0">
                 <img
                   src="/images/landing/step-adn-test.png"
                   alt="Verifică ADN-ul Tău"
-                  className="w-full h-48 md:h-full object-cover md:rounded-r-2xl"
+                  className="w-full h-48 md:h-full object-cover md:rounded-r-2xl sm-img-hover"
                   loading="lazy"
                 />
               </div>
-              {/* Left on desktop — content */}
               <div className="flex flex-col justify-center gap-6 p-8 flex-grow">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4">
@@ -435,42 +436,9 @@ function HowItWorks() {
           {t.how.steps.map((step, i) => {
             const Icon = icons[i];
             const img = stepImages[i];
-            const isEven = i % 2 === 0; // even: image left, odd: image right
+            const isEven = i % 2 === 0;
             return (
-              <div key={i} className="card-gold rounded-2xl overflow-hidden">
-                <div className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-stretch`}>
-                  {/* Image side */}
-                  <div className="md:w-72 lg:w-80 flex-shrink-0 bg-[#0D1B2A]">
-                    {img ? (
-                      <img
-                        src={img}
-                        alt={step.title}
-                        className="w-full h-full object-cover aspect-square md:aspect-auto"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-[#D4A843]/5">
-                        <Icon className="h-16 w-16 text-gold/20" />
-                      </div>
-                    )}
-                  </div>
-                  {/* Text side */}
-                  <div className="flex-grow p-8 flex flex-col justify-center">
-                    <div className="flex items-center gap-4 mb-4">
-                      <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
-                        {numbers[i]}
-                      </span>
-                      <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center flex-shrink-0">
-                        <Icon className="h-5 w-5 text-gold" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-3 font-['Playfair_Display'] text-gold">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-sm leading-relaxed max-w-lg">{step.desc}</p>
-                  </div>
-                </div>
-              </div>
+              <StepCard key={i} step={step} icon={Icon} img={img} isEven={isEven} number={numbers[i]} index={i} />
             );
           })}
         </div>
@@ -479,6 +447,55 @@ function HowItWorks() {
   );
 }
 
+/* ─── Step Card with scroll reveal ─── */
+function StepCard({ step, icon: Icon, img, isEven, number, index }: {
+  step: { title: string; desc: string };
+  icon: any;
+  img: string | null;
+  isEven: boolean;
+  number: string;
+  index: number;
+}) {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+  const slideClass = isEven ? 'sm-slide-left' : 'sm-slide-right';
+
+  return (
+    <div ref={ref} className={`card-gold rounded-2xl overflow-hidden sm-reveal sm-stagger-${Math.min(index + 1, 6)} ${isVisible ? 'sm-visible' : ''}`}>
+      <div className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-stretch`}>
+        {/* Image side with slide animation */}
+        <div className={`md:w-72 lg:w-80 flex-shrink-0 bg-[#0D1B2A] ${slideClass} ${isVisible ? 'sm-visible' : ''}`}>
+          {img ? (
+            <img
+              src={img}
+              alt={step.title}
+              className="w-full h-full object-cover aspect-square md:aspect-auto sm-img-hover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-[#D4A843]/5">
+              <Icon className="h-16 w-16 text-gold/20" />
+            </div>
+          )}
+        </div>
+        {/* Text side */}
+        <div className="flex-grow p-8 flex flex-col justify-center">
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-gold/30 text-5xl font-bold font-['Playfair_Display'] leading-none">
+              {number}
+            </span>
+            <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center flex-shrink-0">
+              <Icon className="h-5 w-5 text-gold" />
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold mb-3 font-['Playfair_Display'] text-gold">
+            {step.title}
+          </h3>
+          <p className="text-sm text-muted-sm leading-relaxed max-w-lg">{step.desc}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 /* ─── Dream 100 ─── */
 function Dream100() {
   const { t } = useSkillMarketLang();
