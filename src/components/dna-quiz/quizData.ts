@@ -67,6 +67,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Primește planul complet personalizat pe tipologia ta.",
     retakeButton: "Refă testul",
     tieText: "cu tendințe de",
+    signupTitle: "Rezultatul tău e gata! 🎯",
+    signupSubtitle: "Creează-ți cont gratuit pentru a vedea profilul complet și a accesa platforma.",
+    passwordPlaceholder: "Parolă (min. 6 caractere)",
+    signupButton: "Creează cont și vezi rezultatul",
+    loginLink: "Ai deja cont?",
+    loginLinkAction: "Loghează-te",
+    enterPlatform: "Intră în platformă",
+    orContinueWith: "sau continuă cu",
+    signupError: "Eroare la crearea contului. Încearcă din nou.",
     questions: [
       {
         question: "Ce te motivează cel mai mult într-un proiect nou?",
