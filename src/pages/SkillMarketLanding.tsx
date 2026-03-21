@@ -615,11 +615,12 @@ function ValueStack() {
 /* ─── EduForYou ─── */
 function EduForYou() {
   const { t } = useSkillMarketLang();
+  const { ref, isVisible } = useScrollReveal<HTMLElement>();
 
   return (
-    <section id="eduforyou" className="py-20 bg-navy-light">
+    <section ref={ref} id="eduforyou" className="py-20 bg-navy-light">
       <div className="sm-container">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className={`max-w-3xl mx-auto text-center sm-reveal ${isVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.edu.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-4 font-['Playfair_Display']">
             {t.edu.title}
@@ -629,7 +630,7 @@ function EduForYou() {
 
           <div className="grid sm:grid-cols-3 gap-4 mb-10">
             {t.edu.rows.map((row, i) => (
-              <div key={i} className="card-gold rounded-xl p-5 text-center">
+              <div key={i} className={`card-gold rounded-xl p-5 text-center sm-scale-in sm-stagger-${i + 1} ${isVisible ? 'sm-visible' : ''}`}>
                 <p className="text-xs text-muted-sm mb-1">{row.label}</p>
                 <p className="text-2xl font-bold text-gold font-['Playfair_Display']">{row.value}</p>
                 <p className="text-xs text-light-sm mt-1">{row.note}</p>
@@ -655,7 +656,6 @@ function EduForYou() {
     </section>
   );
 }
-
 /* ─── Pricing ─── */
 function Pricing() {
   const { t } = useSkillMarketLang();
