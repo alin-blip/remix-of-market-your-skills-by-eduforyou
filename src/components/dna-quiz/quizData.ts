@@ -331,6 +331,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Отримайте повний план, персоналізований під ваш тип.",
     retakeButton: "Пройти ще раз",
     tieText: "з тенденціями до",
+    signupTitle: "Ваш результат готовий! 🎯",
+    signupSubtitle: "Створіть безкоштовний акаунт, щоб побачити повний профіль та отримати доступ до платформи.",
+    passwordPlaceholder: "Пароль (мін. 6 символів)",
+    signupButton: "Створити акаунт і побачити результат",
+    loginLink: "Вже є акаунт?",
+    loginLinkAction: "Увійти",
+    enterPlatform: "Увійти в платформу",
+    orContinueWith: "або продовжити з",
+    signupError: "Помилка створення акаунту. Спробуйте ще раз.",
     questions: [
       {
         question: "Що мотивує вас найбільше в новому проєкті?",

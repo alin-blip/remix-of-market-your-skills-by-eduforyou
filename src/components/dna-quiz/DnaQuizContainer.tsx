@@ -16,7 +16,7 @@ interface DnaQuizContainerProps {
   onNavigate: (path: string) => void;
 }
 
-type Phase = 'quiz' | 'email' | 'result';
+type Phase = 'quiz' | 'signup' | 'result';
 
 export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: DnaQuizContainerProps) {
   const t = quizTranslations[lang] || quizTranslations.ro;
@@ -29,6 +29,7 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [result, setResult] = useState<{ primary: DnaProfile; secondary?: DnaProfile } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [signedUpUserId, setSignedUpUserId] = useState<string | null>(null);
 
   const totalQ = t.questions.length;
 
@@ -47,14 +48,12 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
         setCurrentQ(currentQ + 1);
         setSelectedIndex(null);
       } else {
-        // Quiz done
         const res = calculateResult(newScores);
         setResult(res);
         if (isPublic) {
-          setPhase('email');
+          setPhase('signup');
         } else {
-          // Authenticated: save directly
-          saveResult(newScores, res, null);
+          saveResult(newScores, res, null, user?.id || null);
         }
       }
     }, 300);
@@ -63,13 +62,13 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
   const saveResult = async (
     finalScores: Record<DnaProfile, number>,
     res: { primary: DnaProfile; secondary?: DnaProfile },
-    email: string | null
+    email: string | null,
+    userId: string | null
   ) => {
     setSaving(true);
     try {
-      // Save to dna_quiz_results
       await supabase.from('dna_quiz_results' as any).insert({
-        user_id: user?.id || null,
+        user_id: userId || null,
         email: email,
         lang,
         answers: answers,
@@ -77,7 +76,6 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
         result_type: res.primary,
       });
 
-      // If public, also save to leads and send result email
       if (isPublic && email) {
         await supabase.from('leads').insert({
           email,
@@ -85,17 +83,15 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
           name: null,
         });
 
-        // Send result email via edge function (fire and forget)
         supabase.functions.invoke('dna-quiz-email', {
           body: { email, result_type: res.primary, lang },
         }).catch((err) => console.error('Email send error:', err));
       }
 
-      // If authenticated, update profile
-      if (user?.id) {
+      if (userId) {
         await supabase.from('profiles').update({
           execution_dna: res.primary,
-        } as any).eq('id', user.id);
+        } as any).eq('id', userId);
         onComplete?.(res.primary);
       }
 
@@ -109,9 +105,16 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
     }
   };
 
+  const handleSignup = (userId: string, email: string) => {
+    setSignedUpUserId(userId);
+    if (result) {
+      saveResult(scores, result, email, userId);
+    }
+  };
+
   const handleEmailSubmit = (email: string) => {
     if (result) {
-      saveResult(scores, result, email);
+      saveResult(scores, result, email, null);
     }
   };
 
@@ -122,13 +125,15 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
     setAnswers([]);
     setSelectedIndex(null);
     setResult(null);
+    setSignedUpUserId(null);
   };
 
-  const progressPct = phase === 'result' ? 100 : phase === 'email' ? 100 : ((currentQ) / totalQ) * 100;
+  const progressPct = phase === 'result' ? 100 : phase === 'signup' ? 100 : ((currentQ) / totalQ) * 100;
+
+  const isAuthenticated = !!user || !!signedUpUserId;
 
   return (
     <div className="space-y-6">
-      {/* Progress */}
       <Progress value={progressPct} className="h-2" />
 
       <AnimatePresence mode="wait">
@@ -146,11 +151,12 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
             selectedIndex={selectedIndex}
           />
         )}
-        {phase === 'email' && (
+        {phase === 'signup' && (
           <DnaQuizLeadCapture
-            key="email"
+            key="signup"
             t={t}
             onSubmit={handleEmailSubmit}
+            onSignup={handleSignup}
             isLoading={saving}
           />
         )}
@@ -162,6 +168,7 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
             scores={scores}
             t={t}
             isPublic={isPublic}
+            isAuthenticated={isAuthenticated}
             onRetake={handleRetake}
             onCta={onNavigate}
           />

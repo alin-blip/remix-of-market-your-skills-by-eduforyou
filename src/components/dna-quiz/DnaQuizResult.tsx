@@ -22,11 +22,12 @@ interface DnaQuizResultProps {
   scores: Record<DnaProfile, number>;
   t: QuizTranslation;
   isPublic: boolean;
+  isAuthenticated?: boolean;
   onRetake: () => void;
   onCta: (path: string) => void;
 }
 
-export function DnaQuizResult({ primary, secondary, scores, t, isPublic, onRetake, onCta }: DnaQuizResultProps) {
+export function DnaQuizResult({ primary, secondary, scores, t, isPublic, isAuthenticated, onRetake, onCta }: DnaQuizResultProps) {
   const result = t.results[primary];
   const Icon = profileIcons[primary];
   const gradient = profileColors[primary];
@@ -89,15 +90,27 @@ export function DnaQuizResult({ primary, secondary, scores, t, isPublic, onRetak
 
       {/* CTA */}
       <div className="space-y-3">
-        {isPublic ? (
+        {isAuthenticated ? (
           <Button
             size="lg"
             className="w-full"
-            onClick={() => onCta(`/auth/register?dna=${primary}`)}
+            onClick={() => onCta('/dashboard')}
           >
-            {t.registerCta}
+            {t.enterPlatform}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
+        ) : isPublic ? (
+          <>
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => onCta(`/auth/register?dna=${primary}`)}
+            >
+              {t.registerCta}
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">{t.registerCtaDesc}</p>
+          </>
         ) : (
           <Button
             size="lg"
@@ -107,9 +120,6 @@ export function DnaQuizResult({ primary, secondary, scores, t, isPublic, onRetak
             {result.cta}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
-        )}
-        {isPublic && (
-          <p className="text-xs text-muted-foreground text-center">{t.registerCtaDesc}</p>
         )}
         <Button variant="ghost" size="sm" className="w-full" onClick={onRetake}>
           <RotateCcw className="h-4 w-4 mr-2" />
