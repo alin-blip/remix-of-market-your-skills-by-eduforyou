@@ -659,11 +659,13 @@ function EduForYou() {
 /* ─── Pricing ─── */
 function Pricing() {
   const { t } = useSkillMarketLang();
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: cardsRef, isVisible: cardsVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
     <section id="pricing" className="py-20">
       <div className="sm-container">
-        <div className="text-center mb-16">
+        <div ref={headerRef} className={`text-center mb-16 sm-reveal ${headerVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.pricing.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
             {t.pricing.title1}
@@ -674,9 +676,9 @@ function Pricing() {
           <p className="text-light-sm max-w-2xl mx-auto">{t.pricing.sub}</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div ref={cardsRef} className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {t.pricing.plans.map((plan, i) => (
-            <div key={i} className={`card-gold rounded-2xl p-6 flex flex-col relative ${plan.popular ? "popular-glow" : ""}`}>
+            <div key={i} className={`card-gold rounded-2xl p-6 flex flex-col relative sm-scale-in sm-stagger-${i + 1} ${cardsVisible ? 'sm-visible' : ''} ${plan.popular ? "popular-glow" : ""}`}>
               {plan.badge && (
                 <span className={`section-badge text-xs mb-4 self-start ${plan.popular ? "bg-[#D4A843]/20" : ""}`}>
                   {plan.badge}
@@ -706,7 +708,7 @@ function Pricing() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        <div className={`text-center mt-12 sm-reveal ${cardsVisible ? 'sm-visible' : ''}`} style={{ transitionDelay: '0.3s' }}>
           <div className="flex items-center justify-center gap-2 text-gold mb-2">
             <Shield className="h-5 w-5" />
             <span className="font-semibold">{t.pricing.guarantee}</span>
@@ -717,7 +719,6 @@ function Pricing() {
     </section>
   );
 }
-
 /* ─── FAQ ─── */
 function FAQ() {
   const { t } = useSkillMarketLang();
