@@ -564,11 +564,13 @@ function Dream100() {
 function ValueStack() {
   const { t } = useSkillMarketLang();
   const icons = [Search, Target, Package, Users, FileText, Download, Search, GraduationCap, Zap, Download, Users, Shield];
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref: gridRef, isVisible: gridVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
     <section id="value" className="py-20">
       <div className="sm-container">
-        <div className="text-center mb-16">
+        <div ref={headerRef} className={`text-center mb-16 sm-reveal ${headerVisible ? 'sm-visible' : ''}`}>
           <span className="section-badge">{t.value.badge}</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
             {t.value.title1}
@@ -579,11 +581,11 @@ function ValueStack() {
           <p className="text-light-sm max-w-2xl mx-auto">{t.value.sub}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+        <div ref={gridRef} className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           {t.value.items.map((item, i) => {
             const Icon = icons[i] || Zap;
             return (
-              <div key={i} className="card-gold rounded-xl p-5 flex items-start gap-4">
+              <div key={i} className={`card-gold rounded-xl p-5 flex items-start gap-4 sm-scale-in sm-stagger-${Math.min(i + 1, 6)} ${gridVisible ? 'sm-visible' : ''}`}>
                 <div className="w-10 h-10 rounded-lg bg-[#D4A843]/10 flex items-center justify-center flex-shrink-0">
                   <Icon className="h-5 w-5 text-gold" />
                 </div>
@@ -599,7 +601,7 @@ function ValueStack() {
           })}
         </div>
 
-        <div className="text-center mt-12">
+        <div className={`text-center mt-12 sm-reveal ${gridVisible ? 'sm-visible' : ''}`} style={{ transitionDelay: '0.4s' }}>
           <p className="text-light-sm mb-2">{t.value.totalLabel}</p>
           <p className="text-sm text-muted-sm mb-6">{t.value.totalSub}</p>
           <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
@@ -610,7 +612,6 @@ function ValueStack() {
     </section>
   );
 }
-
 /* ─── EduForYou ─── */
 function EduForYou() {
   const { t } = useSkillMarketLang();
