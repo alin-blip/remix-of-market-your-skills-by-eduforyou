@@ -199,6 +199,15 @@ export const quizTranslations: Record<QuizLang, QuizTranslation> = {
     registerCtaDesc: "Get a complete plan personalised to your profile type.",
     retakeButton: "Retake test",
     tieText: "with tendencies of",
+    signupTitle: "Your result is ready! 🎯",
+    signupSubtitle: "Create a free account to see your full profile and access the platform.",
+    passwordPlaceholder: "Password (min. 6 characters)",
+    signupButton: "Create account & see result",
+    loginLink: "Already have an account?",
+    loginLinkAction: "Log in",
+    enterPlatform: "Enter the platform",
+    orContinueWith: "or continue with",
+    signupError: "Error creating account. Please try again.",
     questions: [
       {
         question: "What motivates you most in a new project?",
