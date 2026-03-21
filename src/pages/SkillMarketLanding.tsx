@@ -308,28 +308,44 @@ function TaglineBanner() {
 /* ─── MindsetShift removed — banner moved to HowItWorks ─── */
 
 
+function StatCard({ stat, index }: { stat: { value: string; label: string }; index: number }) {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+  // Extract numeric value for counter (e.g. "7+" -> 7, "100+" -> 100)
+  const numericMatch = stat.value.match(/(\d+)/);
+  const numericValue = numericMatch ? parseInt(numericMatch[1]) : 0;
+  const suffix = stat.value.replace(/\d+/, '');
+  const count = useCountUp(numericValue, isVisible, 1200);
+
+  return (
+    <div
+      ref={ref}
+      className={`card-gold rounded-xl p-6 text-center sm-scale-in sm-stagger-${index + 1} ${isVisible ? 'sm-visible' : ''}`}
+    >
+      <div className="text-3xl md:text-4xl font-bold text-gold font-['Playfair_Display']">
+        {isVisible ? `${count}${suffix}` : stat.value}
+      </div>
+      <div className="text-sm text-muted-sm mt-2">{stat.label}</div>
+    </div>
+  );
+}
+
 function Stats() {
   const { t } = useSkillMarketLang();
   const stats = [t.stats.s1, t.stats.s2, t.stats.s3, t.stats.s4];
+  const { ref: sectionRef, isVisible: sectionVisible } = useScrollReveal<HTMLElement>();
 
   return (
-    <section className="py-16">
+    <section ref={sectionRef} className="py-16">
       <div className="sm-container">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, i) => (
-            <div key={i} className="card-gold rounded-xl p-6 text-center">
-              <div className="text-3xl md:text-4xl font-bold text-gold font-['Playfair_Display']">
-                {stat.value}
-              </div>
-              <div className="text-sm text-muted-sm mt-2">{stat.label}</div>
-            </div>
+            <StatCard key={i} stat={stat} index={i} />
           ))}
         </div>
       </div>
     </section>
   );
 }
-
 /* ─── How It Works ─── */
 function HowItWorks() {
   const { t, lang } = useSkillMarketLang();
