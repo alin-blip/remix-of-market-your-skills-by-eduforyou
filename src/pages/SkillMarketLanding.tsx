@@ -27,6 +27,7 @@ import {
   GraduationCap,
   Zap,
   Globe,
+  Lock,
 } from "lucide-react";
 import logoImg from '@/assets/logo.png';
 import laptopMockupImg from '@/assets/laptop-mockup.png';
