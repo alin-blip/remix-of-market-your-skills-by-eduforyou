@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useScrollReveal, useCountUp } from "@/hooks/useScrollReveal";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   type Lang,
   LANGS,
@@ -23,6 +25,7 @@ import {
   ChevronUp,
   ArrowRight,
   Check,
+  X,
   Shield,
   GraduationCap,
   Zap,
@@ -663,6 +666,39 @@ function Pricing() {
   const { t } = useSkillMarketLang();
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
   const { ref: cardsRef, isVisible: cardsVisible } = useScrollReveal<HTMLDivElement>();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (planIndex: number) => {
+    if (planIndex === 2) {
+      // EduForYou → register form
+      window.location.href = "/auth/register-eduforyou";
+      return;
+    }
+
+    const planId = planIndex === 0 ? "starter" : "pro";
+    setCheckoutLoading(planId);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("stripe-checkout", {
+        body: {
+          priceId: planIndex === 0 ? "price_1TE465BCjwwzvAviTuGii6Ga" : "price_1TE46XBCjwwzvAviEZ3x6wGV",
+          mode: "subscription",
+          successUrl: `${window.location.origin}/payment-success?plan=${planId}`,
+          cancelUrl: `${window.location.origin}/${window.location.pathname.replace("/", "") || "ro"}#pricing`,
+          trialPeriodDays: planIndex === 0 ? 7 : undefined,
+          couponId: "EARLYBIRD50",
+        },
+      });
+
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast.error("Error starting checkout. Please try again.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   return (
     <section id="pricing" className="py-20">
@@ -679,7 +715,7 @@ function Pricing() {
         </div>
 
         <div ref={cardsRef} className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {t.pricing.plans.map((plan, i) => (
+          {([...t.pricing.plans] as any[]).map((plan: any, i: number) => (
             <div key={i} className={`card-gold rounded-2xl p-6 flex flex-col relative sm-scale-in sm-stagger-${i + 1} ${cardsVisible ? 'sm-visible' : ''} ${plan.popular ? "popular-glow" : ""}`}>
               {plan.badge && (
                 <span className={`section-badge text-xs mb-4 self-start ${plan.popular ? "bg-[#D4A843]/20" : ""}`}>
@@ -689,30 +725,52 @@ function Pricing() {
               <h3 className="text-xl font-bold font-['Playfair_Display'] mb-2">{plan.name}</h3>
               <div className="mb-1">
                 <span className="text-3xl font-bold text-gold">{plan.price}</span>
-                {(plan as any).fullPrice && <span className="text-lg text-muted-sm line-through ml-2">{(plan as any).fullPrice}</span>}
+                {plan.fullPrice && <span className="text-lg text-muted-sm line-through ml-2">{plan.fullPrice}</span>}
               </div>
               {plan.priceSub && <p className="text-xs text-muted-sm mb-1">{plan.priceSub}</p>}
-              {(plan as any).fullPrice && (
+              {plan.fullPrice && (
                 <div className="flex items-center gap-1.5 mb-2">
                   <Lock className="h-3 w-3 text-gold" />
                   <span className="text-xs font-medium text-gold">Early Bird Rate</span>
                 </div>
               )}
+              {plan.trial && (
+                <div className="mb-2 px-3 py-1 rounded-full bg-green-500/15 text-green-400 text-xs font-medium inline-block w-fit">
+                  {(t.pricing as any).trialNote}
+                </div>
+              )}
               <p className="text-sm text-muted-sm mb-6">{plan.sub}</p>
+              
+              {/* Features with ✓/✗ */}
               <ul className="space-y-3 mb-8 flex-grow">
-                {plan.features.map((f, j) => (
-                  <li key={j} className="flex items-start gap-2 text-sm text-light-sm">
-                    <Check className="h-4 w-4 text-gold flex-shrink-0 mt-0.5" />
-                    <span>{f}</span>
-                  </li>
-                ))}
+                {plan.features.map((f: any, j: number) => {
+                  const isIncluded = f.included !== false;
+                  return (
+                    <li key={j} className="flex items-start gap-2 text-sm">
+                      {isIncluded ? (
+                        <Check className="h-4 w-4 text-gold flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <X className="h-4 w-4 text-muted-sm/40 flex-shrink-0 mt-0.5" />
+                      )}
+                      <span className={isIncluded ? "text-light-sm" : "text-muted-sm/50"}>
+                        {f.name}
+                        {typeof f.included === "string" && (
+                          <span className="text-gold font-medium ml-1">({f.included})</span>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
-              <a
-                href={i === 2 ? "/auth/register-eduforyou" : `/auth/register?plan=${i === 0 ? 'starter' : 'pro'}`}
-                className={`w-full py-3 rounded-xl text-center text-sm font-semibold ${plan.popular ? "btn-gold" : "btn-gold-outline"}`}
+              <button
+                onClick={() => handleCheckout(i)}
+                disabled={checkoutLoading !== null}
+                className={`w-full py-3 rounded-xl text-center text-sm font-semibold transition-all ${
+                  plan.popular ? "btn-gold" : "btn-gold-outline"
+                } ${checkoutLoading === (i === 0 ? "starter" : i === 1 ? "pro" : "edu") ? "opacity-60 cursor-wait" : ""}`}
               >
-                {plan.cta}
-              </a>
+                {checkoutLoading === (i === 0 ? "starter" : "pro") ? "⏳..." : plan.cta}
+              </button>
             </div>
           ))}
         </div>
@@ -797,7 +855,6 @@ function Footer() {
     </footer>
   );
 }
-
 /* ─── Main Page ─── */
 function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   return (

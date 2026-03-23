@@ -28,20 +28,21 @@ serve(async (req) => {
       throw new Error("Price ID is required");
     }
 
-    const metadata: Record<string, string> = {
-      userId: userId || "",
-    };
-
+    const metadata: Record<string, string> = {};
+    if (userId) metadata.userId = userId;
     if (courseId) metadata.courseId = courseId;
     if (bundleId) metadata.bundleId = bundleId;
 
-    // Look up existing Stripe customer by email
+    // Look up existing Stripe customer by email (if authenticated)
     let customerId: string | undefined;
+    let customerEmail: string | undefined;
     const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.replace("Bearer ", "");
       const { data } = await supabaseClient.auth.getUser(token);
       if (data.user?.email) {
+        customerEmail = data.user.email;
+        metadata.userId = data.user.id;
         const customers = await stripe.customers.list({ email: data.user.email, limit: 1 });
         if (customers.data.length > 0) {
           customerId = customers.data[0].id;

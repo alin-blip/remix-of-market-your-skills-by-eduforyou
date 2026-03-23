@@ -29,6 +29,7 @@ export default function Register() {
   const location = useLocation();
   const dnaResult = new URLSearchParams(location.search).get('dna');
   const selectedPlan = new URLSearchParams(location.search).get('plan');
+  const isPaid = new URLSearchParams(location.search).get('paid') === 'true';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,10 +65,18 @@ export default function Register() {
     }
 
     const plan = new URLSearchParams(location.search).get('plan');
+    const paid = new URLSearchParams(location.search).get('paid') === 'true';
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    navigate(plan ? `/pricing?auto=${plan}` : '/dashboard');
+    // If already paid, go straight to dashboard; otherwise redirect to pricing for checkout
+    if (paid) {
+      navigate('/dashboard');
+    } else if (plan) {
+      navigate(`/pricing?auto=${plan}`);
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -157,7 +166,22 @@ export default function Register() {
         </Link>
 
         {/* Selected Plan Banner */}
-        {selectedPlan && (
+        {selectedPlan && isPaid && (
+          <div className="mb-6 p-4 rounded-xl border border-green-500/30 bg-green-500/10 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-green-500" />
+              <div>
+                <p className="font-semibold text-sm text-green-600 dark:text-green-400">
+                  Plata confirmată! ✅
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Creează contul cu același email folosit la plată pentru a activa {selectedPlan === 'pro' ? 'Pro' : 'Starter'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        {selectedPlan && !isPaid && (
           <div className="mb-6 p-4 rounded-xl border border-primary/20 bg-primary/5 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>
             <div className="flex items-center gap-3">
               {selectedPlan === 'pro' ? (
