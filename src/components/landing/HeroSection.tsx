@@ -71,7 +71,7 @@ export function HeroSection() {
                 </a>
               </Button>
               <Button size="lg" asChild variant="outline" className="h-14 px-8 text-lg border-border hover:bg-secondary group">
-                <a href="#pricing">
+                <a href="/auth/register-eduforyou">
                   {t.landing.ctaSeePlans}
                 </a>
               </Button>
