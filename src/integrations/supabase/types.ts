@@ -2361,9 +2361,49 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      quiz_questions_safe: {
+        Row: {
+          id: string | null
+          options: Json | null
+          position: number | null
+          question: string | null
+          quiz_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          options?: Json | null
+          position?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          options?: Json | null
+          position?: number | null
+          question?: string | null
+          quiz_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      award_activity: {
+        Args: { p_points: number; p_type: string }
+        Returns: undefined
+      }
+      check_and_award_badges: { Args: never; Returns: Json }
+      check_quiz_answer: {
+        Args: { p_question_id: string; p_selected_option: number }
+        Returns: boolean
+      }
       check_waitlist_status: { Args: { check_email: string }; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -2402,6 +2442,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      submit_quiz: {
+        Args: { p_answers: Json; p_quiz_id: string }
+        Returns: Json
       }
     }
     Enums: {
