@@ -708,7 +708,7 @@ function Pricing() {
                 ))}
               </ul>
               <a
-                href="/pricing"
+                href={i === 2 ? "/auth/register-eduforyou" : `/auth/register?plan=${i === 0 ? 'starter' : 'pro'}`}
                 className={`w-full py-3 rounded-xl text-center text-sm font-semibold ${plan.popular ? "btn-gold" : "btn-gold-outline"}`}
               >
                 {plan.cta}
