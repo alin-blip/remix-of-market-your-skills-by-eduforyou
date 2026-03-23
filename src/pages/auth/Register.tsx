@@ -46,9 +46,29 @@ export default function Register() {
     const { error } = await signUp(email, password, '');
 
     if (error) {
-      toast.error(t.auth.registerFailed, {
-        description: error.message || t.auth.registerFailedDescription,
-      });
+      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        if (isPaid) {
+          toast.error('Ai deja un cont cu acest email', {
+            description: 'Autentifică-te pentru a activa planul plătit.',
+            action: {
+              label: 'Autentifică-te',
+              onClick: () => navigate(`/auth/login?plan=${selectedPlan}&paid=true`),
+            },
+          });
+        } else {
+          toast.error('Ai deja un cont cu acest email', {
+            description: 'Autentifică-te sau resetează parola.',
+            action: {
+              label: 'Autentifică-te',
+              onClick: () => navigate('/auth/login'),
+            },
+          });
+        }
+      } else {
+        toast.error(t.auth.registerFailed, {
+          description: error.message || t.auth.registerFailedDescription,
+        });
+      }
       setLoading(false);
       return;
     }

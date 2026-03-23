@@ -177,6 +177,14 @@ export default function PaymentSuccess() {
                   >
                     Creează Contul <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
+                  <Button
+                    onClick={() => navigate(`/auth/login?plan=${plan}&paid=true`)}
+                    variant="outline"
+                    className="w-full"
+                    size="lg"
+                  >
+                    Am deja cont — Autentifică-te
+                  </Button>
                 </>
               ) : (
                 <div className="flex flex-col sm:flex-row gap-3">
