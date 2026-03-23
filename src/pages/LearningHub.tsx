@@ -432,7 +432,7 @@ export default function LearningHub() {
               ) : hasAccess && !isFree ? (
                 <Badge className="bg-green-500/90 text-white border-0 gap-1">
                   <CheckCircle2 className="h-3 w-3" />
-                  {isFounder ? 'Founder' : 'Acces'}
+                  Acces
                 </Badge>
               ) : (
                 <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
