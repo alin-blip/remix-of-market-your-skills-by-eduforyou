@@ -1,74 +1,106 @@
 
 
-## Plan: Early Bird Pricing cu 2 Tiere + Coupon Stripe Automat
+## Plan: Actualizare Features Pro + Animație Gold Border
 
-### Structura corectă de prețuri
+### Ce se schimbă la feature-urile Pro
 
-```text
-┌─────────────────────┬─────────────────────┬──────────────┐
-│      STARTER        │        PRO          │  EDUFORYOU   │
-│  7 zile trial free  │  Direct acces       │  = Pro gratis│
-│  apoi £49/lună      │  £97/lună           │  (admin)     │
-│  (de la £98)        │  (de la £194)       │              │
-│  50% Early Bird     │  50% Early Bird     │              │
-└─────────────────────┴─────────────────────┴──────────────┘
+**Scos din Pro:**
+- ~~Founder Accelerator (10+ module)~~
+- ~~UK Income Optimizer (SFE + calcul freelancing)~~
+- ~~Learning Hub complet + certificat~~ (înlocuit cu doar "Certificat")
+
+**Adăugat/Reformulat în Pro:**
+- Life Operating System (Taskuri, Sprinturi, Vision Board)
+- Client CRM pentru freelanceri
+- Social Media Optimization
+- Creare Gig + Job Full Time
+- Tracking Venituri (Income Tracker + Analytics)
+- Certificat (fără "Learning Hub")
+- Curs: Cum să folosești platforma pas cu pas
+
+### Animație lumină pe border gold (Pro card)
+
+CSS keyframe animation care face o lumină (gradient highlight) să se miște continuu de-a lungul border-ului cardului Pro. Implementat cu `@keyframes` și un pseudo-element `::before` cu gradient care rotește/se deplasează pe contur.
+
+### Fișiere modificate
+
+**1. `src/pages/Pricing.tsx`** — features array Pro:
 ```
+- Life Operating System (Taskuri & Sprinturi)
+- Client CRM pentru freelanceri
+- Social Media Optimization
+- Creare Gig + Job Full Time
+- Tracking Venituri + Analytics
+- Dream 100 Tracker
+- CV Generator
+- Outreach Sequences
+- Certificat
+- Curs: Cum să folosești platforma
+- Suport prioritar 48h
+```
+Scos: Founder Accelerator, Income Optimizer, Learning Hub.
+Adăugat animația de border glow pe cardul Pro via CSS class.
 
-### Cum funcționează Stripe (realist)
+**2. `src/lib/skillmarket-i18n.tsx`** — aceleași modificări la features Pro, în toate 3 limbile (EN, RO, UA).
 
-Creăm produsele la prețul **COMPLET** (£98 și £194), apoi aplicăm automat un **coupon Stripe de 50% forever** la checkout. Astfel:
-- Userul deschide Stripe Checkout și vede: ~~£98~~ → £49/lună (cu "Beta Early Bird -50%")
-- Stripe afișează nativ coupon-ul aplicat — arată profesional și credibil
-- Prețul £49 / £97 rămâne blocat pentru totdeauna (coupon duration = forever)
+**3. `src/components/landing/PricingPreview.tsx`** — actualizat features Pro (3 highlights).
 
-### Pași de implementare
+**4. `src/components/upgrade/UpgradeModal.tsx`** — actualizat lista Pro features.
 
-**1. Stripe — Produse noi + Coupon**
-- Creăm produs "Starter Plan" cu preț £98/lună GBP
-- Creăm produs "Pro Plan" cu preț £194/lună GBP (înlocuiește vechiul £97)
-- Creăm coupon "EARLYBIRD50" — 50% off, duration: forever
+**5. `src/pages/skillmarket.css`** (sau `src/index.css`) — adăugat keyframe animation `@keyframes borderGlow` care face o lumină aurie să se deplaseze pe conturul cardului Pro.
 
-**2. `supabase/functions/stripe-checkout/index.ts`**
-- Acceptă parametru opțional `couponId`
-- Aplicare automată: `discounts: [{ coupon: couponId }]` pe sesiunea de checkout
+**6. `src/lib/i18n/translations/en.ts` + `ro.ts`** — actualizat pricing preview features pentru Pro.
 
-**3. `src/hooks/useStripeCheckout.ts`**
-- Adăugăm `STRIPE_PRICES.starter` (noul price ID £98)
-- Actualizăm `STRIPE_PRICES.pro` cu noul price ID (£194)
-- Adăugăm `STRIPE_COUPON = 'EARLYBIRD50'`
-- Funcție nouă `checkoutStarter()` — checkout cu trial 7 zile + coupon
-- `checkoutPro()` — checkout fără trial + coupon
+### Animație border gold — detalii tehnice
 
-**4. `supabase/functions/check-subscription/index.ts`**
-- Adăugăm `STARTER_PRODUCT_ID` pe lângă `PRO_PRODUCT_ID`
-- Mapare: starter product → plan 'starter', pro product → plan 'pro'
-- Trial pe starter rămâne cu funcționalități limitate
+Cardul Pro va avea un container cu `position: relative; overflow: hidden` și un pseudo-element `::before` cu:
+- Gradient conic auriu (#D4A843) care rotește cu `@keyframes rotate { to { transform: rotate(360deg) } }`
+- Border-ul real al cardului creat prin mask/clip pe pseudo-element
+- Rotație continu<lov-plan>
 
-**5. `src/pages/Pricing.tsx` — Redesign complet**
-- **Starter**: "£49/lună" mare, cu ~~£98~~ tăiat, badge "Early Bird — blocat pentru totdeauna", CTA "Începe 7 Zile Gratuit"
-- **Pro**: "£97/lună" mare, cu ~~£194~~ tăiat, badge "Early Bird Rate", CTA "Upgrade la Pro"
-- **EduForYou**: neschimbat
-- Header: "🚀 Beta Early Bird — Prețuri blocate pentru primii adoptatori"
-- Subsecțiune: "Ești printre primii. Prețul tău rămâne blocat cât timp ai contul activ."
-- Fără cuvântul "discount" sau "reducere" — doar "Early Bird Rate", "Founding Member"
+## Plan: Actualizare Features Pro + Animație Gold Border
 
-**6. `src/components/landing/PricingPreview.tsx`**
-- 2 carduri: Starter (£49, de la £98) și Pro (£97, de la £194)
-- Badge "Beta Testing — Early Bird Rate"
-- Prețuri tăiate + preț actual
+### Ce se schimbă la feature-urile Pro
 
-**7. `src/components/upgrade/UpgradeModal.tsx`**
-- Pro afișat ca "£97/lună (Early Bird de la £194)"
-- "Preț blocat pentru totdeauna"
+**Scos din Pro:**
+- ~~Founder Accelerator (10+ module)~~
+- ~~UK Income Optimizer (SFE + calcul freelancing)~~
+- ~~Learning Hub complet + certificat~~ (înlocuit cu doar "Certificat")
 
-**8. `src/hooks/useSubscription.ts`**
-- Adăugăm mapare pentru noul Starter product ID
-- Starter cu subscripție activă = acces la funcțiile starter (limitate)
-- Pro = acces complet
+**Adăugat/Reformulat în Pro:**
+- Life Operating System (Taskuri, Sprinturi, Vision Board)
+- Client CRM pentru freelanceri
+- Social Media Optimization
+- Creare Gig + Job Full Time
+- Tracking Venituri (Income Tracker + Analytics)
+- Certificat (fără "Learning Hub")
+- Curs: Cum să folosești platforma pas cu pas
 
-### Copy — fără "discount"
-- "Early Bird Rate" / "Founding Member Price"
-- "Preț blocat pentru totdeauna"
-- "Prețul crește după faza Beta"
-- "Ești printre primii adoptatori"
+### Animație lumină pe border gold (Pro card)
+
+CSS keyframe animation — un gradient auriu care se rotește continuu pe conturul cardului Pro, creând efectul de "lumină care merge pe border". Implementat cu pseudo-element `::before` și `@keyframes rotate`.
+
+### Fișiere modificate
+
+**1. `src/pages/Pricing.tsx`**
+- Features Pro actualizate conform listei de mai sus
+- Clasa CSS specială pe cardul Pro pentru animația border
+
+**2. `src/lib/skillmarket-i18n.tsx`**
+- Features Pro actualizate în toate 3 limbile (EN, RO, UA)
+- Scos: Founder Accelerator, Income Optimizer, Learning Hub complet
+- Adăugat: Life OS, Client CRM, Social Media, Gig+Job, Certificat, Curs platformă
+
+**3. `src/components/landing/PricingPreview.tsx`**
+- Actualizat cele 3 highlight features Pro
+
+**4. `src/components/upgrade/UpgradeModal.tsx`**
+- Actualizat lista features Pro din modal
+
+**5. `src/index.css` sau `src/pages/skillmarket.css`**
+- Adăugat `@keyframes` pentru animația de lumină pe border gold
+- Clasa `.pro-border-glow` cu pseudo-element rotativ conic-gradient auriu
+
+**6. `src/lib/i18n/translations/en.ts` + `ro.ts`**
+- Actualizat pricing preview features Pro
 
