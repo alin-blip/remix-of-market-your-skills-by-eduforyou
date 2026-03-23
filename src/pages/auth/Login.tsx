@@ -134,6 +134,23 @@ export default function Login() {
           </span>
         </Link>
 
+        {/* Paid banner */}
+        {isPaid && planParam && (
+          <div className="mb-6 p-4 rounded-xl border border-green-500/30 bg-green-500/10 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>
+            <div className="flex items-center gap-3">
+              <span className="text-green-500 text-xl">✅</span>
+              <div>
+                <p className="font-semibold text-sm text-green-600 dark:text-green-400">
+                  Plata confirmată!
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Autentifică-te pentru a activa planul {planParam === 'pro' ? 'Pro' : 'Starter'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Decorative gold line */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-8 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }} />
 
