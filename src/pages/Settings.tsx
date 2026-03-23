@@ -174,12 +174,12 @@ export default function Settings() {
                         )}
                       </CardTitle>
                       <CardDescription>
-                        {subscriptionEnd && plan !== 'founder' ? (
+                        {subscriptionEnd ? (
                           `Se reînnoiește: ${new Date(subscriptionEnd).toLocaleDateString('ro-RO')}`
-                        ) : plan === 'founder' ? (
-                          'Acces pe viață'
+                        ) : plan === 'eduforyou' ? (
+                          'EduForYou Privilege Card'
                         ) : (
-                          'Plan gratuit'
+                          'Plan Starter'
                         )}
                       </CardDescription>
                     </div>
