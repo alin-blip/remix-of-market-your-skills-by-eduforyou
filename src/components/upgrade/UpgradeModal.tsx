@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Sparkles, Check, Lock } from 'lucide-react';
+import { Crown, Sparkles, Check, Lock, Rocket } from 'lucide-react';
 import { useSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
 
 interface UpgradeModalProps {
@@ -13,10 +13,11 @@ interface UpgradeModalProps {
   featureDescription?: string;
 }
 
-const planInfo: Record<SubscriptionPlan, { name: string; price: string; features: string[] }> = {
+const planInfo: Record<SubscriptionPlan, { name: string; earlyPrice: string; fullPrice: string; features: string[] }> = {
   starter: { 
     name: 'Starter', 
-    price: 'Gratuit (7 zile trial)',
+    earlyPrice: '£49/lună',
+    fullPrice: '£98/lună',
     features: [
       '3 platforme',
       '15 gig-uri',
@@ -28,7 +29,8 @@ const planInfo: Record<SubscriptionPlan, { name: string; price: string; features
   },
   pro: { 
     name: 'Pro', 
-    price: '£97/lună',
+    earlyPrice: '£97/lună',
+    fullPrice: '£194/lună',
     features: [
       'Platforme nelimitate',
       'Gig-uri nelimitate',
@@ -42,7 +44,8 @@ const planInfo: Record<SubscriptionPlan, { name: string; price: string; features
   },
   eduforyou: { 
     name: 'EduForYou', 
-    price: 'Privilege Card',
+    earlyPrice: 'Gratuit',
+    fullPrice: '',
     features: [
       'Acces complet Pro',
       'Fără plată',
@@ -83,15 +86,25 @@ export function UpgradeModal({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/10 border border-amber-500/20">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-primary" />
+                <Crown className="h-5 w-5 text-amber-500" />
                 <span className="font-semibold">{info.name}</span>
               </div>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                {info.price}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {info.fullPrice && (
+                  <span className="text-sm text-muted-foreground line-through">{info.fullPrice}</span>
+                )}
+                <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                  {info.earlyPrice}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 mb-3">
+              <Rocket className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-xs font-medium text-amber-600">Early Bird Rate — blocat pentru totdeauna</span>
             </div>
             
             <ul className="space-y-2">
@@ -116,7 +129,7 @@ export function UpgradeModal({
           </Button>
           <Button 
             onClick={handleUpgrade} 
-            className="flex-1 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+            className="flex-1 gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
           >
             <Sparkles className="h-4 w-4" />
             Upgrade acum

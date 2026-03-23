@@ -55,11 +55,11 @@ export const en = {
       },
     },
     pricingPreview: {
-      title: 'Plans for',
-      titleHighlight: 'every budget',
-      subtitle: 'Start for free. Upgrade when you\'re ready.',
-      studentDiscount: '50% discount for students with .edu email',
-      popular: 'Most popular',
+      title: 'Founding Member',
+      titleHighlight: 'Early Bird Rate',
+      subtitle: 'Prices locked forever. Only for early adopters during Beta.',
+      studentDiscount: 'Beta Early Bird — Price locked forever',
+      popular: 'Most chosen',
       cta: 'See all plans',
       features: {
         free1: '3 active gigs',
