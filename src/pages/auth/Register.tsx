@@ -65,10 +65,18 @@ export default function Register() {
     }
 
     const plan = new URLSearchParams(location.search).get('plan');
+    const paid = new URLSearchParams(location.search).get('paid') === 'true';
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    navigate(plan ? `/pricing?auto=${plan}` : '/dashboard');
+    // If already paid, go straight to dashboard; otherwise redirect to pricing for checkout
+    if (paid) {
+      navigate('/dashboard');
+    } else if (plan) {
+      navigate(`/pricing?auto=${plan}`);
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
