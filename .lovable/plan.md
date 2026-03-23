@@ -1,93 +1,74 @@
 
 
-## Plan: Restructurare Pricing + Eliminare Waitlist
+## Plan: Early Bird Pricing cu 2 Tiere + Coupon Stripe Automat
 
-### Ce se schimbă
-
-**Structură nouă cu 3 planuri:**
+### Structura corectă de prețuri
 
 ```text
-┌──────────────────┬──────────────────┬──────────────────┐
-│     STARTER      │       PRO        │  EDUFORYOU FREE  │
-│   7 zile trial   │   £97/lună       │   Privilege Card │
-│   (cu card)      │                  │  (aprobare admin)│
-├──────────────────┼──────────────────┼──────────────────┤
-│ 3 platforme      │ Totul din Starter│ = Pro complet    │
-│ 15 gig-uri       │ + Nelimitat      │ fără plată       │
-│ 50 AI gen/lună   │ + Dream 100      │                  │
-│ Profile Builder  │ + CV Generator   │ Admin setează    │
-│ Income Tracker   │ + Outreach Seq.  │ is_eduforyou     │
-│ Export PDF       │ + Dream Scanner  │ din dashboard    │
-│ Skill Scanner    │ + Certificări    │                  │
-│ Ikigai Builder   │ + Priority Supp. │                  │
-│                  │ + ADN Test       │                  │
-└──────────────────┴──────────────────┴──────────────────┘
-
-Cursuri = achiziții separate (neschimbat)
-Founder = eliminat
-Free (fără card) = nu mai există
+┌─────────────────────┬─────────────────────┬──────────────┐
+│      STARTER        │        PRO          │  EDUFORYOU   │
+│  7 zile trial free  │  Direct acces       │  = Pro gratis│
+│  apoi £49/lună      │  £97/lună           │  (admin)     │
+│  (de la £98)        │  (de la £194)       │              │
+│  50% Early Bird     │  50% Early Bird     │              │
+└─────────────────────┴─────────────────────┴──────────────┘
 ```
 
-### Eliminare Waitlist
-- Eliminăm verificarea waitlist din `Register.tsx` (rândurile 44-53)
-- Păstrăm tabela `waitlist_applications` (date istorice) dar nu mai blocăm signup-ul
-- Eliminăm `check_waitlist_status` RPC call din Register
-- Eliminăm `populate_profile_from_waitlist` call (profilul se creează normal la signup)
-- Pagina `/waitlist` redirecționează direct la `/auth/register`
+### Cum funcționează Stripe (realist)
 
-### Stripe: Produs Pro nou
-- Creăm produs Stripe "Pro Plan" cu preț £97/lună recurring (GBP)
-- Starter-ul folosește trial de 7 zile pe același produs Pro (Stripe `trial_period_days: 7`)
-- Când trial-ul expiră, userul rămâne pe Starter limitat dacă nu plătește
+Creăm produsele la prețul **COMPLET** (£98 și £194), apoi aplicăm automat un **coupon Stripe de 50% forever** la checkout. Astfel:
+- Userul deschide Stripe Checkout și vede: ~~£98~~ → £49/lună (cu "Beta Early Bird -50%")
+- Stripe afișează nativ coupon-ul aplicat — arată profesional și credibil
+- Prețul £49 / £97 rămâne blocat pentru totdeauna (coupon duration = forever)
 
-**Flux trial cu card:**
-1. User se înregistrează → cont gratuit cu plan "starter"
-2. Click "Start 7-Day Trial" → Stripe Checkout cu `trial_period_days: 7` + card obligatoriu
-3. După 7 zile → Stripe taxează £97 automat → plan devine "pro"
-4. Dacă anulează în trial → rămâne pe "starter" (limitat)
+### Pași de implementare
 
-### Fișiere modificate
+**1. Stripe — Produse noi + Coupon**
+- Creăm produs "Starter Plan" cu preț £98/lună GBP
+- Creăm produs "Pro Plan" cu preț £194/lună GBP (înlocuiește vechiul £97)
+- Creăm coupon "EARLYBIRD50" — 50% off, duration: forever
 
-1. **Stripe** — Creăm produs + preț nou (£97/lună GBP) via tool
-2. **`src/hooks/useSubscription.ts`** — Actualizăm PLAN_LIMITS:
-   - Eliminăm `founder` 
-   - `pro` primește Dream 100, CV Generator, Outreach, ADN Test, certificări
-   - `eduforyou` = copie exactă Pro
-3. **`src/hooks/useStripeCheckout.ts`** — Actualizăm STRIPE_PRICES (un singur preț Pro), eliminăm founder, trial checkout cu `trial_period_days: 7`
-4. **`src/pages/Pricing.tsx`** — Redesign cu 3 carduri (Starter trial, Pro £97, EduForYou privilege)
-5. **`src/components/upgrade/UpgradeModal.tsx`** — Actualizăm info planuri
-6. **`src/pages/auth/Register.tsx`** — Eliminăm verificare waitlist, signup direct
-7. **`supabase/functions/stripe-checkout/index.ts`** — Suport `trial_period_days`
-8. **`supabase/functions/check-subscription/index.ts`** — Eliminăm product ID founder, actualizăm mapare
-9. **`src/components/layout/AppSidebar.tsx`** — Actualizăm gating-ul pe Dream 100, CV, etc. pentru Pro
+**2. `supabase/functions/stripe-checkout/index.ts`**
+- Acceptă parametru opțional `couponId`
+- Aplicare automată: `discounts: [{ coupon: couponId }]` pe sesiunea de checkout
 
-### EduForYou — Flux admin
-- Admin marchează manual `is_eduforyou_member = true` pe profil din admin dashboard (existent deja)
-- Hook-ul `useSubscription` detectează flag-ul și setează plan = 'eduforyou' (echivalent Pro)
-- Nu necesită Stripe — acces gratuit complet
+**3. `src/hooks/useStripeCheckout.ts`**
+- Adăugăm `STRIPE_PRICES.starter` (noul price ID £98)
+- Actualizăm `STRIPE_PRICES.pro` cu noul price ID (£194)
+- Adăugăm `STRIPE_COUPON = 'EARLYBIRD50'`
+- Funcție nouă `checkoutStarter()` — checkout cu trial 7 zile + coupon
+- `checkoutPro()` — checkout fără trial + coupon
 
-### Detalii tehnice suplimentare
+**4. `supabase/functions/check-subscription/index.ts`**
+- Adăugăm `STARTER_PRODUCT_ID` pe lângă `PRO_PRODUCT_ID`
+- Mapare: starter product → plan 'starter', pro product → plan 'pro'
+- Trial pe starter rămâne cu funcționalități limitate
 
-**PLAN_LIMITS actualizat:**
-```typescript
-starter: {
-  platforms: 3, gigs: 15, aiGenerations: 50,
-  outreachTemplates: 5, hasProfileBuilder: true,
-  hasIncomeTracker: true, hasExport: true,
-  hasPrioritySupport: false, hasAllCourses: false,
-  hasExternalCourses: false, hasDream100: false,
-  hasCVGenerator: false, hasCertifications: false,
-  hasAdnTest: false,
-},
-pro: {
-  platforms: Infinity, gigs: Infinity, aiGenerations: Infinity,
-  outreachTemplates: Infinity, hasProfileBuilder: true,
-  hasIncomeTracker: true, hasExport: true,
-  hasPrioritySupport: true, hasAllCourses: false,
-  hasExternalCourses: true, hasDream100: true,
-  hasCVGenerator: true, hasCertifications: true,
-  hasAdnTest: true,
-},
-eduforyou: { /* identic cu pro */ }
-```
+**5. `src/pages/Pricing.tsx` — Redesign complet**
+- **Starter**: "£49/lună" mare, cu ~~£98~~ tăiat, badge "Early Bird — blocat pentru totdeauna", CTA "Începe 7 Zile Gratuit"
+- **Pro**: "£97/lună" mare, cu ~~£194~~ tăiat, badge "Early Bird Rate", CTA "Upgrade la Pro"
+- **EduForYou**: neschimbat
+- Header: "🚀 Beta Early Bird — Prețuri blocate pentru primii adoptatori"
+- Subsecțiune: "Ești printre primii. Prețul tău rămâne blocat cât timp ai contul activ."
+- Fără cuvântul "discount" sau "reducere" — doar "Early Bird Rate", "Founding Member"
+
+**6. `src/components/landing/PricingPreview.tsx`**
+- 2 carduri: Starter (£49, de la £98) și Pro (£97, de la £194)
+- Badge "Beta Testing — Early Bird Rate"
+- Prețuri tăiate + preț actual
+
+**7. `src/components/upgrade/UpgradeModal.tsx`**
+- Pro afișat ca "£97/lună (Early Bird de la £194)"
+- "Preț blocat pentru totdeauna"
+
+**8. `src/hooks/useSubscription.ts`**
+- Adăugăm mapare pentru noul Starter product ID
+- Starter cu subscripție activă = acces la funcțiile starter (limitate)
+- Pro = acces complet
+
+### Copy — fără "discount"
+- "Early Bird Rate" / "Founding Member Price"
+- "Preț blocat pentru totdeauna"
+- "Prețul crește după faza Beta"
+- "Ești printre primii adoptatori"
 
