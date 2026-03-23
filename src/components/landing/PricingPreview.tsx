@@ -35,6 +35,7 @@ export function PricingPreview() {
         t.landing.pricingPreview.features.pro2,
         t.landing.pricingPreview.features.pro3,
       ],
+      proGlow: true,
     },
   ];
 
