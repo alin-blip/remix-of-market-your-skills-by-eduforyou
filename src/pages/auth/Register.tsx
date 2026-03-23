@@ -51,7 +51,7 @@ export default function Register() {
       return;
     }
 
-    await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
+    
 
     if (dnaResult) {
       const { data: { user: newUser } } = await supabase.auth.getUser();
