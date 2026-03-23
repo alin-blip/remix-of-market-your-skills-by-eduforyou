@@ -26,6 +26,10 @@ export default function Login() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const isPaid = searchParams.get('paid') === 'true';
+  const planParam = searchParams.get('plan');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
