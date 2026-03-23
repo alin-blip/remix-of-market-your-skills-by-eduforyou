@@ -1,50 +1,53 @@
 
 
-# Plan: VSL Russell Brunson cu Voiceover AI
+# Plan: Flux de înregistrare EduForYou cu acces instant
 
-## Abordare
+## Problema
+1. Utilizatorii nu primesc email de confirmare → nu se pot loga
+2. Butonul "Sunt student EduForYou" duce la `#pricing` în loc de un formular dedicat
+3. Studenții EduForYou trebuie să primească acces imediat, fără confirmare email
 
-Videoul va fi generat în 3 pași:
-1. **Generare voiceover** — ElevenLabs TTS cu voce masculină (română)
-2. **Render video** — Remotion (muted, din cauza limitărilor sandbox)
-3. **Merge audio + video** — ffmpeg combină MP3-ul cu MP4-ul
+## Soluție
 
-## Pași tehnici
+### 1. Activare auto-confirm email
+Activăm auto-confirmarea email-urilor pentru toți utilizatorii — astfel nimeni nu mai rămâne blocat la verificare.
 
-### 1. Conectare ElevenLabs
-Conexiunea "ElevenLaba" există în workspace dar nu e legată la proiect. O legăm cu `connect`.
+### 2. Pagină nouă: `/auth/register-eduforyou`
+Formular dedicat pentru studenți EduForYou care colectează:
+- **Nume complet** (obligatoriu)
+- **Email** (obligatoriu)
+- **Parolă** (obligatoriu, min 6 caractere)
+- **Cursul** (dropdown cu cursurile EduForYou existente din OnboardingStep1)
+- **Campusul** (dropdown: London, Birmingham, Manchester, Online, etc.)
 
-### 2. Edge function TTS
-Creare `supabase/functions/elevenlabs-tts/index.ts` — primește text, returnează MP3.
+La submit:
+- Se creează contul cu `signUp()` (auto-confirmat)
+- Se actualizează profilul: `is_eduforyou_member = true`, `study_field`, `campus`, `full_name`, `onboarding_completed = true`
+- Redirect direct la `/dashboard`
 
-### 3. Script generare voiceover
-Script Python care trimite scriptul VSL (în română) la edge function-ul TTS și salvează MP3-ul în `/tmp/vsl-video/public/voiceover.mp3`.
+### 3. Coloană nouă `campus` în `profiles`
+Migrare DB: `ALTER TABLE profiles ADD COLUMN campus text;`
 
-**Scriptul narativ (~25s):**
-> "Ai skill-uri valoroase. Dar nimeni nu plătește pentru ele. Trimiți CV-uri, aplici pe platforme, și... nimic. SkillMarket transformă skill-urile tale în venit real. Scanner de skill-uri, Ikigai Builder, Generator de CV, Dream 100 Tracker, Outreach automat — totul într-o singură platformă. Valoare totală: peste trei mii cinci sute de lire. Tu plătești doar nouăzeci și șapte pe lună. Preț blocat pentru totdeauna. Devino Founding Member acum."
+### 4. Actualizare butoane landing page
+Pe toate paginile (`/`, `/ro`, `/en`, `/ua`):
+- **"Vreau acces la SkillMarket"** → `#pricing` (rămâne)
+- **"Sunt student EduForYou"** → `/auth/register-eduforyou`
 
-### 4. Proiect Remotion (5 scene)
-Același concept vizual din planul aprobat anterior — navy + gold, kinetic typography, value stack Brunson. Scenele sunt sincronizate cu timing-ul vocii.
+Același lucru în secțiunea EduForYou de pe landing.
 
-### 5. Render + Merge
-```bash
-# Render video muted
-node scripts/render.mjs  → /tmp/vsl-muted.mp4
+### 5. Rută nouă în App.tsx
+`<Route path="/auth/register-eduforyou" element={<RegisterEduForYou />} />`
 
-# Merge cu ffmpeg
-ffmpeg -i /tmp/vsl-muted.mp4 -i voiceover.mp3 -c:v copy -c:a aac /mnt/documents/skillmarket-vsl.mp4
-```
+## Fișiere afectate
+- `src/pages/auth/RegisterEduForYou.tsx` — **NOU** (formular dedicat, stilizat ca Register.tsx)
+- `src/App.tsx` — adăugare rută
+- `src/pages/SkillMarketLanding.tsx` — update link buton "Sunt student EduForYou"
+- `src/components/landing/HeroSection.tsx` — update link buton cta2
+- Migrare DB — coloană `campus`
+- Configurare auth — auto-confirm email
 
-## Fișiere create
-
-```
-supabase/functions/elevenlabs-tts/index.ts    — Edge function TTS
-/tmp/vsl-video/                                — Proiect Remotion complet
-  src/Root.tsx, MainVideo.tsx
-  src/scenes/ (5 scene)
-  scripts/render.mjs
-```
-
-## Output final
-`/mnt/documents/skillmarket-vsl.mp4` — Video 1920x1080, 30fps, ~25s, cu voiceover românesc.
+## Securitate
+- Adminul poate restricționa accesul din backend prin dezactivarea contului sau ștergerea rolului
+- `is_eduforyou_member` este setat server-side prin profile update cu RLS
+- Onboarding skip-uit (marcat `completed`) deoarece datele sunt colectate la înregistrare
 
