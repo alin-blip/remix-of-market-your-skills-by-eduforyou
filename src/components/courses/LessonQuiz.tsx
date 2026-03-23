@@ -23,7 +23,6 @@ interface QuizQuestion {
   quiz_id: string;
   question: string;
   options: string[];
-  correct_option: number;
   position: number;
 }
 
@@ -53,6 +52,7 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [lastResult, setLastResult] = useState<{ score: number; passed: boolean; correct_count: number; total_count: number } | null>(null);
 
   // Fetch quiz for this lesson
   const { data: quiz, isLoading: quizLoading } = useQuery({
@@ -69,18 +69,24 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
     enabled: !!lessonId,
   });
 
-  // Fetch quiz questions
+  // Fetch quiz questions from SAFE view (no correct_option exposed)
   const { data: questions = [], isLoading: questionsLoading } = useQuery({
-    queryKey: ['quiz-questions', quiz?.id],
+    queryKey: ['quiz-questions-safe', quiz?.id],
     queryFn: async () => {
       if (!quiz?.id) return [];
       const { data, error } = await supabase
-        .from('quiz_questions')
+        .from('quiz_questions_safe' as any)
         .select('*')
         .eq('quiz_id', quiz.id)
         .order('position', { ascending: true });
       if (error) throw error;
-      return data as QuizQuestion[];
+      return (data as any[])?.map(q => ({
+        id: q.id,
+        quiz_id: q.quiz_id,
+        question: q.question,
+        options: q.options,
+        position: q.position,
+      })) as QuizQuestion[];
     },
     enabled: !!quiz?.id,
   });
@@ -104,37 +110,22 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
     enabled: !!user?.id && !!quiz?.id,
   });
 
-  // Submit quiz mutation
+  // Submit quiz via secure server-side function
   const submitQuizMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id || !quiz?.id) throw new Error('Not authenticated');
 
-      // Calculate score
-      let correctCount = 0;
-      questions.forEach(q => {
-        if (selectedAnswers[q.id] === q.correct_option) {
-          correctCount++;
-        }
+      const { data, error } = await supabase.rpc('submit_quiz', {
+        p_quiz_id: quiz.id,
+        p_answers: selectedAnswers,
       });
 
-      const score = Math.round((correctCount / questions.length) * 100);
-      const passed = score >= quiz.passing_score;
-
-      const { error } = await supabase
-        .from('quiz_attempts')
-        .insert({
-          user_id: user.id,
-          quiz_id: quiz.id,
-          score,
-          passed,
-          answers: selectedAnswers,
-        });
-
       if (error) throw error;
-      return { score, passed, correctCount };
+      return data as { score: number; passed: boolean; correct_count: number; total_count: number };
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['quiz-best-attempt'] });
+      setLastResult(result);
       setShowResults(true);
       if (result.passed) {
         toast.success(`Felicitări! Ai trecut quiz-ul cu ${result.score}%`);
@@ -185,24 +176,13 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
     setSelectedAnswers({});
     setCurrentQuestion(0);
     setShowResults(false);
+    setLastResult(null);
     setQuizStarted(true);
   };
 
   const allAnswered = questions.every(q => selectedAnswers[q.id] !== undefined);
 
-  // Calculate results for display
-  const calculateResults = () => {
-    let correctCount = 0;
-    questions.forEach(q => {
-      if (selectedAnswers[q.id] === q.correct_option) {
-        correctCount++;
-      }
-    });
-    const score = Math.round((correctCount / questions.length) * 100);
-    return { correctCount, score, passed: score >= quiz.passing_score };
-  };
-
-  // Show start screen if quiz hasn't started
+  // Show start screen
   if (!quizStarted && !showResults) {
     return (
       <Card>
@@ -244,9 +224,8 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
     );
   }
 
-  // Show results screen
-  if (showResults) {
-    const results = calculateResults();
+  // Show results screen (server-side results, no correct answers exposed)
+  if (showResults && lastResult) {
     return (
       <Card>
         <CardHeader>
@@ -259,54 +238,25 @@ export function LessonQuiz({ lessonId }: LessonQuizProps) {
             className="space-y-6"
           >
             <div className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center ${
-              results.passed ? 'bg-green-100' : 'bg-orange-100'
+              lastResult.passed ? 'bg-green-100' : 'bg-orange-100'
             }`}>
-              {results.passed ? (
+              {lastResult.passed ? (
                 <Trophy className="h-12 w-12 text-green-600" />
               ) : (
                 <XCircle className="h-12 w-12 text-orange-600" />
               )}
             </div>
             <div>
-              <h3 className={`text-3xl font-bold ${results.passed ? 'text-green-600' : 'text-orange-600'}`}>
-                {results.score}%
+              <h3 className={`text-3xl font-bold ${lastResult.passed ? 'text-green-600' : 'text-orange-600'}`}>
+                {lastResult.score}%
               </h3>
               <p className="text-muted-foreground mt-1">
-                {results.correctCount} din {questions.length} răspunsuri corecte
+                {lastResult.correct_count} din {lastResult.total_count} răspunsuri corecte
               </p>
             </div>
-            <Badge className={results.passed ? 'bg-green-500' : 'bg-orange-500'}>
-              {results.passed ? 'Ai trecut!' : 'Mai încearcă'}
+            <Badge className={lastResult.passed ? 'bg-green-500' : 'bg-orange-500'}>
+              {lastResult.passed ? 'Ai trecut!' : 'Mai încearcă'}
             </Badge>
-            
-            {/* Show answers review */}
-            <div className="text-left space-y-3 mt-6">
-              <h4 className="font-semibold">Răspunsurile tale:</h4>
-              {questions.map((q, idx) => {
-                const isCorrect = selectedAnswers[q.id] === q.correct_option;
-                return (
-                  <div key={q.id} className={`p-3 rounded-lg border ${
-                    isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
-                  }`}>
-                    <div className="flex items-start gap-2">
-                      {isCorrect ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                      )}
-                      <div>
-                        <p className="font-medium text-sm">{idx + 1}. {q.question}</p>
-                        {!isCorrect && (
-                          <p className="text-sm text-green-600 mt-1">
-                            Răspuns corect: {q.options[q.correct_option]}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </motion.div>
         </CardContent>
         <CardFooter className="justify-center">
