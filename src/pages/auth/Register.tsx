@@ -199,7 +199,7 @@ export default function Register() {
               className="w-full h-12 border-border hover:border-primary/30 bg-secondary hover:bg-secondary/80 font-medium text-base mb-4 transition-all duration-300"
               onClick={async () => {
                 const { error } = await lovable.auth.signInWithOAuth('apple', {
-                  redirect_uri: window.location.origin,
+                  redirect_uri: window.location.origin + '/dashboard',
                 });
                 if (error) toast.error('Apple signup failed');
               }}

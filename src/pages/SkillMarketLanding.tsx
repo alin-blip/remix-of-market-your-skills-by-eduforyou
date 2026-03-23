@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useScrollReveal, useCountUp } from "@/hooks/useScrollReveal";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import {
   type Lang,
   LANGS,

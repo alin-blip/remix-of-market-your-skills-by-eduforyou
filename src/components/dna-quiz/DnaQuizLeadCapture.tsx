@@ -76,7 +76,7 @@ export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading }: DnaQuiz
     try {
       const { lovable } = await import('@/integrations/lovable/index');
       await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin + '/dashboard',
       });
     } catch (err) {
       console.error('Google sign-in error:', err);
