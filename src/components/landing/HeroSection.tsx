@@ -65,7 +65,7 @@ export function HeroSection() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-12 animate-slide-up delay-200">
               <Button size="lg" asChild className="gradient-accent text-accent-foreground font-semibold text-lg px-8 h-14 glow-accent hover:scale-105 transition-transform">
-                <Link to="/auth/register">
+                <Link to="/pricing">
                   {t.landing.ctaStart}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
