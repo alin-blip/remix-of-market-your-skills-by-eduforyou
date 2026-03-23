@@ -1,49 +1,33 @@
 
 
-# Plan: Landing Page Pricing = Full Early Bird + Stripe-First Flow
+# Plan: Fix Post-Payment Flow for Existing Users + Email Audit
 
-## Ce se schimbă
+## Probleme identificate
 
-### 1. Secțiunea de prețuri pe landing page — design complet ca `/pricing`
-Secțiunea `Pricing` din `SkillMarketLanding.tsx` arată acum o versiune simplificată (doar features incluse). O vom transforma să arate identic cu pagina `/pricing`:
-- **Toate feature-urile** listate cu ✓ (inclus) și ✗ (neinclus)
-- **Badge "Cel mai ales"** pe Pro
-- **"7 zile gratuit • card necesar"** pe Starter
-- **Lock icon + "Early Bird Rate — blocat pentru totdeauna"**
-- **Prețul tăiat** (£98 / £194)
+1. **Register page nu gestionează "user already exists"** — eroare generică, fără ghidaj
+2. **PaymentSuccess page nu oferă opțiunea de login** — doar "Creează Contul"
+3. **Emailul de recovery a fost trimis cu succes** (status: `sent`) dar probabil a ajuns în Spam — nu e bug de cod, dar putem îmbunătăți subject-ul în română
 
-Vom adăuga feature-urile complete (incluse + neincluse) în datele i18n (`skillmarket-i18n.tsx`) pentru toate cele 3 limbi, și vom actualiza componenta `Pricing` din landing page să le randeze cu iconițe ✓/✗.
+## Soluții
 
-### 2. Flux nou: Stripe PRIMUL, cont DUPĂ
-Fluxul actual: Click plan → Register → Auto-checkout → Stripe
-Fluxul nou: Click plan → Stripe direct (guest checkout) → Payment success → Register → Dashboard
+### 1. PaymentSuccess — adăugare opțiune Login pentru utilizatori existenți
+Pe lângă butonul "Creează Contul", adăugăm "Am deja cont — Autentifică-te" care duce la `/auth/login`.
 
-**Implementare:**
-- **Stripe checkout fără autentificare**: Modificăm edge function `stripe-checkout` să accepte și cereri fără auth header (guest checkout). Emailul va fi colectat de Stripe la checkout.
-- **Landing page buttons**: Starter/Pro → apelează direct Stripe checkout (fără redirect la `/auth/register`). Vom adăuga `useStripeCheckout` logic direct în landing page sau vom face redirect la `/pricing` care face checkout-ul.
-- **Payment Success page**: După plata cu succes, redirecționăm la `/auth/register?plan=starter&paid=true` (sau pro). Pagina de register detectează `paid=true` și afișează mesaj "Plata confirmată! Creează-ți contul pentru a accesa platforma."
-- **Stripe webhook**: La completarea plății, webhook-ul salvează `stripe_customer_id` + email. Când utilizatorul creează cont cu același email, se leagă automat.
+### 2. Register page — detectare eroare "user already exists"
+Când `signUp` returnează eroare cu mesaj "User already registered":
+- Afișăm mesaj clar: "Ai deja un cont cu acest email"
+- Oferim buton "Autentifică-te" + link "Ai uitat parola?"
+- Dacă `paid=true`, mesajul explică că trebuie doar să se logheze pentru a activa planul
 
-### 3. Email recovery
-Adăugăm pe pagina de success Stripe un mesaj clar cu emailul folosit și instrucțiuni de creare cont, astfel încât utilizatorul să nu se "piardă pe drum".
+### 3. Recovery email — subject în română
+Schimbăm subject-ul din "Reset your password" în "Resetează-ți parola — MarketYourSkill" pentru a fi mai vizibil în inbox.
+
+### 4. Login page — detectare `plan` + `paid` params
+Dacă utilizatorul ajunge pe login cu `?plan=pro&paid=true`, afișăm banner "Plata confirmată" și redirect la dashboard după login.
 
 ## Fișiere afectate
-- `src/lib/skillmarket-i18n.tsx` — adăugare features complete (included/excluded) în toate cele 3 limbi
-- `src/pages/SkillMarketLanding.tsx` — refactor secțiune Pricing cu design complet + flow Stripe-first
-- `supabase/functions/stripe-checkout/index.ts` — permit guest checkout (fără auth obligatoriu)
-- `src/pages/PaymentSuccess.tsx` — adăugare flow pentru redirect la register după plată
-- `src/pages/auth/Register.tsx` — detectare `paid=true` și mesaj adaptat
-
-## Flow vizual
-
-```text
-Landing Page (#pricing)
-    ├── Click "Starter" / "Pro"
-    │   └── Stripe Checkout (guest, email colectat de Stripe)
-    │       └── Payment Success → /auth/register?plan=pro&paid=true
-    │           └── Creează cont → Dashboard (acces imediat)
-    │
-    └── Click "EduForYou"
-        └── /auth/register-eduforyou (rămâne ca acum)
-```
+- `src/pages/PaymentSuccess.tsx` — adăugare buton login
+- `src/pages/auth/Register.tsx` — handling "user already exists" cu UI dedicat
+- `src/pages/auth/Login.tsx` — detectare params plan/paid, banner + redirect
+- `supabase/functions/auth-email-hook/index.ts` — subjects în română
 
