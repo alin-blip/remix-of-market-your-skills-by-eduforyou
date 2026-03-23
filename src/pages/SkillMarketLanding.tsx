@@ -708,7 +708,7 @@ function Pricing() {
                 ))}
               </ul>
               <a
-                href="/waitlist"
+                href="/pricing"
                 className={`w-full py-3 rounded-xl text-center text-sm font-semibold ${plan.popular ? "btn-gold" : "btn-gold-outline"}`}
               >
                 {plan.cta}
