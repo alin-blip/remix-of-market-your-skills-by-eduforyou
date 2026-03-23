@@ -35,6 +35,8 @@ import {
 } from '@/hooks/useLifeOS';
 import { DAYS_OF_WEEK, DAY_LABELS } from '@/types/lifeOS';
 import { cn } from '@/lib/utils';
+import { calculateResult, type DnaProfile } from '@/components/dna-quiz/quizData';
+import { toast } from 'sonner';
 
 interface ProgressData {
   skillsCount: number;
