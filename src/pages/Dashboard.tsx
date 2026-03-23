@@ -20,6 +20,7 @@ import {
   Compass,
   Briefcase,
   BookOpen,
+  Dna,
 } from 'lucide-react';
 import { VisionBoard } from '@/components/life-os/VisionBoard';
 import { AreaIcon } from '@/components/life-os/AreaIcon';
