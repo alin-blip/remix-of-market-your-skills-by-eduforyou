@@ -1,53 +1,49 @@
 
 
-# Plan: Flux de înregistrare EduForYou cu acces instant
+# Plan: Landing Page Pricing = Full Early Bird + Stripe-First Flow
 
-## Problema
-1. Utilizatorii nu primesc email de confirmare → nu se pot loga
-2. Butonul "Sunt student EduForYou" duce la `#pricing` în loc de un formular dedicat
-3. Studenții EduForYou trebuie să primească acces imediat, fără confirmare email
+## Ce se schimbă
 
-## Soluție
+### 1. Secțiunea de prețuri pe landing page — design complet ca `/pricing`
+Secțiunea `Pricing` din `SkillMarketLanding.tsx` arată acum o versiune simplificată (doar features incluse). O vom transforma să arate identic cu pagina `/pricing`:
+- **Toate feature-urile** listate cu ✓ (inclus) și ✗ (neinclus)
+- **Badge "Cel mai ales"** pe Pro
+- **"7 zile gratuit • card necesar"** pe Starter
+- **Lock icon + "Early Bird Rate — blocat pentru totdeauna"**
+- **Prețul tăiat** (£98 / £194)
 
-### 1. Activare auto-confirm email
-Activăm auto-confirmarea email-urilor pentru toți utilizatorii — astfel nimeni nu mai rămâne blocat la verificare.
+Vom adăuga feature-urile complete (incluse + neincluse) în datele i18n (`skillmarket-i18n.tsx`) pentru toate cele 3 limbi, și vom actualiza componenta `Pricing` din landing page să le randeze cu iconițe ✓/✗.
 
-### 2. Pagină nouă: `/auth/register-eduforyou`
-Formular dedicat pentru studenți EduForYou care colectează:
-- **Nume complet** (obligatoriu)
-- **Email** (obligatoriu)
-- **Parolă** (obligatoriu, min 6 caractere)
-- **Cursul** (dropdown cu cursurile EduForYou existente din OnboardingStep1)
-- **Campusul** (dropdown: London, Birmingham, Manchester, Online, etc.)
+### 2. Flux nou: Stripe PRIMUL, cont DUPĂ
+Fluxul actual: Click plan → Register → Auto-checkout → Stripe
+Fluxul nou: Click plan → Stripe direct (guest checkout) → Payment success → Register → Dashboard
 
-La submit:
-- Se creează contul cu `signUp()` (auto-confirmat)
-- Se actualizează profilul: `is_eduforyou_member = true`, `study_field`, `campus`, `full_name`, `onboarding_completed = true`
-- Redirect direct la `/dashboard`
+**Implementare:**
+- **Stripe checkout fără autentificare**: Modificăm edge function `stripe-checkout` să accepte și cereri fără auth header (guest checkout). Emailul va fi colectat de Stripe la checkout.
+- **Landing page buttons**: Starter/Pro → apelează direct Stripe checkout (fără redirect la `/auth/register`). Vom adăuga `useStripeCheckout` logic direct în landing page sau vom face redirect la `/pricing` care face checkout-ul.
+- **Payment Success page**: După plata cu succes, redirecționăm la `/auth/register?plan=starter&paid=true` (sau pro). Pagina de register detectează `paid=true` și afișează mesaj "Plata confirmată! Creează-ți contul pentru a accesa platforma."
+- **Stripe webhook**: La completarea plății, webhook-ul salvează `stripe_customer_id` + email. Când utilizatorul creează cont cu același email, se leagă automat.
 
-### 3. Coloană nouă `campus` în `profiles`
-Migrare DB: `ALTER TABLE profiles ADD COLUMN campus text;`
-
-### 4. Actualizare butoane landing page
-Pe toate paginile (`/`, `/ro`, `/en`, `/ua`):
-- **"Vreau acces la SkillMarket"** → `#pricing` (rămâne)
-- **"Sunt student EduForYou"** → `/auth/register-eduforyou`
-
-Același lucru în secțiunea EduForYou de pe landing.
-
-### 5. Rută nouă în App.tsx
-`<Route path="/auth/register-eduforyou" element={<RegisterEduForYou />} />`
+### 3. Email recovery
+Adăugăm pe pagina de success Stripe un mesaj clar cu emailul folosit și instrucțiuni de creare cont, astfel încât utilizatorul să nu se "piardă pe drum".
 
 ## Fișiere afectate
-- `src/pages/auth/RegisterEduForYou.tsx` — **NOU** (formular dedicat, stilizat ca Register.tsx)
-- `src/App.tsx` — adăugare rută
-- `src/pages/SkillMarketLanding.tsx` — update link buton "Sunt student EduForYou"
-- `src/components/landing/HeroSection.tsx` — update link buton cta2
-- Migrare DB — coloană `campus`
-- Configurare auth — auto-confirm email
+- `src/lib/skillmarket-i18n.tsx` — adăugare features complete (included/excluded) în toate cele 3 limbi
+- `src/pages/SkillMarketLanding.tsx` — refactor secțiune Pricing cu design complet + flow Stripe-first
+- `supabase/functions/stripe-checkout/index.ts` — permit guest checkout (fără auth obligatoriu)
+- `src/pages/PaymentSuccess.tsx` — adăugare flow pentru redirect la register după plată
+- `src/pages/auth/Register.tsx` — detectare `paid=true` și mesaj adaptat
 
-## Securitate
-- Adminul poate restricționa accesul din backend prin dezactivarea contului sau ștergerea rolului
-- `is_eduforyou_member` este setat server-side prin profile update cu RLS
-- Onboarding skip-uit (marcat `completed`) deoarece datele sunt colectate la înregistrare
+## Flow vizual
+
+```text
+Landing Page (#pricing)
+    ├── Click "Starter" / "Pro"
+    │   └── Stripe Checkout (guest, email colectat de Stripe)
+    │       └── Payment Success → /auth/register?plan=pro&paid=true
+    │           └── Creează cont → Dashboard (acces imediat)
+    │
+    └── Click "EduForYou"
+        └── /auth/register-eduforyou (rămâne ca acum)
+```
 
