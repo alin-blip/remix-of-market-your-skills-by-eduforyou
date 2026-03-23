@@ -10,7 +10,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Landing from "./pages/Landing";
+
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
