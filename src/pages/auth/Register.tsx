@@ -156,8 +156,31 @@ export default function Register() {
           </span>
         </Link>
 
+        {/* Selected Plan Banner */}
+        {selectedPlan && (
+          <div className="mb-6 p-4 rounded-xl border border-primary/20 bg-primary/5 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>
+            <div className="flex items-center gap-3">
+              {selectedPlan === 'pro' ? (
+                <Crown className="h-6 w-6 text-primary" />
+              ) : (
+                <Sparkles className="h-6 w-6 text-primary" />
+              )}
+              <div>
+                <p className="font-semibold text-sm">
+                  {selectedPlan === 'pro' ? 'SkillMarket Pro — £97/lună' : 'Starter — £49/lună'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedPlan === 'starter' 
+                    ? 'Creează contul, apoi vei fi redirecționat la plată (7 zile gratuit)'
+                    : 'Creează contul, apoi vei fi redirecționat la plată'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Decorative gold line */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-8 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }} />
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-8 animate-fade-in" style={{ animationDelay: '140ms', animationFillMode: 'both' }} />
 
         {/* Form Card */}
         <div className="p-8 rounded-2xl glass card-shine border-primary/20 animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
