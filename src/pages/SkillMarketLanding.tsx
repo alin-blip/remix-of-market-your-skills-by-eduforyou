@@ -231,10 +231,10 @@ function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="/pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
+              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
                 {t.hero.cta1} <ArrowRight className="h-4 w-4" />
               </a>
-              <a href="/pricing" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
+              <a href="#pricing" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
                 {t.hero.cta2}
               </a>
             </div>
