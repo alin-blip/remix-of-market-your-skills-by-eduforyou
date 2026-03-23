@@ -813,8 +813,18 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
 /* ─── Wrapper with lang from route ─── */
 export default function SkillMarketLanding({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean } = {}) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const pathLang = location.pathname.replace("/", "") as Lang;
   const validLang = (["ro", "en", "ua"].includes(pathLang) ? pathLang : "ro") as Lang;
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  if (!loading && user) return null;
 
   return (
     <SkillMarketLangProvider lang={validLang}>
