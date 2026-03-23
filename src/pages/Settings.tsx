@@ -219,26 +219,26 @@ export default function Settings() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
-              {subscribed && plan !== 'free' ? (
+              {subscribed && plan === 'pro' ? (
                 <Button variant="outline" className="gap-2" onClick={openCustomerPortal}>
                   <ExternalLink className="h-4 w-4" />
                   Gestionează Subscripția
                 </Button>
               ) : null}
               
-              {plan !== 'founder' && (
+              {plan === 'starter' && (
                 <Button 
                   className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
                   onClick={() => navigate('/pricing')}
                 >
                   <Crown className="h-4 w-4" />
-                  {plan === 'free' ? 'Upgrade' : 'Schimbă Planul'}
+                  Upgrade la Pro
                 </Button>
               )}
             </div>
 
             {/* Manage Subscription Note */}
-            {subscribed && plan !== 'free' && (
+            {subscribed && plan === 'pro' && (
               <Card className="bg-muted/30">
                 <CardContent className="py-4">
                   <p className="text-sm text-muted-foreground">

@@ -26,15 +26,12 @@ export function useCourseAccess(courseId: string, coursePrice: number) {
 
   const isFree = coursePrice === 0;
   const isPurchased = !!purchase;
-  const isFounder = plan === "founder";
-  
-  // Founders have access to all courses, or if purchased, or if free
-  const hasAccess = isFounder || isPurchased || isFree;
+  // Pro and EduForYou users don't get all courses for free — courses are separate purchases
+  const hasAccess = isPurchased || isFree;
 
   return {
     hasAccess,
     isPurchased,
-    isFounder,
     isFree,
     isLoading: subLoading || purchaseLoading,
   };
@@ -60,17 +57,13 @@ export function useCoursesAccess() {
     enabled: !!user?.id,
   });
 
-  const isFounder = plan === "founder";
-
   const hasAccessToCourse = (courseId: string, coursePrice: number): boolean => {
-    if (coursePrice === 0) return true; // Free course
-    if (isFounder) return true; // Founders have all access
+    if (coursePrice === 0) return true;
     return purchases.includes(courseId);
   };
 
   return {
     hasAccessToCourse,
-    isFounder,
     purchasedCourseIds: purchases,
     isLoading: subLoading || purchasesLoading,
   };

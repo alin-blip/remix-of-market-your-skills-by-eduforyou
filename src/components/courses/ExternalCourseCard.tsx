@@ -70,7 +70,7 @@ export function ExternalCourseCard({ course, index = 0 }: ExternalCourseCardProp
   const { plan } = useSubscription();
   const navigate = useNavigate();
   
-  const hasAccess = !course.requires_pro || plan === 'pro' || plan === 'founder';
+  const hasAccess = !course.requires_pro || plan === 'pro' || plan === 'eduforyou';
   const providerStyle = providerColors[course.provider] || { bg: 'bg-primary/10', text: 'text-primary' };
   const levelStyle = levelColors[course.level] || { bg: 'bg-muted', text: 'text-muted-foreground' };
 
