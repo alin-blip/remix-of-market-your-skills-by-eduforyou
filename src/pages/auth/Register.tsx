@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, CheckCircle2, ArrowLeft, ArrowRight, Globe, Sun, Moon, Monitor } from 'lucide-react';
+import { Loader2, CheckCircle2, ArrowLeft, ArrowRight, Globe, Sun, Moon, Monitor, Crown, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { lovable } from '@/integrations/lovable/index';
