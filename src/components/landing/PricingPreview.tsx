@@ -74,7 +74,7 @@ export function PricingPreview() {
               <div 
                 key={i}
                 className={`p-6 rounded-2xl glass card-shine hover-lift relative ${
-                  plan.popular ? 'border-2 border-amber-500 ring-2 ring-amber-500/20' : ''
+                  plan.popular ? 'pro-border-glow' : ''
                 }`}
               >
                 {plan.popular && (

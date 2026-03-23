@@ -175,7 +175,7 @@ export default function Pricing() {
             >
               <Card className={`relative h-full flex flex-col p-6 ${
                 plan.popular 
-                  ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10' 
+                  ? 'pro-border-glow' 
                   : 'border-border'
               }`}>
                 {plan.popular && (

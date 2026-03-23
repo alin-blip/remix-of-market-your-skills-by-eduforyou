@@ -32,14 +32,14 @@ const planInfo: Record<SubscriptionPlan, { name: string; earlyPrice: string; ful
     earlyPrice: '£97/lună',
     fullPrice: '£194/lună',
     features: [
-      'Platforme nelimitate',
-      'Gig-uri nelimitate',
-      'Generări AI nelimitate',
+      'Life Operating System',
+      'Client CRM pentru freelanceri',
+      'Social Media Optimization',
+      'Creare Gig + Job Full Time',
+      'Tracking Venituri + Analytics',
       'Dream 100 Tracker',
-      'CV Generator',
-      'Outreach Sequences',
-      'Certificări cursuri',
-      'Suport prioritar',
+      'Certificat + Curs platformă',
+      'Suport prioritar 48h',
     ]
   },
   eduforyou: { 
