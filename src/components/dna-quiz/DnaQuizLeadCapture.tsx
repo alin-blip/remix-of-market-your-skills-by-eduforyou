@@ -80,9 +80,13 @@ export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading, quizState
 
   const handleGoogleSignIn = async () => {
     try {
+      // Save quiz state to localStorage before OAuth redirect
+      if (quizState) {
+        localStorage.setItem('pending_dna_quiz', JSON.stringify(quizState));
+      }
       const { lovable } = await import('@/integrations/lovable/index');
       await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin + '/dashboard',
+        redirect_uri: window.location.origin + '/dashboard?from=dna-quiz',
       });
     } catch (err) {
       console.error('Google sign-in error:', err);

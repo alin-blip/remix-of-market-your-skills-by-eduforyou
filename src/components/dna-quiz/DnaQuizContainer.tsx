@@ -158,6 +158,7 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
             onSubmit={handleEmailSubmit}
             onSignup={handleSignup}
             isLoading={saving}
+            quizState={{ scores, answers, result, lang }}
           />
         )}
         {phase === 'result' && result && (
