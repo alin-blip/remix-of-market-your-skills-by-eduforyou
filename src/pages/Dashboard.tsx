@@ -345,6 +345,40 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
+        {/* DNA Result Card */}
+        {dnaResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.03 }}
+          >
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="py-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/20">
+                      <Dna className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {locale === 'ro' ? 'ADN-ul tău de Execuție' : 'Your Execution DNA'}
+                      </p>
+                      <p className="text-lg font-bold text-foreground capitalize">{dnaResult}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/wizard/path')}
+                  >
+                    {locale === 'ro' ? 'Refă testul' : 'Retake'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Next Steps Section - Dynamic CTA */}
         {nextSteps.length > 0 && (
           <motion.div
