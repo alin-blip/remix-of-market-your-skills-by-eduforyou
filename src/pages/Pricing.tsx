@@ -125,6 +125,21 @@ export default function Pricing() {
   const { checkoutStarter, checkoutPro, isLoading } = useStripeCheckout();
   const { plan: currentPlan } = useSubscription();
 
+  // Auto-trigger checkout from registration redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const autoPlan = params.get('auto');
+    if (autoPlan && user) {
+      // Clear the param to avoid re-triggering
+      window.history.replaceState({}, '', '/pricing');
+      if (autoPlan === 'starter') {
+        checkoutStarter();
+      } else if (autoPlan === 'pro') {
+        checkoutPro();
+      }
+    }
+  }, [user]);
+
   const handleSelectPlan = async (plan: Plan) => {
     if (!user) {
       toast.info('Trebuie să te autentifici pentru a continua');
