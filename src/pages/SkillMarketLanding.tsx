@@ -786,6 +786,75 @@ function Pricing() {
     </section>
   );
 }
+/* ─── FAQ ─── */
+function FAQ() {
+  const { t } = useSkillMarketLang();
+  const [open, setOpen] = useState<number | null>(null);
+  const { ref, isVisible } = useScrollReveal<HTMLElement>();
+
+  return (
+    <section ref={ref} id="faq" className="py-20 bg-navy-light">
+      <div className="sm-container max-w-3xl">
+        <div className={`text-center mb-16 sm-reveal ${isVisible ? 'sm-visible' : ''}`}>
+          <span className="section-badge">{t.faq.badge}</span>
+          <h2 className="text-3xl md:text-5xl font-bold mt-6 mb-2">
+            {t.faq.title1}
+          </h2>
+          <h2 className="text-3xl md:text-5xl font-bold text-gold italic">
+            {t.faq.titleGold}
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {t.faq.items.map((faq, i) => (
+            <div key={i} className={`card-gold rounded-xl overflow-hidden sm-reveal sm-stagger-${Math.min(i + 1, 6)} ${isVisible ? 'sm-visible' : ''}`}>
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full flex items-center justify-between p-5 text-left"
+              >
+                <span className="font-medium text-sm pr-4">{faq.q}</span>
+                {open === i ? (
+                  <ChevronUp className="h-4 w-4 text-gold flex-shrink-0" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-sm flex-shrink-0" />
+                )}
+              </button>
+              {open === i && (
+                <div className="px-5 pb-5 text-sm text-light-sm leading-relaxed border-t border-[#D4A843]/10 pt-4">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+/* ─── Footer ─── */
+function Footer() {
+  const { t } = useSkillMarketLang();
+
+  return (
+    <footer className="py-12 border-t border-[#D4A843]/10">
+      <div className="sm-container">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <Logo />
+          <p className="text-sm text-muted-sm">{t.footer.powered}</p>
+          <div className="flex gap-6 text-sm">
+            {[t.footer.terms, t.footer.privacy, t.footer.contact].map((l) => (
+              <a key={l} href="#" className="text-muted-sm hover:text-gold transition-colors">
+                {l}
+              </a>
+            ))}
+          </div>
+          <p className="text-xs text-muted-sm">© {t.footer.rights}</p>
+          <p className="text-xs text-muted-sm">{t.footer.registered}</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
 /* ─── Main Page ─── */
 function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   return (
