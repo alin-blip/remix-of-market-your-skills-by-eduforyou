@@ -5,18 +5,18 @@ import { toast } from 'sonner';
 
 // Stripe Price IDs
 export const STRIPE_PRICES = {
-  starter: 'price_1Sp36WBCjwwzvAviNnAplktI',
-  pro: 'price_1Sp36YBCjwwzvAviPTWnJCju',
-  founder: 'price_1Sp36ZBCjwwzvAviBChikarB',
+  pro: 'price_1TE3i0BCjwwzvAviQhho4o3E',
 } as const;
 
-type PlanType = keyof typeof STRIPE_PRICES;
+export const STRIPE_PRODUCTS = {
+  pro: 'prod_UCSdvbrfCzXZOI',
+} as const;
 
 export function useStripeCheckout() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const checkout = async (plan: PlanType) => {
+  const checkoutPro = async (withTrial = false) => {
     if (!user) {
       toast.error('Trebuie să fii autentificat pentru a face upgrade');
       return;
@@ -26,11 +26,12 @@ export function useStripeCheckout() {
     try {
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
         body: {
-          priceId: STRIPE_PRICES[plan],
-          mode: plan === 'founder' ? 'payment' : 'subscription',
-          successUrl: `${window.location.origin}/payment-success?plan=${plan}`,
+          priceId: STRIPE_PRICES.pro,
+          mode: 'subscription',
+          successUrl: `${window.location.origin}/payment-success?plan=pro`,
           cancelUrl: `${window.location.origin}/pricing?canceled=true`,
           userId: user.id,
+          ...(withTrial ? { trialPeriodDays: 7 } : {}),
         },
       });
 
@@ -111,5 +112,5 @@ export function useStripeCheckout() {
     }
   };
 
-  return { checkout, checkoutCourse, checkoutBundle, isLoading };
+  return { checkoutPro, checkoutCourse, checkoutBundle, isLoading };
 }

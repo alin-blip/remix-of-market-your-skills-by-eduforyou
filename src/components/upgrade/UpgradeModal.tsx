@@ -13,11 +13,10 @@ interface UpgradeModalProps {
   featureDescription?: string;
 }
 
-const planInfo: Partial<Record<SubscriptionPlan, { name: string; price: string; features: string[] }>> = {
-  free: { name: 'Free', price: '0€', features: [] },
+const planInfo: Record<SubscriptionPlan, { name: string; price: string; features: string[] }> = {
   starter: { 
     name: 'Starter', 
-    price: '19€/lună',
+    price: 'Gratuit (7 zile trial)',
     features: [
       '3 platforme',
       '15 gig-uri',
@@ -29,25 +28,25 @@ const planInfo: Partial<Record<SubscriptionPlan, { name: string; price: string; 
   },
   pro: { 
     name: 'Pro', 
-    price: '49€/lună',
+    price: '£97/lună',
     features: [
       'Platforme nelimitate',
       'Gig-uri nelimitate',
       'Generări AI nelimitate',
-      'Outreach Generator',
+      'Dream 100 Tracker',
+      'CV Generator',
+      'Outreach Sequences',
+      'Certificări cursuri',
       'Suport prioritar',
-      'Toate funcțiile Starter'
     ]
   },
-  founder: { 
-    name: 'Founder Accelerator', 
-    price: '997€ (o singură plată)',
+  eduforyou: { 
+    name: 'EduForYou', 
+    price: 'Privilege Card',
     features: [
-      'Toate funcțiile Pro',
-      'Acces la toate cursurile',
-      'Mentorat 1-1',
-      'Comunitate privată',
-      'Acces pe viață'
+      'Acces complet Pro',
+      'Fără plată',
+      'Activat de admin'
     ]
   }
 };
@@ -61,7 +60,7 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const navigate = useNavigate();
   const { plan: currentPlan } = useSubscription();
-  const info = planInfo[requiredPlan] || planInfo.starter!;
+  const info = planInfo[requiredPlan] || planInfo.pro;
 
   const handleUpgrade = () => {
     onOpenChange(false);
@@ -107,7 +106,7 @@ export function UpgradeModal({
 
           <div className="text-sm text-muted-foreground text-center">
             <span>Planul tău actual: </span>
-            <Badge variant="outline">{planInfo[currentPlan].name}</Badge>
+            <Badge variant="outline">{planInfo[currentPlan]?.name || 'Starter'}</Badge>
           </div>
         </div>
 

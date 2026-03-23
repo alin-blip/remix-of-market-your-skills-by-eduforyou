@@ -13,13 +13,13 @@ export function useFeatureGating() {
   
   const [gatingState, setGatingState] = useState<FeatureGatingState>({
     showUpgradeModal: false,
-    requiredPlan: 'starter',
+    requiredPlan: 'pro',
     featureName: '',
     featureDescription: undefined
   });
 
   const checkFeatureAccess = useCallback((
-    feature: keyof typeof PLAN_LIMITS.free,
+    feature: keyof typeof PLAN_LIMITS.starter,
     featureName: string,
     featureDescription?: string
   ): boolean => {
@@ -27,20 +27,8 @@ export function useFeatureGating() {
       return true;
     }
 
-    // Determine which plan is required based on where the feature becomes available
-    let requiredPlan: SubscriptionPlan = 'starter';
-    
-    const starterLimit = PLAN_LIMITS.starter[feature];
-    const proLimit = PLAN_LIMITS.pro[feature];
-    
-    // Check if starter plan doesn't have this feature
-    if (starterLimit === false) {
-      requiredPlan = 'pro';
-    }
-    // Check if pro plan doesn't have this feature
-    if (proLimit === false) {
-      requiredPlan = 'founder';
-    }
+    // Features not in starter require pro
+    const requiredPlan: SubscriptionPlan = 'pro';
 
     setGatingState({
       showUpgradeModal: true,

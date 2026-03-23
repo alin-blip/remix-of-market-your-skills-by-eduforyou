@@ -1,5 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,10 +14,15 @@ serve(async (req) => {
 
   try {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
+      apiVersion: "2025-08-27.basil",
     });
 
-    const { priceId, mode, successUrl, cancelUrl, userId, courseId, bundleId } = await req.json();
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { priceId, mode, successUrl, cancelUrl, userId, courseId, bundleId, trialPeriodDays } = await req.json();
 
     if (!priceId) {
       throw new Error("Price ID is required");
@@ -26,12 +32,21 @@ serve(async (req) => {
       userId: userId || "",
     };
 
-    // Add courseId or bundleId to metadata
-    if (courseId) {
-      metadata.courseId = courseId;
-    }
-    if (bundleId) {
-      metadata.bundleId = bundleId;
+    if (courseId) metadata.courseId = courseId;
+    if (bundleId) metadata.bundleId = bundleId;
+
+    // Look up existing Stripe customer by email
+    let customerId: string | undefined;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data } = await supabaseClient.auth.getUser(token);
+      if (data.user?.email) {
+        const customers = await stripe.customers.list({ email: data.user.email, limit: 1 });
+        if (customers.data.length > 0) {
+          customerId = customers.data[0].id;
+        }
+      }
     }
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
@@ -46,7 +61,16 @@ serve(async (req) => {
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/pricing?canceled=true`,
       metadata,
+      ...(customerId ? { customer: customerId } : {}),
     };
+
+    // Add trial period for subscription mode
+    if (mode === "subscription" && trialPeriodDays && trialPeriodDays > 0) {
+      sessionParams.subscription_data = {
+        trial_period_days: trialPeriodDays,
+        metadata,
+      };
+    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
