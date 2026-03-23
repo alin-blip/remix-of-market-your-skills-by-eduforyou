@@ -55,11 +55,11 @@ export const ro = {
       },
     },
     pricingPreview: {
-      title: 'Planuri pentru',
-      titleHighlight: 'fiecare buget',
-      subtitle: 'Începe gratuit. Upgrade când ești pregătit.',
-      studentDiscount: '50% reducere pentru studenți cu email .edu',
-      popular: 'Cel mai popular',
+      title: 'Founding Member',
+      titleHighlight: 'Early Bird Rate',
+      subtitle: 'Prețuri blocate pentru totdeauna. Doar pentru primii adoptatori din faza Beta.',
+      studentDiscount: 'Beta Early Bird — Preț blocat pentru totdeauna',
+      popular: 'Cel mai ales',
       cta: 'Vezi toate planurile',
       features: {
         free1: '3 gig-uri active',

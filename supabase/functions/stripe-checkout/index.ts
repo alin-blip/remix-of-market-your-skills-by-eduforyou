@@ -22,7 +22,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { priceId, mode, successUrl, cancelUrl, userId, courseId, bundleId, trialPeriodDays } = await req.json();
+    const { priceId, mode, successUrl, cancelUrl, userId, courseId, bundleId, trialPeriodDays, couponId } = await req.json();
 
     if (!priceId) {
       throw new Error("Price ID is required");
@@ -63,6 +63,11 @@ serve(async (req) => {
       metadata,
       ...(customerId ? { customer: customerId } : {}),
     };
+
+    // Apply coupon if provided (for Early Bird pricing)
+    if (couponId && mode === "subscription") {
+      sessionParams.discounts = [{ coupon: couponId }];
+    }
 
     // Add trial period for subscription mode
     if (mode === "subscription" && trialPeriodDays && trialPeriodDays > 0) {

@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Star,
   Loader2,
-  Shield
+  Rocket,
+  Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -29,8 +30,9 @@ interface Plan {
   id: string;
   name: string;
   description: string;
-  price: string;
-  priceNote?: string;
+  earlyBirdPrice: string;
+  fullPrice: string;
+  priceNote: string;
   icon: React.ElementType;
   features: PlanFeature[];
   popular?: boolean;
@@ -42,11 +44,12 @@ const plans: Plan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    description: 'Începe cu 7 zile gratuit — card necesar',
-    price: 'Gratuit',
-    priceNote: '7 zile trial, apoi £97/lună',
+    description: '7 zile gratuit, apoi preț blocat Early Bird',
+    earlyBirdPrice: '£49',
+    fullPrice: '£98',
+    priceNote: '/lună — blocat pentru totdeauna',
     icon: Sparkles,
-    cta: 'Începe Trial 7 Zile',
+    cta: 'Începe 7 Zile Gratuit',
     trial: true,
     features: [
       { name: '3 platforme de freelancing', included: true },
@@ -68,12 +71,13 @@ const plans: Plan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    description: 'Toate funcționalitățile deblocate',
-    price: '£97',
-    priceNote: '/lună',
+    description: 'Toate funcționalitățile deblocate — acces complet',
+    earlyBirdPrice: '£97',
+    fullPrice: '£194',
+    priceNote: '/lună — blocat pentru totdeauna',
     icon: Crown,
     popular: true,
-    cta: 'Upgrade la Pro',
+    cta: 'Activează Pro',
     features: [
       { name: 'Toate platformele', included: true },
       { name: 'Gig-uri nelimitate', included: true },
@@ -95,7 +99,8 @@ const plans: Plan[] = [
     id: 'eduforyou',
     name: 'EduForYou',
     description: 'Acces complet Pro pentru membrii Privilege Card',
-    price: 'Gratuit',
+    earlyBirdPrice: 'Gratuit',
+    fullPrice: '',
     priceNote: 'Privilege Card',
     icon: GraduationCap,
     cta: 'Contactează Admin',
@@ -116,7 +121,7 @@ const plans: Plan[] = [
 export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { checkoutPro, isLoading } = useStripeCheckout();
+  const { checkoutStarter, checkoutPro, isLoading } = useStripeCheckout();
   const { plan: currentPlan } = useSubscription();
 
   const handleSelectPlan = async (plan: Plan) => {
@@ -132,10 +137,9 @@ export default function Pricing() {
     }
     
     if (plan.id === 'starter') {
-      // Start 7-day trial
-      await checkoutPro(true);
+      await checkoutStarter();
     } else if (plan.id === 'pro') {
-      await checkoutPro(false);
+      await checkoutPro();
     }
   };
 
@@ -144,18 +148,19 @@ export default function Pricing() {
       <div className="container mx-auto py-12 px-4">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <Badge variant="outline" className="mb-4 gap-2">
-            <Shield className="h-4 w-4" />
-            7 zile trial gratuit — anulează oricând
+          <Badge className="mb-4 gap-2 bg-amber-500/10 text-amber-600 border-amber-500/30 hover:bg-amber-500/20">
+            <Rocket className="h-4 w-4" />
+            Beta Early Bird — Preț blocat pentru totdeauna
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Alege Planul Tău de{' '}
-            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Freedom
+            Founding Member{' '}
+            <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              Early Bird Rate
             </span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Deblochează potențialul tău de freelancer. Începe cu 7 zile gratuit.
+            Ești printre primii adoptatori. Prețul tău rămâne blocat cât timp ai contul activ — 
+            chiar și când prețul crește după faza Beta.
           </p>
         </div>
 
@@ -170,14 +175,14 @@ export default function Pricing() {
             >
               <Card className={`relative h-full flex flex-col p-6 ${
                 plan.popular 
-                  ? 'border-2 border-primary shadow-xl shadow-primary/10' 
+                  ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10' 
                   : 'border-border'
               }`}>
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground gap-1">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white gap-1 border-0">
                       <Star className="h-3 w-3" />
-                      Recomandat
+                      Cel mai ales
                     </Badge>
                   </div>
                 )}
@@ -193,12 +198,26 @@ export default function Pricing() {
 
                 {/* Price */}
                 <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    {plan.priceNote && (
-                      <span className="text-muted-foreground text-sm">{plan.priceNote}</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold">{plan.earlyBirdPrice}</span>
+                    {plan.fullPrice && (
+                      <span className="text-lg text-muted-foreground line-through">{plan.fullPrice}</span>
                     )}
                   </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm text-muted-foreground">{plan.priceNote}</span>
+                  </div>
+                  {plan.fullPrice && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <Lock className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="text-xs font-medium text-amber-600">Early Bird Rate — blocat pentru totdeauna</span>
+                    </div>
+                  )}
+                  {plan.trial && (
+                    <div className="mt-2 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-xs font-medium inline-block">
+                      7 zile gratuit • card necesar
+                    </div>
+                  )}
                 </div>
 
                 {/* Features */}
@@ -239,7 +258,7 @@ export default function Pricing() {
                   disabled={isLoading || currentPlan === plan.id || (currentPlan === 'pro' && plan.id === 'starter')}
                   className={`w-full gap-2 ${
                     plan.popular
-                      ? '' 
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0' 
                       : ''
                   }`}
                   variant={plan.popular ? 'default' : 'secondary'}
@@ -253,8 +272,21 @@ export default function Pricing() {
           ))}
         </div>
 
+        {/* Early Bird Info */}
+        <div className="mt-12 max-w-2xl mx-auto text-center">
+          <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5">
+            <Rocket className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+            <h3 className="font-bold text-lg mb-2">De ce Early Bird?</h3>
+            <p className="text-sm text-muted-foreground">
+              Suntem în faza Beta și construim platforma împreună cu tine. 
+              Ca mulțumire, prețul tău rămâne la jumătate — <strong>pentru totdeauna</strong>. 
+              După lansarea oficială, prețurile vor fi £98/lună (Starter) și £194/lună (Pro).
+            </p>
+          </div>
+        </div>
+
         {/* FAQ */}
-        <div className="mt-16 text-center">
+        <div className="mt-8 text-center">
           <p className="text-muted-foreground text-sm">
             Ai întrebări? <a href="/settings" className="text-primary hover:underline">Contactează-ne</a>
           </p>

@@ -7,12 +7,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PRO_PRODUCT_ID = 'prod_UCSdvbrfCzXZOI';
+const STARTER_PRODUCT_ID = 'prod_UCT2NKMTyuKrxZ';
+const PRO_PRODUCT_ID = 'prod_UCT2oCPIjHXLof';
 
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
+
+function mapProductToPlan(productId: string | null): string {
+  if (productId === PRO_PRODUCT_ID) return 'pro';
+  if (productId === STARTER_PRODUCT_ID) return 'starter';
+  // Legacy product ID fallback
+  if (productId === 'prod_UCSdvbrfCzXZOI') return 'pro';
+  return 'starter';
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -53,8 +62,8 @@ serve(async (req) => {
         logStep("Found active subscription in local database", { plan: localSub.plan });
         return new Response(JSON.stringify({
           subscribed: true,
-          plan: localSub.plan === 'pro' ? 'pro' : 'starter',
-          product_id: localSub.plan === 'pro' ? PRO_PRODUCT_ID : null,
+          plan: localSub.plan,
+          product_id: null,
           subscription_end: localSub.current_period_end,
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -106,11 +115,7 @@ serve(async (req) => {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       productId = subscription.items.data[0].price.product as string;
-      
-      if (productId === PRO_PRODUCT_ID) {
-        plan = 'pro';
-      }
-      
+      plan = mapProductToPlan(productId);
       logStep("Active subscription found", { plan, endDate: subscriptionEnd });
     } else {
       // Also check trialing subscriptions
@@ -125,11 +130,7 @@ serve(async (req) => {
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
         productId = subscription.items.data[0].price.product as string;
         hasActiveSub = true;
-        
-        if (productId === PRO_PRODUCT_ID) {
-          plan = 'pro';
-        }
-        
+        plan = mapProductToPlan(productId);
         logStep("Trialing subscription found", { plan, endDate: subscriptionEnd });
       } else {
         logStep("No active or trialing subscription found");

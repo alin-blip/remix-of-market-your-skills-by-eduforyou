@@ -3,20 +3,55 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
 
-// Stripe Price IDs
+// Stripe Price IDs (full price — coupon applied at checkout)
 export const STRIPE_PRICES = {
-  pro: 'price_1TE3i0BCjwwzvAviQhho4o3E',
+  starter: 'price_1TE465BCjwwzvAviTuGii6Ga', // £98/mo
+  pro: 'price_1TE46XBCjwwzvAviEZ3x6wGV',     // £194/mo
 } as const;
 
 export const STRIPE_PRODUCTS = {
-  pro: 'prod_UCSdvbrfCzXZOI',
+  starter: 'prod_UCT2NKMTyuKrxZ',
+  pro: 'prod_UCT2oCPIjHXLof',
 } as const;
+
+// Beta Early Bird coupon — 50% forever
+export const STRIPE_COUPON = 'EARLYBIRD50';
 
 export function useStripeCheckout() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const checkoutPro = async (withTrial = false) => {
+  const checkoutStarter = async () => {
+    if (!user) {
+      toast.error('Trebuie să fii autentificat pentru a continua');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: {
+          priceId: STRIPE_PRICES.starter,
+          mode: 'subscription',
+          successUrl: `${window.location.origin}/payment-success?plan=starter`,
+          cancelUrl: `${window.location.origin}/pricing?canceled=true`,
+          userId: user.id,
+          trialPeriodDays: 7,
+          couponId: STRIPE_COUPON,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Eroare la procesarea plății');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const checkoutPro = async () => {
     if (!user) {
       toast.error('Trebuie să fii autentificat pentru a face upgrade');
       return;
@@ -31,15 +66,12 @@ export function useStripeCheckout() {
           successUrl: `${window.location.origin}/payment-success?plan=pro`,
           cancelUrl: `${window.location.origin}/pricing?canceled=true`,
           userId: user.id,
-          ...(withTrial ? { trialPeriodDays: 7 } : {}),
+          couponId: STRIPE_COUPON,
         },
       });
 
       if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.url) window.location.href = data.url;
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Eroare la procesarea plății');
@@ -68,10 +100,7 @@ export function useStripeCheckout() {
       });
 
       if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.url) window.location.href = data.url;
     } catch (error) {
       console.error('Course checkout error:', error);
       toast.error('Eroare la cumpărarea cursului');
@@ -100,10 +129,7 @@ export function useStripeCheckout() {
       });
 
       if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.url) window.location.href = data.url;
     } catch (error) {
       console.error('Bundle checkout error:', error);
       toast.error('Eroare la cumpărarea pachetului');
@@ -112,5 +138,5 @@ export function useStripeCheckout() {
     }
   };
 
-  return { checkoutPro, checkoutCourse, checkoutBundle, isLoading };
+  return { checkoutStarter, checkoutPro, checkoutCourse, checkoutBundle, isLoading };
 }
