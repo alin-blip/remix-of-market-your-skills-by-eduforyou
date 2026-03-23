@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { CheckCircle, Rocket, BookOpen, Crown, Sparkles } from "lucide-react";
+import { CheckCircle, Rocket, BookOpen, Crown, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/lib/auth";
 
 const planDetails = {
   starter: {
@@ -44,10 +45,10 @@ const planDetails = {
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [plan, setPlan] = useState<keyof typeof planDetails>("starter");
 
   useEffect(() => {
-    // Determine plan from URL params
     const planParam = searchParams.get("plan");
     const courseId = searchParams.get("course_id");
     
@@ -57,46 +58,25 @@ export default function PaymentSuccess() {
       setPlan(planParam as keyof typeof planDetails);
     }
 
-    // Fire confetti!
+    // Fire confetti
     const duration = 3000;
     const end = Date.now() + duration;
-
     const colors = ["#9b87f5", "#7E69AB", "#D6BCFA", "#F97316", "#22C55E"];
 
     (function frame() {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: colors,
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: colors,
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
     })();
 
-    // Big burst in the center
     setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: colors,
-      });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors });
     }, 500);
   }, [searchParams]);
 
   const details = planDetails[plan];
   const Icon = details.icon;
+  const isGuest = !user;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -138,7 +118,7 @@ export default function PaymentSuccess() {
               className="space-y-2"
             >
               <h1 className="text-3xl font-bold text-foreground">
-                Felicitări! 🎉
+                {isGuest ? "Plata confirmată! 🎉" : "Felicitări! 🎉"}
               </h1>
               <p className="text-xl text-muted-foreground">
                 Ai activat <span className={details.color}>{details.name}</span>
@@ -183,35 +163,37 @@ export default function PaymentSuccess() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-3 pt-4"
+              className="flex flex-col gap-3 pt-4"
             >
-              {plan === "course" ? (
-                <Button
-                  onClick={() => navigate("/learning-hub")}
-                  className="flex-1"
-                  size="lg"
-                >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Începe Cursul
-                </Button>
+              {isGuest ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Creează-ți contul cu <strong>același email</strong> folosit la plată pentru a activa accesul.
+                  </p>
+                  <Button
+                    onClick={() => navigate(`/auth/register?plan=${plan}&paid=true`)}
+                    className="w-full"
+                    size="lg"
+                  >
+                    Creează Contul <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </>
               ) : (
-                <Button
-                  onClick={() => navigate("/dashboard")}
-                  className="flex-1"
-                  size="lg"
-                >
-                  <Rocket className="mr-2 h-5 w-5" />
-                  Mergi la Dashboard
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {plan === "course" ? (
+                    <Button onClick={() => navigate("/learning-hub")} className="flex-1" size="lg">
+                      <BookOpen className="mr-2 h-5 w-5" /> Începe Cursul
+                    </Button>
+                  ) : (
+                    <Button onClick={() => navigate("/dashboard")} className="flex-1" size="lg">
+                      <Rocket className="mr-2 h-5 w-5" /> Mergi la Dashboard
+                    </Button>
+                  )}
+                  <Button onClick={() => navigate("/wizard/skill-scanner")} variant="outline" className="flex-1" size="lg">
+                    Explorează Instrumentele
+                  </Button>
+                </div>
               )}
-              <Button
-                onClick={() => navigate("/wizard/skill-scanner")}
-                variant="outline"
-                className="flex-1"
-                size="lg"
-              >
-                Explorează Instrumentele
-              </Button>
             </motion.div>
           </CardContent>
         </Card>

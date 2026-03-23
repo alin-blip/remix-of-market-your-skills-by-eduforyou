@@ -29,6 +29,7 @@ export default function Register() {
   const location = useLocation();
   const dnaResult = new URLSearchParams(location.search).get('dna');
   const selectedPlan = new URLSearchParams(location.search).get('plan');
+  const isPaid = new URLSearchParams(location.search).get('paid') === 'true';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
