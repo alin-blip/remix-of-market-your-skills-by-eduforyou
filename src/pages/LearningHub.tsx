@@ -136,7 +136,7 @@ export default function LearningHub() {
   const queryClient = useQueryClient();
   const { isAdmin } = useAdminRole();
   const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
-  const { hasAccessToCourse, isFounder, isLoading: isAccessLoading } = useCoursesAccess();
+  const { hasAccessToCourse, isLoading: isAccessLoading } = useCoursesAccess();
   const { plan, isEduforyouMember } = useSubscription();
 
   // Redirect EduForYou members away from Learning Hub
