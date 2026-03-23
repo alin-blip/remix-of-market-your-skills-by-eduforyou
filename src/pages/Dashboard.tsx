@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { VisionBoard } from '@/components/life-os/VisionBoard';
 import { AreaIcon } from '@/components/life-os/AreaIcon';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format, startOfWeek, addDays, isToday, isSameDay } from 'date-fns';
 import { ro, enUS } from 'date-fns/locale';
