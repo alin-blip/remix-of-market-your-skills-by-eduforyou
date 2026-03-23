@@ -14,6 +14,7 @@ interface Profile {
   freedom_score: number;
   locale: string | null;
   swipehire_user_id?: string | null;
+  execution_dna?: string | null;
 }
 
 interface AuthContextType {
