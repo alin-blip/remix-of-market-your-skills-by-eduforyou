@@ -20,7 +20,7 @@ interface DnaQuizLeadCaptureProps {
   };
 }
 
-export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading }: DnaQuizLeadCaptureProps) {
+export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading, quizState }: DnaQuizLeadCaptureProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
