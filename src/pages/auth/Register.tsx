@@ -62,10 +62,11 @@ export default function Register() {
       }
     }
 
+    const plan = new URLSearchParams(location.search).get('plan');
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    navigate('/dashboard');
+    navigate(plan ? `/pricing?auto=${plan}` : '/dashboard');
   };
 
   return (
