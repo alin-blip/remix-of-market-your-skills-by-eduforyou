@@ -686,10 +686,17 @@ function Pricing() {
                 </span>
               )}
               <h3 className="text-xl font-bold font-['Playfair_Display'] mb-2">{plan.name}</h3>
-              <div className="mb-2">
+              <div className="mb-1">
                 <span className="text-3xl font-bold text-gold">{plan.price}</span>
-                {plan.priceSub && <span className="text-xs text-muted-sm ml-1">{plan.priceSub}</span>}
+                {(plan as any).fullPrice && <span className="text-lg text-muted-sm line-through ml-2">{(plan as any).fullPrice}</span>}
               </div>
+              {plan.priceSub && <p className="text-xs text-muted-sm mb-1">{plan.priceSub}</p>}
+              {(plan as any).fullPrice && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Lock className="h-3 w-3 text-gold" />
+                  <span className="text-xs font-medium text-gold">Early Bird Rate</span>
+                </div>
+              )}
               <p className="text-sm text-muted-sm mb-6">{plan.sub}</p>
               <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map((f, j) => (
