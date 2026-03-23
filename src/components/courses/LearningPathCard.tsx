@@ -77,7 +77,7 @@ export function LearningPathCard({ path, index = 0, onClick }: LearningPathCardP
   const { plan } = useSubscription();
   const navigate = useNavigate();
   
-  const hasAccess = plan === 'pro' || plan === 'founder';
+  const hasAccess = plan === 'pro' || plan === 'eduforyou';
   const colorStyle = colorMap[path.color] || colorMap.blue;
   const IconComponent = iconMap[path.icon] || BookOpen;
 

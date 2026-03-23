@@ -41,17 +41,6 @@ export default function Register() {
 
     setLoading(true);
 
-    const { data: waitlistStatus } = await supabase
-      .rpc('check_waitlist_status', { check_email: email.trim().toLowerCase() });
-
-    if (!waitlistStatus || waitlistStatus !== 'approved') {
-      toast.error('Email neaprobat', {
-        description: 'Trebuie să fii aprobat pe waitlist pentru a te înregistra. Aplică pe pagina de waitlist.',
-      });
-      setLoading(false);
-      return;
-    }
-
     const { error } = await signUp(email, password, '');
 
     if (error) {
@@ -62,7 +51,7 @@ export default function Register() {
       return;
     }
 
-    await supabase.rpc('populate_profile_from_waitlist', { user_email: email.trim().toLowerCase() });
+    
 
     if (dnaResult) {
       const { data: { user: newUser } } = await supabase.auth.getUser();

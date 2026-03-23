@@ -81,7 +81,7 @@ const App = () => (
                 <Route path="/auth/register" element={<Register />} />
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/waitlist" element={<WaitlistForm />} />
+                <Route path="/waitlist" element={<Navigate to="/auth/register" replace />} />
                 <Route 
                   path="/dashboard" 
                   element={

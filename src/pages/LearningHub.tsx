@@ -136,7 +136,7 @@ export default function LearningHub() {
   const queryClient = useQueryClient();
   const { isAdmin } = useAdminRole();
   const { checkoutCourse, isLoading: isCheckoutLoading } = useStripeCheckout();
-  const { hasAccessToCourse, isFounder, isLoading: isAccessLoading } = useCoursesAccess();
+  const { hasAccessToCourse, isLoading: isAccessLoading } = useCoursesAccess();
   const { plan, isEduforyouMember } = useSubscription();
 
   // Redirect EduForYou members away from Learning Hub
@@ -432,7 +432,7 @@ export default function LearningHub() {
               ) : hasAccess && !isFree ? (
                 <Badge className="bg-green-500/90 text-white border-0 gap-1">
                   <CheckCircle2 className="h-3 w-3" />
-                  {isFounder ? 'Founder' : 'Acces'}
+                  Acces
                 </Badge>
               ) : (
                 <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-sm font-bold">
@@ -840,12 +840,6 @@ export default function LearningHub() {
                   </Button>
                 </div>
 
-                {isFounder && (
-                  <p className="text-xs text-green-500 text-center flex items-center justify-center gap-1">
-                    <Crown className="h-3 w-3" />
-                    Ca Founder, ai acces gratuit la toate cursurile!
-                  </p>
-                )}
               </div>
             )}
           </DialogContent>

@@ -88,7 +88,7 @@ export default function CourseViewer() {
   });
 
   // Check access
-  const { hasAccess, isFounder, isLoading: accessLoading } = useCourseAccess(
+  const { hasAccess, isLoading: accessLoading } = useCourseAccess(
     courseId || '', 
     course?.price || 0
   );
