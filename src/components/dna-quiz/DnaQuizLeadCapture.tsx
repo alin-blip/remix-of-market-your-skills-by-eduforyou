@@ -5,16 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
-import type { QuizTranslation } from './quizData';
+import type { QuizTranslation, DnaProfile, QuizLang } from './quizData';
 
 interface DnaQuizLeadCaptureProps {
   t: QuizTranslation;
   onSubmit: (email: string) => void;
   onSignup: (userId: string, email: string) => void;
   isLoading: boolean;
+  quizState?: {
+    scores: Record<DnaProfile, number>;
+    answers: number[];
+    result: { primary: DnaProfile; secondary?: DnaProfile } | null;
+    lang: QuizLang;
+  };
 }
 
-export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading }: DnaQuizLeadCaptureProps) {
+export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading, quizState }: DnaQuizLeadCaptureProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -74,9 +80,13 @@ export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading }: DnaQuiz
 
   const handleGoogleSignIn = async () => {
     try {
+      // Save quiz state to localStorage before OAuth redirect
+      if (quizState) {
+        localStorage.setItem('pending_dna_quiz', JSON.stringify(quizState));
+      }
       const { lovable } = await import('@/integrations/lovable/index');
       await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin + '/dashboard',
+        redirect_uri: window.location.origin + '/dashboard?from=dna-quiz',
       });
     } catch (err) {
       console.error('Google sign-in error:', err);

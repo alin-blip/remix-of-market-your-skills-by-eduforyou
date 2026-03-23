@@ -20,10 +20,11 @@ import {
   Compass,
   Briefcase,
   BookOpen,
+  Dna,
 } from 'lucide-react';
 import { VisionBoard } from '@/components/life-os/VisionBoard';
 import { AreaIcon } from '@/components/life-os/AreaIcon';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format, startOfWeek, addDays, isToday, isSameDay } from 'date-fns';
 import { ro, enUS } from 'date-fns/locale';
@@ -34,6 +35,8 @@ import {
 } from '@/hooks/useLifeOS';
 import { DAYS_OF_WEEK, DAY_LABELS } from '@/types/lifeOS';
 import { cn } from '@/lib/utils';
+import { calculateResult, type DnaProfile } from '@/components/dna-quiz/quizData';
+import { toast } from 'sonner';
 
 interface ProgressData {
   skillsCount: number;
@@ -58,7 +61,9 @@ export default function Dashboard() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const dateLocale = locale === 'ro' ? ro : enUS;
+  const [dnaResult, setDnaResult] = useState<string | null>(null);
   
   const [progressData, setProgressData] = useState<ProgressData>({
     skillsCount: 0,
@@ -120,6 +125,50 @@ export default function Dashboard() {
       },
     });
   };
+
+  // Process pending DNA quiz from OAuth redirect
+  useEffect(() => {
+    const processPendingQuiz = async () => {
+      if (!user) return;
+      const pending = localStorage.getItem('pending_dna_quiz');
+      if (!pending) {
+        // No pending quiz, check profile for existing DNA
+        if (profile?.execution_dna) {
+          setDnaResult(profile.execution_dna);
+        }
+        return;
+      }
+      
+      try {
+        const data = JSON.parse(pending);
+        const { scores, answers, result, lang } = data;
+        
+        // Save to dna_quiz_results
+        await supabase.from('dna_quiz_results' as any).insert({
+          user_id: user.id,
+          email: user.email,
+          lang: lang || 'ro',
+          answers: answers || [],
+          scores: scores || {},
+          result_type: result?.primary || 'freelancer',
+        });
+
+        // Update profile execution_dna
+        await supabase.from('profiles').update({
+          execution_dna: result?.primary,
+        } as any).eq('id', user.id);
+
+        setDnaResult(result?.primary || null);
+        localStorage.removeItem('pending_dna_quiz');
+        toast.success(locale === 'ro' ? 'Rezultatul ADN a fost salvat!' : 'DNA result saved!');
+      } catch (err) {
+        console.error('Error processing pending quiz:', err);
+        localStorage.removeItem('pending_dna_quiz');
+      }
+    };
+
+    processPendingQuiz();
+  }, [user, profile]);
 
   useEffect(() => {
     if (user) {
@@ -295,6 +344,40 @@ export default function Dashboard() {
             {t.dashboard.subtitle}
           </p>
         </motion.div>
+
+        {/* DNA Result Card */}
+        {dnaResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.03 }}
+          >
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="py-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/20">
+                      <Dna className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {locale === 'ro' ? 'ADN-ul tău de Execuție' : 'Your Execution DNA'}
+                      </p>
+                      <p className="text-lg font-bold text-foreground capitalize">{dnaResult}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/wizard/path')}
+                  >
+                    {locale === 'ro' ? 'Refă testul' : 'Retake'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Next Steps Section - Dynamic CTA */}
         {nextSteps.length > 0 && (
