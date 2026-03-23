@@ -1,34 +1,18 @@
+## Plan: Securizare Completă ✅
 
+Toate vulnerabilitățile critice au fost rezolvate:
 
-## Plan: Securizare Platformă pentru Lansare
-
-### Ce se face
-
-**1. Migrare DB — Restricționare RLS policies (1 migrare SQL)**
-
-Eliminăm politicile INSERT/UPDATE permisive care permit fraude:
-
-- **`course_purchases`** — eliminăm INSERT policy de la useri (doar Stripe webhook/service_role poate crea)
-- **`bundle_purchases`** — la fel, eliminăm INSERT policy
-- **`subscriptions`** — eliminăm INSERT policy (doar service_role)
-- **`user_points`** — restricționăm UPDATE doar la propria înregistrare, dar păstrăm INSERT cu `user_id = auth.uid()`
-- **`user_badges`** — păstrăm INSERT cu `user_id = auth.uid()` (gamification-ul funcționează client-side)
-- **`quiz_questions`** — restricționăm SELECT doar la useri autentificați (ascundem `correct_option` de public)
-- **`course_lessons`** — restricționăm SELECT la useri autentificați (ascundem `video_url` de public)
-- **`outreach_templates`** — adăugăm `WITH CHECK (auth.uid() = user_id)` la ALL policy
-- **DB functions** — adăugăm `SET search_path = public` la cele 4 funcții email
-
-**2. Activare Leaked Password Protection**
-- Folosim configure_auth tool
-
-**3. Eliminare Landing.tsx nefolosit**
+1. ✅ **user_points** — doar service_role poate modifica (funcție DB `award_activity`)
+2. ✅ **user_badges** — doar service_role poate insera (funcție DB `check_and_award_badges`)
+3. ✅ **course_lessons** — SELECT restricționat la lecții gratuite / cumpărate / abonament activ / admin
+4. ✅ **quiz_questions** — view `quiz_questions_safe` fără `correct_option` + funcție `submit_quiz` server-side
+5. ✅ **course_purchases / bundle_purchases / subscriptions** — INSERT doar service_role
+6. ✅ **outreach_templates** — WITH CHECK adăugat
+7. ✅ **DB functions** — SET search_path = public
+8. ⚠️ **Leaked Password Protection** — necesită activare manuală din Lovable Cloud settings
 
 ### Fișiere modificate
-- 1 migrare SQL (securitate RLS + funcții)
-- `src/pages/Landing.tsx` — ștergere
-- Auth config — activare leaked password protection
-
-### Ce NU se modifică
-- Nu se adaugă ruta `/onboard` (conform cerință)
-- Nu se modifică funcționalități existente
-
+- 3 migrări SQL
+- `src/hooks/useGamification.ts` — folosește RPC `award_activity` + `check_and_award_badges`
+- `src/components/courses/LessonQuiz.tsx` — folosește view `quiz_questions_safe` + RPC `submit_quiz`
+- `src/pages/Landing.tsx` — șters
