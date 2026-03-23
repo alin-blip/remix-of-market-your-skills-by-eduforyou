@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -123,6 +124,21 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { checkoutStarter, checkoutPro, isLoading } = useStripeCheckout();
   const { plan: currentPlan } = useSubscription();
+
+  // Auto-trigger checkout from registration redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const autoPlan = params.get('auto');
+    if (autoPlan && user) {
+      // Clear the param to avoid re-triggering
+      window.history.replaceState({}, '', '/pricing');
+      if (autoPlan === 'starter') {
+        checkoutStarter();
+      } else if (autoPlan === 'pro') {
+        checkoutPro();
+      }
+    }
+  }, [user]);
 
   const handleSelectPlan = async (plan: Plan) => {
     if (!user) {
