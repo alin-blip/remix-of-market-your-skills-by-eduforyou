@@ -80,6 +80,7 @@ const App = () => (
                 <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/auth/register-eduforyou" element={<RegisterEduForYou />} />
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<Navigate to="/auth/register" replace />} />
