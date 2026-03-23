@@ -1,106 +1,50 @@
 
 
-## Plan: Actualizare Features Pro + Animație Gold Border
+# Plan: VSL Russell Brunson cu Voiceover AI
 
-### Ce se schimbă la feature-urile Pro
+## Abordare
 
-**Scos din Pro:**
-- ~~Founder Accelerator (10+ module)~~
-- ~~UK Income Optimizer (SFE + calcul freelancing)~~
-- ~~Learning Hub complet + certificat~~ (înlocuit cu doar "Certificat")
+Videoul va fi generat în 3 pași:
+1. **Generare voiceover** — ElevenLabs TTS cu voce masculină (română)
+2. **Render video** — Remotion (muted, din cauza limitărilor sandbox)
+3. **Merge audio + video** — ffmpeg combină MP3-ul cu MP4-ul
 
-**Adăugat/Reformulat în Pro:**
-- Life Operating System (Taskuri, Sprinturi, Vision Board)
-- Client CRM pentru freelanceri
-- Social Media Optimization
-- Creare Gig + Job Full Time
-- Tracking Venituri (Income Tracker + Analytics)
-- Certificat (fără "Learning Hub")
-- Curs: Cum să folosești platforma pas cu pas
+## Pași tehnici
 
-### Animație lumină pe border gold (Pro card)
+### 1. Conectare ElevenLabs
+Conexiunea "ElevenLaba" există în workspace dar nu e legată la proiect. O legăm cu `connect`.
 
-CSS keyframe animation care face o lumină (gradient highlight) să se miște continuu de-a lungul border-ului cardului Pro. Implementat cu `@keyframes` și un pseudo-element `::before` cu gradient care rotește/se deplasează pe contur.
+### 2. Edge function TTS
+Creare `supabase/functions/elevenlabs-tts/index.ts` — primește text, returnează MP3.
 
-### Fișiere modificate
+### 3. Script generare voiceover
+Script Python care trimite scriptul VSL (în română) la edge function-ul TTS și salvează MP3-ul în `/tmp/vsl-video/public/voiceover.mp3`.
 
-**1. `src/pages/Pricing.tsx`** — features array Pro:
+**Scriptul narativ (~25s):**
+> "Ai skill-uri valoroase. Dar nimeni nu plătește pentru ele. Trimiți CV-uri, aplici pe platforme, și... nimic. SkillMarket transformă skill-urile tale în venit real. Scanner de skill-uri, Ikigai Builder, Generator de CV, Dream 100 Tracker, Outreach automat — totul într-o singură platformă. Valoare totală: peste trei mii cinci sute de lire. Tu plătești doar nouăzeci și șapte pe lună. Preț blocat pentru totdeauna. Devino Founding Member acum."
+
+### 4. Proiect Remotion (5 scene)
+Același concept vizual din planul aprobat anterior — navy + gold, kinetic typography, value stack Brunson. Scenele sunt sincronizate cu timing-ul vocii.
+
+### 5. Render + Merge
+```bash
+# Render video muted
+node scripts/render.mjs  → /tmp/vsl-muted.mp4
+
+# Merge cu ffmpeg
+ffmpeg -i /tmp/vsl-muted.mp4 -i voiceover.mp3 -c:v copy -c:a aac /mnt/documents/skillmarket-vsl.mp4
 ```
-- Life Operating System (Taskuri & Sprinturi)
-- Client CRM pentru freelanceri
-- Social Media Optimization
-- Creare Gig + Job Full Time
-- Tracking Venituri + Analytics
-- Dream 100 Tracker
-- CV Generator
-- Outreach Sequences
-- Certificat
-- Curs: Cum să folosești platforma
-- Suport prioritar 48h
+
+## Fișiere create
+
 ```
-Scos: Founder Accelerator, Income Optimizer, Learning Hub.
-Adăugat animația de border glow pe cardul Pro via CSS class.
+supabase/functions/elevenlabs-tts/index.ts    — Edge function TTS
+/tmp/vsl-video/                                — Proiect Remotion complet
+  src/Root.tsx, MainVideo.tsx
+  src/scenes/ (5 scene)
+  scripts/render.mjs
+```
 
-**2. `src/lib/skillmarket-i18n.tsx`** — aceleași modificări la features Pro, în toate 3 limbile (EN, RO, UA).
-
-**3. `src/components/landing/PricingPreview.tsx`** — actualizat features Pro (3 highlights).
-
-**4. `src/components/upgrade/UpgradeModal.tsx`** — actualizat lista Pro features.
-
-**5. `src/pages/skillmarket.css`** (sau `src/index.css`) — adăugat keyframe animation `@keyframes borderGlow` care face o lumină aurie să se deplaseze pe conturul cardului Pro.
-
-**6. `src/lib/i18n/translations/en.ts` + `ro.ts`** — actualizat pricing preview features pentru Pro.
-
-### Animație border gold — detalii tehnice
-
-Cardul Pro va avea un container cu `position: relative; overflow: hidden` și un pseudo-element `::before` cu:
-- Gradient conic auriu (#D4A843) care rotește cu `@keyframes rotate { to { transform: rotate(360deg) } }`
-- Border-ul real al cardului creat prin mask/clip pe pseudo-element
-- Rotație continu<lov-plan>
-
-## Plan: Actualizare Features Pro + Animație Gold Border
-
-### Ce se schimbă la feature-urile Pro
-
-**Scos din Pro:**
-- ~~Founder Accelerator (10+ module)~~
-- ~~UK Income Optimizer (SFE + calcul freelancing)~~
-- ~~Learning Hub complet + certificat~~ (înlocuit cu doar "Certificat")
-
-**Adăugat/Reformulat în Pro:**
-- Life Operating System (Taskuri, Sprinturi, Vision Board)
-- Client CRM pentru freelanceri
-- Social Media Optimization
-- Creare Gig + Job Full Time
-- Tracking Venituri (Income Tracker + Analytics)
-- Certificat (fără "Learning Hub")
-- Curs: Cum să folosești platforma pas cu pas
-
-### Animație lumină pe border gold (Pro card)
-
-CSS keyframe animation — un gradient auriu care se rotește continuu pe conturul cardului Pro, creând efectul de "lumină care merge pe border". Implementat cu pseudo-element `::before` și `@keyframes rotate`.
-
-### Fișiere modificate
-
-**1. `src/pages/Pricing.tsx`**
-- Features Pro actualizate conform listei de mai sus
-- Clasa CSS specială pe cardul Pro pentru animația border
-
-**2. `src/lib/skillmarket-i18n.tsx`**
-- Features Pro actualizate în toate 3 limbile (EN, RO, UA)
-- Scos: Founder Accelerator, Income Optimizer, Learning Hub complet
-- Adăugat: Life OS, Client CRM, Social Media, Gig+Job, Certificat, Curs platformă
-
-**3. `src/components/landing/PricingPreview.tsx`**
-- Actualizat cele 3 highlight features Pro
-
-**4. `src/components/upgrade/UpgradeModal.tsx`**
-- Actualizat lista features Pro din modal
-
-**5. `src/index.css` sau `src/pages/skillmarket.css`**
-- Adăugat `@keyframes` pentru animația de lumină pe border gold
-- Clasa `.pro-border-glow` cu pseudo-element rotativ conic-gradient auriu
-
-**6. `src/lib/i18n/translations/en.ts` + `ro.ts`**
-- Actualizat pricing preview features Pro
+## Output final
+`/mnt/documents/skillmarket-vsl.mp4` — Video 1920x1080, 30fps, ~25s, cu voiceover românesc.
 
