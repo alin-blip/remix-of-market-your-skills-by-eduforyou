@@ -25,6 +25,7 @@ import {
   ChevronUp,
   ArrowRight,
   Check,
+  X,
   Shield,
   GraduationCap,
   Zap,
