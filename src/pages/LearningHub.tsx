@@ -840,12 +840,6 @@ export default function LearningHub() {
                   </Button>
                 </div>
 
-                {isFounder && (
-                  <p className="text-xs text-green-500 text-center flex items-center justify-center gap-1">
-                    <Crown className="h-3 w-3" />
-                    Ca Founder, ai acces gratuit la toate cursurile!
-                  </p>
-                )}
               </div>
             )}
           </DialogContent>
