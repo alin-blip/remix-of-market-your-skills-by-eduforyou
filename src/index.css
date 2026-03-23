@@ -203,6 +203,43 @@
     @apply border-primary/50;
     box-shadow: 0 0 25px -5px hsl(42 62% 55% / 0.2);
   }
+  
+  /* ─── Animated gold border for Pro card ─── */
+  .pro-border-glow {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    overflow: visible;
+    z-index: 0;
+  }
+
+  .pro-border-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      transparent 25%,
+      hsl(42 62% 55%) 35%,
+      hsl(45 80% 65%) 50%,
+      hsl(42 62% 55%) 65%,
+      transparent 75%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: pro-border-spin 4s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes pro-border-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 }
 
 @layer utilities {

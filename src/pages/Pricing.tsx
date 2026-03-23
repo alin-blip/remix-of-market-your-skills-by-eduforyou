@@ -81,18 +81,18 @@ const plans: Plan[] = [
     features: [
       { name: 'Toate platformele', included: true },
       { name: 'Gig-uri nelimitate', included: true },
-      { name: 'Skill Scanner avansat', included: true },
-      { name: 'Ikigai Builder', included: true },
       { name: 'AI Generations', included: 'Nelimitat' },
-      { name: 'Profile Builder', included: true },
-      { name: 'Outreach Templates', included: 'Nelimitat' },
-      { name: 'Income Tracker + Analytics', included: true },
-      { name: 'Export PDF/DOCX', included: true },
+      { name: 'Life Operating System (Taskuri & Sprinturi)', included: true },
+      { name: 'Client CRM pentru freelanceri', included: true },
+      { name: 'Social Media Optimization', included: true },
+      { name: 'Creare Gig + Job Full Time', included: true },
+      { name: 'Tracking Venituri + Analytics', included: true },
       { name: 'Dream 100 Tracker', included: true },
       { name: 'CV Generator', included: true },
       { name: 'Outreach Sequences', included: true },
-      { name: 'Certificări cursuri', included: true },
-      { name: 'Priority Support', included: true },
+      { name: 'Certificat', included: true },
+      { name: 'Curs: Cum să folosești platforma', included: true },
+      { name: 'Suport prioritar 48h', included: true },
     ],
   },
   {
@@ -175,7 +175,7 @@ export default function Pricing() {
             >
               <Card className={`relative h-full flex flex-col p-6 ${
                 plan.popular 
-                  ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10' 
+                  ? 'pro-border-glow' 
                   : 'border-border'
               }`}>
                 {plan.popular && (
