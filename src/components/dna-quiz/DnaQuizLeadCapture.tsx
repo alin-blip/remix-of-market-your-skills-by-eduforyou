@@ -5,13 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
-import type { QuizTranslation } from './quizData';
+import type { QuizTranslation, DnaProfile, QuizLang } from './quizData';
 
 interface DnaQuizLeadCaptureProps {
   t: QuizTranslation;
   onSubmit: (email: string) => void;
   onSignup: (userId: string, email: string) => void;
   isLoading: boolean;
+  quizState?: {
+    scores: Record<DnaProfile, number>;
+    answers: number[];
+    result: { primary: DnaProfile; secondary?: DnaProfile } | null;
+    lang: QuizLang;
+  };
 }
 
 export function DnaQuizLeadCapture({ t, onSubmit, onSignup, isLoading }: DnaQuizLeadCaptureProps) {
