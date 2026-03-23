@@ -126,6 +126,50 @@ export default function Dashboard() {
     });
   };
 
+  // Process pending DNA quiz from OAuth redirect
+  useEffect(() => {
+    const processPendingQuiz = async () => {
+      if (!user) return;
+      const pending = localStorage.getItem('pending_dna_quiz');
+      if (!pending) {
+        // No pending quiz, check profile for existing DNA
+        if (profile?.execution_dna) {
+          setDnaResult(profile.execution_dna);
+        }
+        return;
+      }
+      
+      try {
+        const data = JSON.parse(pending);
+        const { scores, answers, result, lang } = data;
+        
+        // Save to dna_quiz_results
+        await supabase.from('dna_quiz_results' as any).insert({
+          user_id: user.id,
+          email: user.email,
+          lang: lang || 'ro',
+          answers: answers || [],
+          scores: scores || {},
+          result_type: result?.primary || 'freelancer',
+        });
+
+        // Update profile execution_dna
+        await supabase.from('profiles').update({
+          execution_dna: result?.primary,
+        } as any).eq('id', user.id);
+
+        setDnaResult(result?.primary || null);
+        localStorage.removeItem('pending_dna_quiz');
+        toast.success(locale === 'ro' ? 'Rezultatul ADN a fost salvat!' : 'DNA result saved!');
+      } catch (err) {
+        console.error('Error processing pending quiz:', err);
+        localStorage.removeItem('pending_dna_quiz');
+      }
+    };
+
+    processPendingQuiz();
+  }, [user, profile]);
+
   useEffect(() => {
     if (user) {
       loadProgressData();
