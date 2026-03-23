@@ -1,53 +1,34 @@
 
 
-## Plan: Persist Quiz State Through OAuth Redirect
+## Plan: Securizare Platformă pentru Lansare
 
-### Problema
-Când utilizatorul alege "Continuă cu Google" din quiz, OAuth face redirect la `/dashboard`. Toată starea quiz-ului (scoruri, răspunsuri, rezultat) se pierde din React state. Rezultatul nu se salvează, utilizatorul nu-l vede niciodată.
+### Ce se face
 
-### Soluția
-Salvăm starea quiz-ului în `localStorage` **înainte** de OAuth redirect. După autentificare, pe Dashboard detectăm datele pendinte, le salvăm în DB, actualizăm profilul cu `execution_dna`, și afișăm rezultatul.
+**1. Migrare DB — Restricționare RLS policies (1 migrare SQL)**
 
-### Ce se modifică
+Eliminăm politicile INSERT/UPDATE permisive care permit fraude:
 
-**1. `DnaQuizLeadCapture.tsx`**
-- Înainte de `lovable.auth.signInWithOAuth('google')`, salvăm în `localStorage` key `pending_dna_quiz`:
-  ```json
-  { "scores": {...}, "answers": [...], "result": { "primary": "freelancer" }, "lang": "ro" }
-  ```
-- Adăugăm prop `quizState` (scores, answers, result, lang) pentru a avea acces la date
+- **`course_purchases`** — eliminăm INSERT policy de la useri (doar Stripe webhook/service_role poate crea)
+- **`bundle_purchases`** — la fel, eliminăm INSERT policy
+- **`subscriptions`** — eliminăm INSERT policy (doar service_role)
+- **`user_points`** — restricționăm UPDATE doar la propria înregistrare, dar păstrăm INSERT cu `user_id = auth.uid()`
+- **`user_badges`** — păstrăm INSERT cu `user_id = auth.uid()` (gamification-ul funcționează client-side)
+- **`quiz_questions`** — restricționăm SELECT doar la useri autentificați (ascundem `correct_option` de public)
+- **`course_lessons`** — restricționăm SELECT la useri autentificați (ascundem `video_url` de public)
+- **`outreach_templates`** — adăugăm `WITH CHECK (auth.uid() = user_id)` la ALL policy
+- **DB functions** — adăugăm `SET search_path = public` la cele 4 funcții email
 
-**2. `DnaQuizContainer.tsx`**
-- Transmitem `quizState` ca prop la `DnaQuizLeadCapture`: `{ scores, answers, result, lang }`
+**2. Activare Leaked Password Protection**
+- Folosim configure_auth tool
 
-**3. `Dashboard.tsx`**
-- La mount, verificăm dacă există `pending_dna_quiz` în localStorage
-- Dacă da: salvăm rezultatul în `dna_quiz_results`, actualizăm `profiles.execution_dna`, ștergem din localStorage
-- Afișăm un banner/card cu rezultatul ADN (tipul + scor) cu opțiunea de a reface testul
-- Adăugăm o secțiune permanentă pe dashboard care arată `execution_dna` din profil, cu buton "Refă testul" care duce la `/wizard/define-your-path`
-
-**4. Redirect URI**
-- Schimbăm redirect-ul Google din `/dashboard` în `/dashboard?from=dna-quiz` (doar din quiz) pentru a ști că vine din quiz flow
-
-### Flow nou
-```text
-Quiz completat → Alege Google
-  ↓
-State salvat în localStorage
-  ↓
-OAuth redirect → /dashboard
-  ↓
-Dashboard detectează pending_dna_quiz
-  ↓
-Salvează în DB + actualizează profil
-  ↓
-Afișează card cu rezultatul ADN
-  ↓
-Opțiune: "Refă testul" sau "Continuă"
-```
+**3. Eliminare Landing.tsx nefolosit**
 
 ### Fișiere modificate
-- `src/components/dna-quiz/DnaQuizLeadCapture.tsx` — save state to localStorage before OAuth
-- `src/components/dna-quiz/DnaQuizContainer.tsx` — pass quiz state to lead capture
-- `src/pages/Dashboard.tsx` — detect pending quiz, save result, show DNA card
+- 1 migrare SQL (securitate RLS + funcții)
+- `src/pages/Landing.tsx` — ștergere
+- Auth config — activare leaked password protection
+
+### Ce NU se modifică
+- Nu se adaugă ruta `/onboard` (conform cerință)
+- Nu se modifică funcționalități existente
 
