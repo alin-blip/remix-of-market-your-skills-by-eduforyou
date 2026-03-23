@@ -61,7 +61,9 @@ export default function Dashboard() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const dateLocale = locale === 'ro' ? ro : enUS;
+  const [dnaResult, setDnaResult] = useState<string | null>(null);
   
   const [progressData, setProgressData] = useState<ProgressData>({
     skillsCount: 0,
