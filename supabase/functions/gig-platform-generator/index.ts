@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -128,6 +129,14 @@ Generate platform-specific content that will help them succeed. IMPORTANT: Write
     } catch {
       parsedContent = { rawContent: content };
     }
+
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "gig-platform-generator", input_json: { platform, skills, category }, output_json: parsedContent });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
 
     return new Response(
       JSON.stringify({ 

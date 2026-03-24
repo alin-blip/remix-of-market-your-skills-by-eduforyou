@@ -148,6 +148,12 @@ MESSAGE 3 — CTA (Day 9):
       result = JSON.parse(cleaned);
     }
 
+    // Log to ai_outputs
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "outreach-sequence", input_json: { targetId, pathType, platform, locale }, output_json: result });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     // Save sequence
     const { data: seq } = await supabase
       .from("outreach_sequences")

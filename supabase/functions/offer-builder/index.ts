@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -188,6 +189,14 @@ Generează 3 pachete de servicii cu prețuri în ${currency}, SMV (Simple Mega V
     }
 
     const result = JSON.parse(toolCall.function.arguments);
+
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "offer-builder", input_json: { skills, ikigaiResult, studyField, locale }, output_json: result });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

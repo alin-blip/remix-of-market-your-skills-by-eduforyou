@@ -183,6 +183,11 @@ High quality, detailed, cinematic lighting. 16:9 aspect ratio vision board style
       throw new Error("Failed to update goal with image URL");
     }
 
+    // Log to ai_outputs
+    try {
+      await supabase.from("ai_outputs").insert({ user_id: user_id, tool: "vision-image-generator", input_json: { area_key, area_name, annual_goal }, output_json: { image_url: publicUrl } });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     return new Response(
       JSON.stringify({ image_url: publicUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
