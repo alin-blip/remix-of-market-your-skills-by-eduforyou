@@ -178,6 +178,14 @@ Generate the complete ${platform} profile content now.`;
 
     const profileData = JSON.parse(toolCall.function.arguments);
 
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "profile-builder", input_json: { platform, locale, userName }, output_json: profileData });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     return new Response(
       JSON.stringify(profileData),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

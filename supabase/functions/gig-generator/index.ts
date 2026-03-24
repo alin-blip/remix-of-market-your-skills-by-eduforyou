@@ -114,6 +114,14 @@ Deno.serve(async (req) => {
 
     const result = JSON.parse(content);
 
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "gig-generator", input_json: { package: pkg, skills, type, locale }, output_json: result });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

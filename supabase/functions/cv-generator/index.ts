@@ -138,6 +138,12 @@ Keep it under 300 words. Personal, not generic. The letter should read as one co
     const aiData = await aiRes.json();
     const content = aiData.choices?.[0]?.message?.content || "";
 
+    // Log to ai_outputs
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "cv-generator", input_json: { documentType, targetRole, locale }, output_json: { content: content.substring(0, 500) } });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     // Save document
     const { data: doc, error: docError } = await supabase
       .from("cv_documents")

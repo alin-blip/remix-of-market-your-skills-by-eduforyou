@@ -147,6 +147,14 @@ Return a JSON analysis with EXACTLY this structure (no markdown, just JSON):
       analysis = JSON.parse(cleaned);
     }
 
+    // Log to ai_outputs
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = authHeader!.replace("Bearer ", "");
+      const { data: userData } = await adminClient.auth.getUser(token);
+      await adminClient.from("ai_outputs").insert({ user_id: userData?.user?.id || null, tool: "dream100-analyzer", input_json: { companyName, industry, role }, output_json: analysis });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     // Save to database
     if (targetId) {
       await supabase

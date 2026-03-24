@@ -180,6 +180,14 @@ Return a JSON array of { title: string, area_key: string, task_type: "big" | "sm
       throw new Error("Failed to parse AI response as JSON");
     }
 
+    try {
+      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data: ud } = await adminClient.auth.getUser(token); userId = ud?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "life-os-wizard", input_json: { action, areas, currentPeriod }, output_json: result });
+    } catch (e) { console.error("ai_outputs insert error:", e); }
+
     return new Response(JSON.stringify({ data: result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

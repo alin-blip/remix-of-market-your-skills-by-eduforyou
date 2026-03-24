@@ -162,6 +162,16 @@ ${budget ? `Budget range: ${budget}` : ""}`;
       result = JSON.parse(cleaned);
     }
 
+    // Log to ai_outputs
+    try {
+      const { createClient: createAdminClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+      const adminClient = createAdminClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+      let userId = null;
+      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
+      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "dream100-scanner", input_json: { pathType, industry, location, companySize }, output_json: result });
+    } catch (e2) { console.error("ai_outputs insert error:", e2); }
+
     return new Response(JSON.stringify({ success: true, ...result, usedPerplexity: !!searchResults }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
