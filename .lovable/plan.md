@@ -1,33 +1,60 @@
 
 
-# Plan: Fix Post-Payment Flow for Existing Users + Email Audit
+# Plan: Salvare automată AI outputs în toate edge functions
 
-## Probleme identificate
+## Problema
+Tabelul `ai_outputs` există și pagina admin îl citește corect, dar **niciuna din cele ~12 edge functions AI nu face INSERT în `ai_outputs`**. Rezultatele se returnează clientului și se pierd.
 
-1. **Register page nu gestionează "user already exists"** — eroare generică, fără ghidaj
-2. **PaymentSuccess page nu oferă opțiunea de login** — doar "Creează Contul"
-3. **Emailul de recovery a fost trimis cu succes** (status: `sent`) dar probabil a ajuns în Spam — nu e bug de cod, dar putem îmbunătăți subject-ul în română
+## Soluție
+Adăugăm un INSERT în `ai_outputs` în fiecare edge function, imediat după ce primim răspunsul AI valid. Folosim `SUPABASE_SERVICE_ROLE_KEY` (deja disponibil) pentru a bypassa RLS.
 
-## Soluții
+### Edge functions de actualizat (13 fișiere):
+1. `skill-scanner` — adăugăm auth header parsing + insert
+2. `ikigai-builder`
+3. `offer-builder`
+4. `profile-builder`
+5. `outreach-generator`
+6. `outreach-sequence` — deja are auth, adăugăm insert
+7. `cv-generator`
+8. `gig-generator`
+9. `gig-platform-generator`
+10. `dream100-analyzer`
+11. `dream100-scanner`
+12. `life-os-wizard`
+13. `vision-image-generator`
 
-### 1. PaymentSuccess — adăugare opțiune Login pentru utilizatori existenți
-Pe lângă butonul "Creează Contul", adăugăm "Am deja cont — Autentifică-te" care duce la `/auth/login`.
+### Pattern pentru fiecare funcție
+```typescript
+// After getting AI result, before returning response:
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-### 2. Register page — detectare eroare "user already exists"
-Când `signUp` returnează eroare cu mesaj "User already registered":
-- Afișăm mesaj clar: "Ai deja un cont cu acest email"
-- Oferim buton "Autentifică-te" + link "Ai uitat parola?"
-- Dacă `paid=true`, mesajul explică că trebuie doar să se logheze pentru a activa planul
+const adminClient = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
-### 3. Recovery email — subject în română
-Schimbăm subject-ul din "Reset your password" în "Resetează-ți parola — MarketYourSkill" pentru a fi mai vizibil în inbox.
+// Extract user_id from auth header if available
+const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+let userId = null;
+if (token) {
+  const { data } = await adminClient.auth.getUser(token);
+  userId = data?.user?.id || null;
+}
 
-### 4. Login page — detectare `plan` + `paid` params
-Dacă utilizatorul ajunge pe login cu `?plan=pro&paid=true`, afișăm banner "Plata confirmată" și redirect la dashboard după login.
+// Save to ai_outputs
+await adminClient.from("ai_outputs").insert({
+  user_id: userId,
+  tool: "skill-scanner",  // matches the function name
+  input_json: { experiences, studyField, interests: interestsText },
+  output_json: result,
+});
+```
+
+### Ce NU se schimbă
+- Tabelul `ai_outputs` — deja există cu RLS corect
+- Pagina `AIOutputsManager.tsx` — deja funcțională
+- Flow-ul utilizatorului — insert-ul este fire-and-forget, nu blochează răspunsul
 
 ## Fișiere afectate
-- `src/pages/PaymentSuccess.tsx` — adăugare buton login
-- `src/pages/auth/Register.tsx` — handling "user already exists" cu UI dedicat
-- `src/pages/auth/Login.tsx` — detectare params plan/paid, banner + redirect
-- `supabase/functions/auth-email-hook/index.ts` — subjects în română
+13 edge functions din `supabase/functions/` — adăugare ~10 linii fiecare
 
