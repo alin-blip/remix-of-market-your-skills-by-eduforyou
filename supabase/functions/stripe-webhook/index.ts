@@ -194,13 +194,48 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription updated", { subscriptionId: subscription.id });
+        const customerEmail2 = await getCustomerEmail(stripe, subscription.customer as string);
+        if (customerEmail2) {
+          const { data: profile2 } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail2.toLowerCase())
+            .maybeSingle();
+          if (profile2) {
+            const updatedPlan = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
+            const updatedStatus = subscription.status === "active" ? "active" : subscription.status === "past_due" ? "past_due" : "canceled";
+            await supabase
+              .from("subscriptions")
+              .upsert({
+                user_id: profile2.id,
+                plan: updatedPlan,
+                status: updatedStatus,
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              }, { onConflict: "user_id" });
+            logStep("Subscription updated in DB", { userId: profile2.id, status: updatedStatus, plan: updatedPlan });
+          }
+        }
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription canceled", { subscriptionId: subscription.id });
+        const customerEmail3 = await getCustomerEmail(stripe, subscription.customer as string);
+        if (customerEmail3) {
+          const { data: profile3 } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail3.toLowerCase())
+            .maybeSingle();
+          if (profile3) {
+            await supabase
+              .from("subscriptions")
+              .update({ status: "canceled" })
+              .eq("user_id", profile3.id);
+            logStep("Subscription canceled in DB", { userId: profile3.id });
+          }
+        }
         break;
       }
     }
