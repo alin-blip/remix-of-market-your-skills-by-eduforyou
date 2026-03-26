@@ -181,7 +181,7 @@ serve(async (req) => {
 });
 
 function determinePlanFromAmount(amountInCents: number): string {
-  if (amountInCents <= 1000) return "starter";
-  if (amountInCents <= 2000) return "pro";
+  if (amountInCents <= 6000) return "starter";  // Up to £60 (covers £49 and discounted prices)
+  if (amountInCents <= 12000) return "pro";      // Up to £120 (covers £97 and discounted prices)
   return "founder";
 }
