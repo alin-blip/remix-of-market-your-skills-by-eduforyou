@@ -47,25 +47,63 @@ serve(async (req) => {
 
         logStep("Checkout session completed", { userId, courseId, bundleId, mode: session.mode });
 
-        if (session.mode === "subscription" && userId) {
+      if (session.mode === "subscription") {
           // Handle subscription
           const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
           );
           
           const planName = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
+          const resolvedUserId = userId || null;
+          const customerEmail = session.customer_details?.email || session.customer_email || null;
           
-          await supabase
-            .from("subscriptions")
-            .upsert({
-              user_id: userId,
-              plan: planName,
-              status: "active",
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            }, { onConflict: "user_id" });
-
-          logStep("Subscription created", { userId, planName });
+          if (resolvedUserId) {
+            await supabase
+              .from("subscriptions")
+              .upsert({
+                user_id: resolvedUserId,
+                plan: planName,
+                status: "active",
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              }, { onConflict: "user_id" });
+            logStep("Subscription created", { userId: resolvedUserId, planName });
+          } else if (customerEmail) {
+            // Guest checkout — find user by email in profiles
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("id")
+              .eq("email", customerEmail.toLowerCase())
+              .maybeSingle();
+            
+            if (profile) {
+              await supabase
+                .from("subscriptions")
+                .upsert({
+                  user_id: profile.id,
+                  plan: planName,
+                  status: "active",
+                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                }, { onConflict: "user_id" });
+              logStep("Subscription linked to existing user via email", { email: customerEmail, userId: profile.id, planName });
+            } else {
+              // Store pending subscription for later linking at registration
+              await supabase
+                .from("subscriptions")
+                .insert({
+                  user_id: "00000000-0000-0000-0000-000000000000",
+                  plan: planName,
+                  status: "pending_user",
+                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                  customer_email: customerEmail.toLowerCase(),
+                });
+              logStep("Pending subscription saved for guest", { email: customerEmail, planName });
+            }
+          } else {
+            logStep("No userId or email found for subscription — skipping");
+          }
         } else if (session.mode === "payment" && userId) {
           // Handle one-time payment
           if (bundleId) {
