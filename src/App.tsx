@@ -263,14 +263,7 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/payment-success" 
-                  element={
-                    <ProtectedRoute>
-                      <PaymentSuccess />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route 
                   path="/course/:courseId" 
                   element={
