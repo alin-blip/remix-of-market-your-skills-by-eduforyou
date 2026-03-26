@@ -15,6 +15,16 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
+async function getCustomerEmail(stripe: Stripe, customerId: string): Promise<string | null> {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted) return null;
+    return (customer as Stripe.Customer).email || null;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();

@@ -648,11 +648,11 @@ function EduForYou() {
               {t.edu.cta1} <ArrowRight className="h-4 w-4" />
             </a>
             <div>
-              <a href="#" className="text-gold text-sm hover:underline">{t.edu.cta2}</a>
+              <a href="/auth/register-eduforyou" className="text-gold text-sm hover:underline">{t.edu.cta2}</a>
             </div>
             <p className="text-sm text-muted-sm">
               {t.edu.notYet}{" "}
-              <a href="#" className="text-gold hover:underline">{t.edu.applyNow}</a>{" "}
+              <a href="/auth/register-eduforyou" className="text-gold hover:underline">{t.edu.applyNow}</a>{" "}
               {t.edu.notYetEnd}
             </p>
           </div>

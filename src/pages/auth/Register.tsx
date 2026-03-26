@@ -90,8 +90,20 @@ export default function Register() {
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    // If already paid, go straight to dashboard; otherwise redirect to pricing for checkout
+    // Link pending guest subscription if paid
     if (paid) {
+      try {
+        const { data: { user: newUserForLink } } = await supabase.auth.getUser();
+        if (newUserForLink?.id && newUserForLink?.email) {
+          await supabase
+            .from('subscriptions')
+            .update({ user_id: newUserForLink.id, status: 'active' })
+            .eq('customer_email', newUserForLink.email.toLowerCase())
+            .eq('status', 'pending_user');
+        }
+      } catch (linkErr) {
+        console.error('Error linking guest subscription:', linkErr);
+      }
       navigate('/dashboard');
     } else if (plan) {
       navigate(`/pricing?auto=${plan}`);
