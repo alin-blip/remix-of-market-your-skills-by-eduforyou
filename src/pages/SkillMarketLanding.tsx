@@ -609,7 +609,7 @@ function ValueStack() {
         <div className={`text-center mt-12 sm-reveal ${gridVisible ? 'sm-visible' : ''}`} style={{ transitionDelay: '0.4s' }}>
           <p className="text-light-sm mb-2">{t.value.totalLabel}</p>
           <p className="text-sm text-muted-sm mb-6">{t.value.totalSub}</p>
-          <a href="/waitlist" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+          <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
             {t.value.totalCta} <ArrowRight className="h-4 w-4" />
           </a>
         </div>
