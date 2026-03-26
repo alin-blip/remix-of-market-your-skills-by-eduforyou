@@ -44,7 +44,7 @@ export default function Register() {
 
     setLoading(true);
 
-    const { error } = await signUp(email, password, '');
+    const { error } = await signUp(email, password, fullName);
 
     if (error) {
       if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
