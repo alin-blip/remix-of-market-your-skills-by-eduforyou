@@ -95,8 +95,8 @@ export default function Register() {
       try {
         const { data: { user: newUserForLink } } = await supabase.auth.getUser();
         if (newUserForLink?.id && newUserForLink?.email) {
-          await supabase
-            .from('subscriptions')
+          await (supabase
+            .from('subscriptions') as any)
             .update({ user_id: newUserForLink.id, status: 'active' })
             .eq('customer_email', newUserForLink.email.toLowerCase())
             .eq('status', 'pending_user');
