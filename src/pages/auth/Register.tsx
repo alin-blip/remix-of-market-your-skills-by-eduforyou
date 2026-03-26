@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { lovable } from '@/integrations/lovable/index';
 
 export default function Register() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,7 @@ export default function Register() {
 
     setLoading(true);
 
-    const { error } = await signUp(email, password, '');
+    const { error } = await signUp(email, password, fullName);
 
     if (error) {
       if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
@@ -89,8 +90,20 @@ export default function Register() {
     toast.success(t.auth.registerSuccess, {
       description: t.auth.registerSuccessDescription,
     });
-    // If already paid, go straight to dashboard; otherwise redirect to pricing for checkout
+    // Link pending guest subscription if paid
     if (paid) {
+      try {
+        const { data: { user: newUserForLink } } = await supabase.auth.getUser();
+        if (newUserForLink?.id && newUserForLink?.email) {
+          await (supabase
+            .from('subscriptions') as any)
+            .update({ user_id: newUserForLink.id, status: 'active' })
+            .eq('customer_email', newUserForLink.email.toLowerCase())
+            .eq('status', 'pending_user');
+        }
+      } catch (linkErr) {
+        console.error('Error linking guest subscription:', linkErr);
+      }
       navigate('/dashboard');
     } else if (plan) {
       navigate(`/pricing?auto=${plan}`);
@@ -273,6 +286,19 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5 animate-slide-up" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-sm font-medium">Nume complet</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Ion Popescu"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+                className="h-12 bg-secondary border-border rounded-xl focus:border-primary/40 focus:ring-primary/20 transition-all duration-300"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input

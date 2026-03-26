@@ -2021,6 +2021,7 @@ export type Database = {
           created_at: string | null
           current_period_end: string | null
           current_period_start: string | null
+          customer_email: string | null
           gigs_used: number | null
           id: string
           plan: string
@@ -2033,6 +2034,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          customer_email?: string | null
           gigs_used?: number | null
           id?: string
           plan?: string
@@ -2045,6 +2047,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          customer_email?: string | null
           gigs_used?: number | null
           id?: string
           plan?: string

@@ -61,6 +61,7 @@ import CVBuilder from "./pages/dream100/CVBuilder";
 import OutreachSequences from "./pages/dream100/OutreachSequences";
 import SkillMarketLanding from "./pages/SkillMarketLanding";
 import DnaQuizPublic from "./pages/DnaQuizPublic";
+import Onboarding from "./pages/Onboarding";
 const queryClient = new QueryClient();
 
 // App component with providers
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<Navigate to="/auth/register" replace />} />
+                <Route path="/onboard" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                 <Route 
                   path="/dashboard" 
                   element={
@@ -263,14 +265,7 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/payment-success" 
-                  element={
-                    <ProtectedRoute>
-                      <PaymentSuccess />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route 
                   path="/course/:courseId" 
                   element={

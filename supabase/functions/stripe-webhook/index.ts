@@ -15,6 +15,16 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
+async function getCustomerEmail(stripe: Stripe, customerId: string): Promise<string | null> {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted) return null;
+    return (customer as Stripe.Customer).email || null;
+  } catch {
+    return null;
+  }
+}
+
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
@@ -47,25 +57,63 @@ serve(async (req) => {
 
         logStep("Checkout session completed", { userId, courseId, bundleId, mode: session.mode });
 
-        if (session.mode === "subscription" && userId) {
+      if (session.mode === "subscription") {
           // Handle subscription
           const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
           );
           
           const planName = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
+          const resolvedUserId = userId || null;
+          const customerEmail = session.customer_details?.email || session.customer_email || null;
           
-          await supabase
-            .from("subscriptions")
-            .upsert({
-              user_id: userId,
-              plan: planName,
-              status: "active",
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            }, { onConflict: "user_id" });
-
-          logStep("Subscription created", { userId, planName });
+          if (resolvedUserId) {
+            await supabase
+              .from("subscriptions")
+              .upsert({
+                user_id: resolvedUserId,
+                plan: planName,
+                status: "active",
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              }, { onConflict: "user_id" });
+            logStep("Subscription created", { userId: resolvedUserId, planName });
+          } else if (customerEmail) {
+            // Guest checkout — find user by email in profiles
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("id")
+              .eq("email", customerEmail.toLowerCase())
+              .maybeSingle();
+            
+            if (profile) {
+              await supabase
+                .from("subscriptions")
+                .upsert({
+                  user_id: profile.id,
+                  plan: planName,
+                  status: "active",
+                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                }, { onConflict: "user_id" });
+              logStep("Subscription linked to existing user via email", { email: customerEmail, userId: profile.id, planName });
+            } else {
+              // Store pending subscription for later linking at registration
+              await supabase
+                .from("subscriptions")
+                .insert({
+                  user_id: "00000000-0000-0000-0000-000000000000",
+                  plan: planName,
+                  status: "pending_user",
+                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                  customer_email: customerEmail.toLowerCase(),
+                });
+              logStep("Pending subscription saved for guest", { email: customerEmail, planName });
+            }
+          } else {
+            logStep("No userId or email found for subscription — skipping");
+          }
         } else if (session.mode === "payment" && userId) {
           // Handle one-time payment
           if (bundleId) {
@@ -156,13 +204,48 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription updated", { subscriptionId: subscription.id });
+        const customerEmail2 = await getCustomerEmail(stripe, subscription.customer as string);
+        if (customerEmail2) {
+          const { data: profile2 } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail2.toLowerCase())
+            .maybeSingle();
+          if (profile2) {
+            const updatedPlan = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
+            const updatedStatus = subscription.status === "active" ? "active" : subscription.status === "past_due" ? "past_due" : "canceled";
+            await supabase
+              .from("subscriptions")
+              .upsert({
+                user_id: profile2.id,
+                plan: updatedPlan,
+                status: updatedStatus,
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              }, { onConflict: "user_id" });
+            logStep("Subscription updated in DB", { userId: profile2.id, status: updatedStatus, plan: updatedPlan });
+          }
+        }
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Subscription canceled", { subscriptionId: subscription.id });
+        const customerEmail3 = await getCustomerEmail(stripe, subscription.customer as string);
+        if (customerEmail3) {
+          const { data: profile3 } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", customerEmail3.toLowerCase())
+            .maybeSingle();
+          if (profile3) {
+            await supabase
+              .from("subscriptions")
+              .update({ status: "canceled" })
+              .eq("user_id", profile3.id);
+            logStep("Subscription canceled in DB", { userId: profile3.id });
+          }
+        }
         break;
       }
     }
@@ -181,7 +264,7 @@ serve(async (req) => {
 });
 
 function determinePlanFromAmount(amountInCents: number): string {
-  if (amountInCents <= 1000) return "starter";
-  if (amountInCents <= 2000) return "pro";
+  if (amountInCents <= 6000) return "starter";  // Up to £60 (covers £49 and discounted prices)
+  if (amountInCents <= 12000) return "pro";      // Up to £120 (covers £97 and discounted prices)
   return "founder";
 }
