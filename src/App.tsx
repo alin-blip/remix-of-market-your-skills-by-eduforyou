@@ -84,6 +84,7 @@ const App = () => (
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<Navigate to="/auth/register" replace />} />
+                <Route path="/onboard" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                 <Route 
                   path="/dashboard" 
                   element={
