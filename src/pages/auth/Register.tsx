@@ -275,6 +275,19 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="space-y-5 animate-slide-up" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
             <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-sm font-medium">Nume complet</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Ion Popescu"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+                className="h-12 bg-secondary border-border rounded-xl focus:border-primary/40 focus:ring-primary/20 transition-all duration-300"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">{t.auth.email}</Label>
               <Input
                 id="email"
