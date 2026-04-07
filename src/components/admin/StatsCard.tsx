@@ -20,15 +20,16 @@ export function StatsCard({
   icon, 
   description, 
   trend,
-  className 
-}: StatsCardProps) {
+  className,
+  alert,
+}: StatsCardProps & { alert?: boolean }) {
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn(alert && "border-destructive/50 bg-destructive/5", className)}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold">{value}</p>
+            <p className={cn("text-3xl font-bold", alert && "text-destructive")}>{value}</p>
             {description && (
               <p className="text-xs text-muted-foreground">{description}</p>
             )}
