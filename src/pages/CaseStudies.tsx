@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Star, Clock, Zap, ArrowRight, Users, Target, Package, FileText, Brain, Globe } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import "./skillmarket.css";
