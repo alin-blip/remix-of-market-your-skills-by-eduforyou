@@ -51,6 +51,7 @@ import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
 import BundlesManager from "./pages/admin/BundlesManager";
 import FeedbackManager from "./pages/admin/FeedbackManager";
 import AIOutputsManager from "./pages/admin/AIOutputsManager";
+import EmailAnalytics from "./pages/admin/EmailAnalytics";
 import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
 import SqueezePage from "./pages/SqueezePage";
@@ -337,6 +338,7 @@ const App = () => (
                 <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
                 <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
                 <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
+                <Route path="/admin/email-analytics" element={<ProtectedRoute requireAdmin><EmailAnalytics /></ProtectedRoute>} />
                 {/* Case Studies */}
                 <Route path="/case-studies" element={<CaseStudies />} />
                 {/* DNA Quiz Public Routes */}
