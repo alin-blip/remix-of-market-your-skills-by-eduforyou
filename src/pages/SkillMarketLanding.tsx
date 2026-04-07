@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { SEOHead, DEFAULT_HREFLANG } from "@/components/seo/SEOHead";
+import { JsonLd, organizationSchema, webAppSchema } from "@/components/seo/JsonLd";
 import CaseStudiesPreview from "@/components/landing/CaseStudiesPreview";
 import { useScrollReveal, useCountUp } from "@/hooks/useScrollReveal";
 import { useNavigate, useLocation, Link } from "react-router-dom";
