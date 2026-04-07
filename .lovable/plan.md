@@ -1,51 +1,56 @@
 
 
-# Plan: Email Re-engagement pentru Utilizatori Inactivi
-
-## Date
-- **67 utilizatori reali** care s-au înregistrat dar nu au folosit nicio unealtă AI
-- Trimitem câte 1 email la 5 minute (total ~5.5 ore pentru toți)
+# Plan: Email Automat de Re-engagement la 7 Zile de Inactivitate
 
 ## Ce construim
 
-### 1. Edge Function `reengagement-notify`
-- Lista celor 67 de utilizatori hardcoded (email + prenume)
-- Email Hormozi-style în română: focus pe ce au ratat, ce pot construi, cât de repede
-- Referință la studiile de caz reale (7 profesioniști, sub 30 min)
-- CTA: "Începe acum — durează sub 10 minute"
-- Folosește `enqueue_email` RPC-ul existent (coada `transactional_emails`)
-- Idempotency key per user: `reengagement-v1-{email}` (previne duplicatele)
+O funcție Edge (`auto-reengagement`) care rulează automat zilnic prin cron job. Detectează utilizatorii inactivi de 7+ zile și le trimite un email personalizat cu sfaturi specifice bazate pe ce NU au făcut încă pe platformă.
 
-### 2. Ajustare temporară ritm trimitere
-- Modificăm `email_send_state`: `batch_size = 1`
-- Modificăm cron-ul `process-email-queue` de la `*/5 seconds` la `*/5 * * * *` (la fiecare 5 minute)
-- După trimitere, revert la setările originale
+## Logica de detectare inactivitate
 
-### 3. Fix runtime error pe `/case-studies`
-- Eroare `e is not defined` — investigăm și reparăm
+Verificăm cea mai recentă activitate per utilizator din 3 surse:
+- `ai_outputs.created_at` (folosire unelte AI)
+- `user_course_progress.updated_at` (progres cursuri)
+- `dream100_targets.updated_at` (activitate Dream 100)
 
-## Structura emailului (Hormozi-style)
-- **Subject**: `{Prenume}, ai ratat ceva important pe SkillMarket 🚀`
-- **Body**:
-  - Headline: "Contul tău e gata. Dar nu ai folosit încă nicio unealtă."
-  - Social proof: "7 profesioniști au construit oferte premium în sub 30 de minute"
-  - Ce pot face: Skill Scanner → Ikigai → Ofertă → Profil optimizat
-  - Exemplu concret: "Gabriela A. a creat o ofertă HoReCa de 3.500 RON în 12 minute"
-  - CTA button → link spre platformă `/wizard/skill-scanner`
-  - Opt-out: "Nu mai doriți emailuri? Răspundeți și vă scoatem."
+Dacă MAX din toate cele 3 este mai veche de 7 zile (sau nu există deloc activitate) → utilizatorul primește email.
+
+**Filtre de siguranță:**
+- Excludem conturile interne (`@rowarrior`, `@eduforyou`, `@pluux`, `@icloud`)
+- Excludem emailurile din `suppressed_emails` (dezabonați/bounces)
+- Idempotency key: `reengagement-7d-{user_id}-{iso_week}` (1 email max per săptămână per user)
+- Verificăm dacă utilizatorul a mai primit recent un email de re-engagement
+
+## Emailul — personalizat pe baza activității
+
+Subiect: `{Prenume}, nu lăsa oportunitățile să treacă pe lângă tine 🎯`
+
+Conținutul variază în funcție de ce a făcut/nu a făcut utilizatorul:
+
+| Situație | Sugestie în email |
+|---|---|
+| Nu a folosit Dream 100 Scanner | "Scanează piața și descoperă 100 de clienți ideali" |
+| Nu a creat ofertă (Offer Builder) | "Creează o ofertă premium în 3 minute" |
+| Nu a învățat nimic (0 progres cursuri) | "Învață strategii noi în secțiunea Learn" |
+| Nu a folosit Outreach | "Trimite primele mesaje de outreach personalizate" |
+| Nu a făcut Skill Scanner | "Descoperă-ți skillurile ascunse cu Skill Scanner" |
+
+Emailul include 2-3 sugestii relevante + CTA principal + social proof scurt.
+
+## Cron Job
+
+- Rulează zilnic la 09:00 UTC (11:00 ora României)
+- Folosește `enqueue_email` RPC (coada `transactional_emails`)
+- Ritmul de trimitere controlat de setările existente din `email_send_state`
 
 ## Fișiere
 
 | Fișier | Acțiune |
 |---|---|
-| `supabase/functions/reengagement-notify/index.ts` | NOU — enqueue 67 emailuri |
-| `src/pages/CaseStudies.tsx` | FIX — runtime error |
+| `supabase/functions/auto-reengagement/index.ts` | NOU — detectare + email personalizat |
 
 ## Pași execuție
-1. Fix runtime error CaseStudies
-2. Creez edge function-ul cu emailul și lista de utilizatori
-3. Deploy edge function
-4. Ajustez batch_size=1 și cron la 5 min (via SQL)
-5. Invoc funcția pentru a pune emailurile în coadă
-6. Revert setările cron/batch după ce se trimit toate
+1. Creez Edge Function-ul cu logica de detectare și template email
+2. Deploy funcția
+3. Setez cron job zilnic la 09:00 UTC via `cron.schedule`
 
