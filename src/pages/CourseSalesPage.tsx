@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { JsonLd, courseJsonLd } from '@/components/seo/JsonLd';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
