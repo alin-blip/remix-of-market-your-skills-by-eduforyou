@@ -14,6 +14,8 @@ import {
 import { LogOut, User, Shield } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
+import { AdminNotificationBell } from '@/components/admin/AdminNotificationBell';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MainLayoutProps {
