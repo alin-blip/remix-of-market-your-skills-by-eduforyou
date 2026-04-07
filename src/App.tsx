@@ -62,6 +62,7 @@ import OutreachSequences from "./pages/dream100/OutreachSequences";
 import SkillMarketLanding from "./pages/SkillMarketLanding";
 import DnaQuizPublic from "./pages/DnaQuizPublic";
 import Onboarding from "./pages/Onboarding";
+import CaseStudies from "./pages/CaseStudies";
 const queryClient = new QueryClient();
 
 // App component with providers
