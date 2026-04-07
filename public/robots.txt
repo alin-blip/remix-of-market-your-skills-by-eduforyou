@@ -1,8 +1,20 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /wizard/
+Disallow: /life-os/
+Disallow: /onboard
+Disallow: /payment-success
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /wizard/
+Disallow: /life-os/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +24,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /wizard/
+Disallow: /life-os/
+Disallow: /onboard
+
+Sitemap: https://venture-stride-kit.lovable.app/sitemap.xml

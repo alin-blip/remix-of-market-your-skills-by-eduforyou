@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { SEOHead, DEFAULT_HREFLANG } from "@/components/seo/SEOHead";
+import { JsonLd, organizationSchema, webAppSchema } from "@/components/seo/JsonLd";
 import CaseStudiesPreview from "@/components/landing/CaseStudiesPreview";
 import { useScrollReveal, useCountUp } from "@/hooks/useScrollReveal";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -858,8 +860,40 @@ function Footer() {
 }
 /* ─── Main Page ─── */
 function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
+  const { lang } = useSkillMarketLang();
+  const seoByLang: Record<string, { title: string; desc: string; locale: string; path: string }> = {
+    en: {
+      title: 'Market Your Skill — Turn Your Skills Into Income',
+      desc: 'AI-powered career coaching platform. Scan your skills, build offers, optimise profiles, and land freelancing gigs or jobs in the UK and beyond.',
+      locale: 'en_GB',
+      path: '/en',
+    },
+    ro: {
+      title: 'Market Your Skill — Monetizează-ți Skill-urile',
+      desc: 'Platformă AI de coaching care îți transformă skill-urile în ofertă de angajare, venit din freelancing sau afacere proprie.',
+      locale: 'ro_RO',
+      path: '/ro',
+    },
+    ua: {
+      title: 'Market Your Skill — Монетизуй свої навички',
+      desc: 'AI-платформа для кар\'єрного коучингу. Скануй навички, створюй оферти, оптимізуй профілі.',
+      locale: 'uk_UA',
+      path: '/ua',
+    },
+  };
+  const seo = seoByLang[lang] || seoByLang.en;
+
   return (
     <div className="skillmarket-landing">
+      <SEOHead
+        title={seo.title}
+        description={seo.desc}
+        path={seo.path}
+        locale={seo.locale}
+        hreflangAlternates={DEFAULT_HREFLANG}
+      />
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={webAppSchema} />
       <Navbar autoOpenLangPicker={autoOpenLangPicker} />
       <Hero />
       <TaglineBanner />

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { JsonLd, courseJsonLd } from '@/components/seo/JsonLd';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
@@ -43,6 +45,7 @@ interface Course {
   lessons_count: number | null;
   level: string;
   category: string | null;
+  slug: string | null;
   stripe_price_id: string | null;
   sales_page_content: SalesPageContent | null;
 }
@@ -219,6 +222,18 @@ export default function CourseSalesPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={course.title}
+        description={course.description || `Learn ${course.title} — online course on Market Your Skill`}
+        path={`/courses/${course.slug}`}
+      />
+      <JsonLd data={courseJsonLd({
+        title: course.title,
+        description: course.description || '',
+        price: course.price,
+        currency: course.currency || 'EUR',
+        slug: course.slug || undefined,
+      })} />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="gradient-glow absolute inset-0" />
