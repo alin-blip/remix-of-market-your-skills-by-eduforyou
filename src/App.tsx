@@ -342,6 +342,7 @@ const App = () => (
                 <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
                 <Route path="/admin/email-analytics" element={<ProtectedRoute requireAdmin><EmailAnalytics /></ProtectedRoute>} />
                 <Route path="/admin/seo-audit" element={<ProtectedRoute requireAdmin><SeoAudit /></ProtectedRoute>} />
+                <Route path="/admin/users/:userId" element={<ProtectedRoute requireAdmin><UserDetail /></ProtectedRoute>} />
                 {/* Case Studies */}
                 <Route path="/case-studies" element={<CaseStudies />} />
                 {/* DNA Quiz Public Routes */}
