@@ -868,6 +868,7 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
       <HowItWorks />
       <Dream100 />
       <ValueStack />
+      <CaseStudiesPreview />
       <EduForYou />
       <Pricing />
       <FAQ />
