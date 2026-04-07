@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { DnaQuizContainer } from '@/components/dna-quiz/DnaQuizContainer';
 import { quizTranslations, type QuizLang } from '@/components/dna-quiz/quizData';
+import { SEOHead } from '@/components/seo/SEOHead';
 import heroImage from '@/assets/quiz-hero.png';
 
 export default function DnaQuizPublic() {
