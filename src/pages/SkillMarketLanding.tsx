@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import CaseStudiesPreview from "@/components/landing/CaseStudiesPreview";
 import { useScrollReveal, useCountUp } from "@/hooks/useScrollReveal";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
