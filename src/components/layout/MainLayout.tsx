@@ -83,12 +83,20 @@ export function MainLayout({ children }: MainLayoutProps) {
             {/* User Menu */}
             <div className="flex items-center gap-2">
               {profile?.role === 'admin' && (
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/admin" className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">{t.layout.verifications}</span>
-                  </Link>
-                </Button>
+                <>
+                  <AdminNotificationBell
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    onMarkAllRead={markAllRead}
+                    onDismiss={dismissNotification}
+                  />
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin" className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden sm:inline">{t.layout.verifications}</span>
+                    </Link>
+                  </Button>
+                </>
               )}
 
               <DropdownMenu>
