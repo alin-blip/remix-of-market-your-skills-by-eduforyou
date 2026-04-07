@@ -221,6 +221,18 @@ export default function CourseSalesPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={course.title}
+        description={course.description || `Learn ${course.title} — online course on Market Your Skill`}
+        path={`/courses/${course.slug}`}
+      />
+      <JsonLd data={courseJsonLd({
+        title: course.title,
+        description: course.description || '',
+        price: course.price,
+        currency: course.currency || 'EUR',
+        slug: course.slug || undefined,
+      })} />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="gradient-glow absolute inset-0" />
