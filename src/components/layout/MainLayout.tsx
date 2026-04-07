@@ -27,6 +27,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [completedSteps, setCompletedSteps] = useState(0);
+  const { notifications, unreadCount, markAllRead, dismissNotification } = useAdminNotifications();
 
   useEffect(() => {
     if (user) {
