@@ -34,7 +34,7 @@ export function AreaIcon({ areaKey, className, showColor = true }: AreaIconProps
   return (
     <Icon 
       className={cn(className)} 
-      style={showColor && areaConfig ? { color: areaConfig.color } : undefined}
+      style={showColor && areaConfig?.color ? { color: areaConfig.color } : undefined}
     />
   );
 }
