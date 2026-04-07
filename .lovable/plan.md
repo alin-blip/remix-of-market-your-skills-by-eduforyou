@@ -1,55 +1,105 @@
 
 
-# Plan: Admin Dashboard Avansat — Monitorizare Completă
+# Plan: SEO & GEO Optimization pentru UK — Prima Pagină Google
 
-## Ce avem acum
-Dashboard-ul actual arată doar 6 metrici de bază (useri, verificări, skills, gigs) + 2 grafice (registrări 7 zile, study fields). Lipsește complet vizibilitatea asupra **activității reale** a utilizatorilor.
+## Situația actuală (probleme critice)
+
+Platforma are **zero SEO tehnic** implementat:
+- **Fără sitemap.xml** — Google nu știe ce pagini există
+- **Fără canonical URLs** — risc de duplicate content
+- **Fără hreflang tags** — Google nu știe că ai EN/RO/UA
+- **Fără JSON-LD structured data** — nicio rich snippet în SERP
+- **Meta description în română** pe index.html — Google UK vede text românesc
+- **Fără meta tags per pagină** — toate paginile au același title/description
+- **robots.txt fără sitemap reference**
+- **SPA fără SSR/prerender** — crawlerii văd doar un `<div id="root">`
+
+## Conectori disponibili
+
+- **Firecrawl** (deja linked) — putem face audit SEO automat, crawl site-ul și identifica probleme
+- **Perplexity** (deja linked) — putem genera keyword research UK-specific în edge functions
 
 ## Ce construim
 
-### 1. Secțiune nouă: "Engagement Overview" (stats row suplimentar)
-Adăugăm carduri cu metrici de engagement:
-- **Utilizatori activi AI** (7 din total) — câți au folosit cel puțin o unealtă
-- **Total generări AI** (40 total) — cu breakdown per tool
-- **Ikigai completate** (10)
-- **Dream 100 targets** (44)
-- **Progres cursuri** (câți useri au început cel puțin un curs)
-- **Email-uri trimise** (445 total, 319 failed — important de văzut!)
+### Faza 1: Fundația SEO Tehnică (zero risc, nu afectează UI)
 
-### 2. Card: "AI Tools Usage" (bar chart)
-Grafic cu cele 5 unelte AI și câte generări are fiecare (offer-builder: 12, profile-builder: 10, ikigai: 9, skill-scanner: 6, life-os: 3).
+**1. Sitemap.xml static** (`public/sitemap.xml`)
+- Listează toate paginile publice: `/`, `/en`, `/ro`, `/ua`, `/case-studies`, `/adn-test/en`, `/adn-test/ro`, `/courses/*`, `/ebook/*`, `/pricing`
+- Adaugă `<xhtml:link rel="alternate" hreflang="...">` per pagină
 
-### 3. Card: "User Activity Funnel"
-Vizualizare funnel: Registered → Onboarding Done → Used AI Tool → Created Offer → Dream 100 Started. Arată drop-off-ul la fiecare etapă.
+**2. robots.txt actualizat** (`public/robots.txt`)
+- Adaugă `Sitemap: https://venture-stride-kit.lovable.app/sitemap.xml`
+- Blochează paginile admin și protected routes
 
-### 4. Card: "Email Health Monitor"
-Status emailuri: sent vs failed vs pending vs DLQ. Alertă vizuală dacă failure rate e mare (acum e 71% — critic!).
+**3. React Helmet pentru meta tags per pagină**
+- Instalez `react-helmet-async`
+- Creez componenta `SEOHead.tsx` reutilizabilă
+- Adaug meta tags unice pe fiecare pagină publică (title, description, canonical, hreflang, og:*)
 
-### 5. Card: "Recent Activity Feed"
-Ultimele 20 acțiuni pe platformă din `ai_outputs` — cine a folosit ce tool, când. Live feed pentru monitorizare.
+**4. JSON-LD Structured Data** (în `SEOHead.tsx`)
+- `Organization` schema pe homepage
+- `WebApplication` schema (SaaS)
+- `FAQPage` schema pe pricing
+- `Course` schema pe paginile de cursuri
+- `Article` schema pe case studies
 
-### 6. Card: "Users at Risk" (inactivi 7+ zile)
-Tabel cu utilizatorii care nu au mai făcut nimic de 7+ zile — prenume, email, ultima activitate, câte zile inactivi.
+### Faza 2: GEO Targeting UK
 
-### 7. Tabs pentru perioade
-Selector 7 zile / 30 zile / All time pentru graficele de registrări și activitate.
+**5. Meta tags UK-specific pe `/en`**
+- Title: "Market Your Skill — Turn Your Skills Into Income | UK"
+- Description optimizat pentru keywords UK: "freelancing UK", "skill monetization", "career coaching AI"
+- `og:locale` = `en_GB`
+
+**6. Hreflang implementation**
+```text
+<link rel="alternate" hreflang="en-GB" href="/en" />
+<link rel="alternate" hreflang="ro" href="/ro" />
+<link rel="alternate" hreflang="uk" href="/ua" />
+<link rel="alternate" hreflang="x-default" href="/en" />
+```
+
+**7. Pagină dedicată `/blog` sau `/resources`** (opțional, faza 2+)
+- Content pages static pentru keyword targeting
+- Folosim Perplexity API pentru research topics trending în UK
+
+### Faza 3: SEO Audit Automat (Admin Tool)
+
+**8. Pagină admin `/admin/seo-audit`**
+- Folosește Firecrawl connector să crawl-uiască site-ul
+- Afișează: pagini indexate, broken links, missing meta, page speed issues
+- Rulează on-demand din admin dashboard
 
 ## Fișiere afectate
 
 | Fișier | Acțiune |
 |---|---|
-| `src/pages/admin/AdminDashboard.tsx` | Refactorizare majoră — adăugare secțiuni noi |
-| `src/components/admin/StatsCard.tsx` | Minor — adăugare variant "alert" pentru metrici critice |
-| `src/components/admin/ActivityFeed.tsx` | NOU — componenta feed activitate |
-| `src/components/admin/UserFunnel.tsx` | NOU — vizualizare funnel |
-| `src/components/admin/EmailHealthCard.tsx` | NOU — monitor emailuri |
+| `public/sitemap.xml` | NOU — sitemap static |
+| `public/robots.txt` | UPDATE — adaug sitemap + blocări |
+| `src/components/seo/SEOHead.tsx` | NOU — componenta meta tags |
+| `src/components/seo/JsonLd.tsx` | NOU — structured data |
+| `src/pages/SkillMarketLanding.tsx` | UPDATE — adaug SEOHead |
+| `src/pages/CaseStudies.tsx` | UPDATE — adaug SEOHead |
+| `src/pages/Pricing.tsx` | UPDATE — adaug SEOHead |
+| `src/pages/CourseSalesPage.tsx` | UPDATE — adaug SEOHead |
+| `src/pages/DnaQuizPublic.tsx` | UPDATE — adaug SEOHead |
+| `index.html` | UPDATE — meta tags EN default, lang="en-GB" |
+| `src/pages/admin/SeoAudit.tsx` | NOU — admin SEO audit cu Firecrawl |
+| `src/App.tsx` | UPDATE — ruta /admin/seo-audit |
 
-## Pași
-1. Creez componentele noi (ActivityFeed, UserFunnel, EmailHealthCard)
-2. Extind `AdminDashboard.tsx` cu toate secțiunile noi
-3. Adaug query-urile Supabase pentru datele de engagement
-4. Stilizez alertele vizuale (email failure rate roșu, useri inactivi)
+## Siguranță
 
-## Observație importantă
-Datele arată că **319 din 445 emailuri au eșuat** (71% failure rate). Dashboard-ul va evidenția asta vizual ca alertă critică.
+- **Nicio modificare la logica existentă** — doar adăugăm componente SEO
+- **SEOHead e un wrapper React Helmet** — nu afectează rendering-ul
+- **Sitemap e un fișier static** în /public — zero impact pe build
+- **Admin SEO audit e pagină nouă** — izolată complet
+
+## Pași implementare
+
+1. Instalez `react-helmet-async`, creez `SEOHead.tsx` și `JsonLd.tsx`
+2. Adaug SEOHead pe toate paginile publice cu meta tags UK-optimized
+3. Creez `sitemap.xml` și actualizez `robots.txt`
+4. Adaug JSON-LD structured data (Organization, Course, FAQ)
+5. Implementez hreflang corect pe toate versiunile lingvistice
+6. Creez pagina admin SEO Audit cu Firecrawl
+7. Actualizez `index.html` cu `lang="en-GB"` și meta tags EN default
 
