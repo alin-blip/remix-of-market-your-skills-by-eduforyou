@@ -182,7 +182,9 @@ export default function UsersManager() {
                   filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        {user.full_name || 'No name'}
+                        <Link to={`/admin/users/${user.id}`} className="text-primary hover:underline">
+                          {user.full_name || 'No name'}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {user.email || 'No email'}
