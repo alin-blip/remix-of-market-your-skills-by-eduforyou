@@ -51,6 +51,7 @@ import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
 import BundlesManager from "./pages/admin/BundlesManager";
 import FeedbackManager from "./pages/admin/FeedbackManager";
 import AIOutputsManager from "./pages/admin/AIOutputsManager";
+import EmailAnalytics from "./pages/admin/EmailAnalytics";
 import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
 import SqueezePage from "./pages/SqueezePage";

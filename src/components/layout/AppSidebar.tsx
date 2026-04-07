@@ -537,6 +537,28 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   Waitlist
                 </TooltipContent>
               </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    asChild
+                    className={cn(
+                      "h-8 w-8 hover:bg-sidebar-accent/50",
+                      currentPath === '/admin/email-analytics'
+                        ? "text-primary" 
+                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <NavLink to="/admin/email-analytics">
+                      <Mail className="h-4 w-4" />
+                    </NavLink>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  Email Analytics
+                </TooltipContent>
+              </Tooltip>
             </>
           )}
         </div>
