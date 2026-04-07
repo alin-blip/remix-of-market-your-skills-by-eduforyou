@@ -39,3 +39,5 @@ project_id = "fdjzjqkiuxygiemqyfim"
     verify_jwt = false
   [functions.dna-quiz-followup]
     verify_jwt = false
+  [functions.reengagement-notify]
+    verify_jwt = false
