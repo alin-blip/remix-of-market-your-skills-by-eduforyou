@@ -20,6 +20,7 @@ import {
   FileText,
   Send,
   ClipboardList,
+  Mail,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
