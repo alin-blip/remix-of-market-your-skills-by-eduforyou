@@ -55,14 +55,15 @@ export default function Settings() {
     }
   };
 
-  const planDetails = {
+  const planDetails: Record<string, { name: string; color: string; icon: string }> = {
     free: { name: 'Free', color: 'bg-gray-500', icon: '🆓' },
     starter: { name: 'Starter', color: 'bg-blue-500', icon: '⭐' },
     pro: { name: 'Pro', color: 'bg-purple-500', icon: '👑' },
     founder: { name: 'Founder Accelerator', color: 'bg-amber-500', icon: '🚀' },
+    eduforyou: { name: 'EduForYou', color: 'bg-emerald-500', icon: '🎓' },
   };
 
-  const currentPlan = planDetails[plan];
+  const currentPlan = planDetails[plan] || planDetails.free;
 
   return (
     <MainLayout>
