@@ -1,56 +1,55 @@
 
 
-# Plan: Email Automat de Re-engagement la 7 Zile de Inactivitate
+# Plan: Admin Dashboard Avansat — Monitorizare Completă
+
+## Ce avem acum
+Dashboard-ul actual arată doar 6 metrici de bază (useri, verificări, skills, gigs) + 2 grafice (registrări 7 zile, study fields). Lipsește complet vizibilitatea asupra **activității reale** a utilizatorilor.
 
 ## Ce construim
 
-O funcție Edge (`auto-reengagement`) care rulează automat zilnic prin cron job. Detectează utilizatorii inactivi de 7+ zile și le trimite un email personalizat cu sfaturi specifice bazate pe ce NU au făcut încă pe platformă.
+### 1. Secțiune nouă: "Engagement Overview" (stats row suplimentar)
+Adăugăm carduri cu metrici de engagement:
+- **Utilizatori activi AI** (7 din total) — câți au folosit cel puțin o unealtă
+- **Total generări AI** (40 total) — cu breakdown per tool
+- **Ikigai completate** (10)
+- **Dream 100 targets** (44)
+- **Progres cursuri** (câți useri au început cel puțin un curs)
+- **Email-uri trimise** (445 total, 319 failed — important de văzut!)
 
-## Logica de detectare inactivitate
+### 2. Card: "AI Tools Usage" (bar chart)
+Grafic cu cele 5 unelte AI și câte generări are fiecare (offer-builder: 12, profile-builder: 10, ikigai: 9, skill-scanner: 6, life-os: 3).
 
-Verificăm cea mai recentă activitate per utilizator din 3 surse:
-- `ai_outputs.created_at` (folosire unelte AI)
-- `user_course_progress.updated_at` (progres cursuri)
-- `dream100_targets.updated_at` (activitate Dream 100)
+### 3. Card: "User Activity Funnel"
+Vizualizare funnel: Registered → Onboarding Done → Used AI Tool → Created Offer → Dream 100 Started. Arată drop-off-ul la fiecare etapă.
 
-Dacă MAX din toate cele 3 este mai veche de 7 zile (sau nu există deloc activitate) → utilizatorul primește email.
+### 4. Card: "Email Health Monitor"
+Status emailuri: sent vs failed vs pending vs DLQ. Alertă vizuală dacă failure rate e mare (acum e 71% — critic!).
 
-**Filtre de siguranță:**
-- Excludem conturile interne (`@rowarrior`, `@eduforyou`, `@pluux`, `@icloud`)
-- Excludem emailurile din `suppressed_emails` (dezabonați/bounces)
-- Idempotency key: `reengagement-7d-{user_id}-{iso_week}` (1 email max per săptămână per user)
-- Verificăm dacă utilizatorul a mai primit recent un email de re-engagement
+### 5. Card: "Recent Activity Feed"
+Ultimele 20 acțiuni pe platformă din `ai_outputs` — cine a folosit ce tool, când. Live feed pentru monitorizare.
 
-## Emailul — personalizat pe baza activității
+### 6. Card: "Users at Risk" (inactivi 7+ zile)
+Tabel cu utilizatorii care nu au mai făcut nimic de 7+ zile — prenume, email, ultima activitate, câte zile inactivi.
 
-Subiect: `{Prenume}, nu lăsa oportunitățile să treacă pe lângă tine 🎯`
+### 7. Tabs pentru perioade
+Selector 7 zile / 30 zile / All time pentru graficele de registrări și activitate.
 
-Conținutul variază în funcție de ce a făcut/nu a făcut utilizatorul:
-
-| Situație | Sugestie în email |
-|---|---|
-| Nu a folosit Dream 100 Scanner | "Scanează piața și descoperă 100 de clienți ideali" |
-| Nu a creat ofertă (Offer Builder) | "Creează o ofertă premium în 3 minute" |
-| Nu a învățat nimic (0 progres cursuri) | "Învață strategii noi în secțiunea Learn" |
-| Nu a folosit Outreach | "Trimite primele mesaje de outreach personalizate" |
-| Nu a făcut Skill Scanner | "Descoperă-ți skillurile ascunse cu Skill Scanner" |
-
-Emailul include 2-3 sugestii relevante + CTA principal + social proof scurt.
-
-## Cron Job
-
-- Rulează zilnic la 09:00 UTC (11:00 ora României)
-- Folosește `enqueue_email` RPC (coada `transactional_emails`)
-- Ritmul de trimitere controlat de setările existente din `email_send_state`
-
-## Fișiere
+## Fișiere afectate
 
 | Fișier | Acțiune |
 |---|---|
-| `supabase/functions/auto-reengagement/index.ts` | NOU — detectare + email personalizat |
+| `src/pages/admin/AdminDashboard.tsx` | Refactorizare majoră — adăugare secțiuni noi |
+| `src/components/admin/StatsCard.tsx` | Minor — adăugare variant "alert" pentru metrici critice |
+| `src/components/admin/ActivityFeed.tsx` | NOU — componenta feed activitate |
+| `src/components/admin/UserFunnel.tsx` | NOU — vizualizare funnel |
+| `src/components/admin/EmailHealthCard.tsx` | NOU — monitor emailuri |
 
-## Pași execuție
-1. Creez Edge Function-ul cu logica de detectare și template email
-2. Deploy funcția
-3. Setez cron job zilnic la 09:00 UTC via `cron.schedule`
+## Pași
+1. Creez componentele noi (ActivityFeed, UserFunnel, EmailHealthCard)
+2. Extind `AdminDashboard.tsx` cu toate secțiunile noi
+3. Adaug query-urile Supabase pentru datele de engagement
+4. Stilizez alertele vizuale (email failure rate roșu, useri inactivi)
+
+## Observație importantă
+Datele arată că **319 din 445 emailuri au eșuat** (71% failure rate). Dashboard-ul va evidenția asta vizual ca alertă critică.
 
