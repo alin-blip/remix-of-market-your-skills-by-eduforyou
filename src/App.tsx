@@ -62,6 +62,7 @@ import OutreachSequences from "./pages/dream100/OutreachSequences";
 import SkillMarketLanding from "./pages/SkillMarketLanding";
 import DnaQuizPublic from "./pages/DnaQuizPublic";
 import Onboarding from "./pages/Onboarding";
+import CaseStudies from "./pages/CaseStudies";
 const queryClient = new QueryClient();
 
 // App component with providers
@@ -336,6 +337,8 @@ const App = () => (
                 <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
                 <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
                 <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
+                {/* Case Studies */}
+                <Route path="/case-studies" element={<CaseStudies />} />
                 {/* DNA Quiz Public Routes */}
                 <Route path="/adn-test/:lang" element={<DnaQuizPublic />} />
                 {/* Public Sales Pages */}
