@@ -337,6 +337,8 @@ const App = () => (
                 <Route path="/cv-builder" element={<ProtectedRoute><CVBuilder /></ProtectedRoute>} />
                 <Route path="/outreach-sequences" element={<ProtectedRoute><OutreachSequences /></ProtectedRoute>} />
                 <Route path="/admin/waitlist" element={<ProtectedRoute requireAdmin><WaitlistManager /></ProtectedRoute>} />
+                {/* Case Studies */}
+                <Route path="/case-studies" element={<CaseStudies />} />
                 {/* DNA Quiz Public Routes */}
                 <Route path="/adn-test/:lang" element={<DnaQuizPublic />} />
                 {/* Public Sales Pages */}
