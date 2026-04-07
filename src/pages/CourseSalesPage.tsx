@@ -45,6 +45,7 @@ interface Course {
   lessons_count: number | null;
   level: string;
   category: string | null;
+  slug: string | null;
   stripe_price_id: string | null;
   sales_page_content: SalesPageContent | null;
 }
