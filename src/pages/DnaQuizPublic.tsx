@@ -17,6 +17,15 @@ export default function DnaQuizPublic() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={quizLang === 'en' ? 'Discover Your Execution DNA — Free Career Quiz' : quizLang === 'ro' ? 'Descoperă-ți ADN-ul de Execuție — Test Gratuit' : 'Відкрий свою ДНК виконання — Безкоштовний тест'}
+        description={quizLang === 'en' ? 'Take the free Execution DNA quiz to discover your unique career strengths. Find out if you are a Freelancer, Employee, or Entrepreneur in 2 minutes.' : 'Fă testul gratuit ADN Execuție și descoperă ce tip de carieră ți se potrivește: Freelancer, Angajat sau Antreprenor.'}
+        path={`/adn-test/${quizLang}`}
+        hreflangAlternates={[
+          { lang: 'en-GB', path: '/adn-test/en' },
+          { lang: 'ro', path: '/adn-test/ro' },
+        ]}
+      />
       {/* Minimal header */}
       <header className="border-b border-border/50 py-4 px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-2">

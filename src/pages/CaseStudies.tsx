@@ -239,6 +239,11 @@ function CaseStudyCard({ study }: { study: typeof CASE_STUDIES[0] }) {
 export default function CaseStudies() {
   return (
     <div className="skillmarket-landing">
+      <SEOHead
+        title="Case Studies — Real Results from Market Your Skill Users"
+        description="See how students and professionals used AI coaching to build freelancing offers, land gigs, and monetise their skills in under 15 minutes."
+        path="/case-studies"
+      />
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 nav-glass">
         <div className="sm-container flex items-center justify-between h-16">
