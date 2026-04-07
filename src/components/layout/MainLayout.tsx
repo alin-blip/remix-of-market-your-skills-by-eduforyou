@@ -14,6 +14,8 @@ import {
 import { LogOut, User, Shield } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
+import { AdminNotificationBell } from '@/components/admin/AdminNotificationBell';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MainLayoutProps {
@@ -25,6 +27,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [completedSteps, setCompletedSteps] = useState(0);
+  const { notifications, unreadCount, markAllRead, dismissNotification } = useAdminNotifications();
 
   useEffect(() => {
     if (user) {
@@ -80,12 +83,20 @@ export function MainLayout({ children }: MainLayoutProps) {
             {/* User Menu */}
             <div className="flex items-center gap-2">
               {profile?.role === 'admin' && (
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/admin" className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">{t.layout.verifications}</span>
-                  </Link>
-                </Button>
+                <>
+                  <AdminNotificationBell
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    onMarkAllRead={markAllRead}
+                    onDismiss={dismissNotification}
+                  />
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin" className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden sm:inline">{t.layout.verifications}</span>
+                    </Link>
+                  </Button>
+                </>
               )}
 
               <DropdownMenu>
