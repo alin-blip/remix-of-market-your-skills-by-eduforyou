@@ -59,9 +59,9 @@ export default function PaymentSuccess() {
     }
 
     // Fire Meta Pixel Purchase event for Starter/Pro only
-    if (typeof fbq !== 'undefined' && (planParam === 'starter' || planParam === 'pro')) {
+    if (window.fbq && (planParam === 'starter' || planParam === 'pro')) {
       const value = planParam === 'starter' ? 49 : 97;
-      fbq('track', 'Purchase', {
+      window.fbq('track', 'Purchase', {
         value,
         currency: 'GBP',
         content_name: `${planParam} subscription`,
