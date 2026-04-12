@@ -768,7 +768,7 @@ function Pricing() {
 
         <div ref={cardsRef} className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {([...t.pricing.plans] as any[]).map((plan: any, i: number) => (
-            <div key={i} className={`card-gold rounded-2xl p-6 flex flex-col relative sm-scale-in sm-stagger-${i + 1} ${cardsVisible ? 'sm-visible' : ''} ${plan.popular ? "popular-glow" : ""}`}>
+            <div key={i} className={`card-gold rounded-2xl p-6 flex flex-col relative ${plan.popular ? "popular-glow" : ""}`}>
               {plan.badge && (
                 <span className={`section-badge text-xs mb-4 self-start ${plan.popular ? "bg-[#D4A843]/20" : ""}`}>
                   {plan.badge}
