@@ -228,14 +228,15 @@ function Hero() {
               {t.hero.headline2}
             </h1>
 
-            <p className="text-lg md:text-xl text-light-sm mb-8 max-w-2xl leading-relaxed sm-fade-up" style={{ animationDelay: "0.2s" }}>
-              {t.hero.sub}{" "}
-              <strong className="text-white">{t.hero.subBold1}</strong>,{" "}
-              <strong className="text-white">{t.hero.subBold2}</strong>
-              {connector}
-              <strong className="text-white">{t.hero.subBold3}</strong>{" "}
-              {t.hero.subEnd}
-            </p>
+            <HeroSubheadline
+              lines={[
+                t.hero.sub,
+                t.hero.subBold1,
+                t.hero.subBold2,
+                t.hero.subBold3,
+                t.hero.subEnd,
+              ]}
+            />
 
             {/* Voomly video on mobile */}
             {lang === 'ro' && (
