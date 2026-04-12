@@ -221,10 +221,6 @@ function Hero() {
       <div className="sm-container">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)]">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-3 mb-6 sm-fade-up">
-              <span className="section-badge">{t.hero.badge}</span>
-              <span className="text-sm text-muted-sm">{t.hero.badgeSub}</span>
-            </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-6 sm-fade-up" style={{ animationDelay: "0.1s" }}>
               {t.hero.headline1}{" "}
@@ -240,6 +236,21 @@ function Hero() {
               <strong className="text-white">{t.hero.subBold3}</strong>{" "}
               {t.hero.subEnd}
             </p>
+
+            {/* Voomly video on mobile */}
+            {lang === 'ro' && (
+              <div className="lg:hidden mb-8 sm-fade-up" style={{ animationDelay: "0.25s" }}>
+                <div
+                  className="voomly-embed relative w-full rounded-xl overflow-hidden"
+                  data-id="pcggwgMkQcgIoE6LkyREjJ5aSMMPD0DJjb9Rl5Z1HZnaNoRNe"
+                  data-ratio="1.777778"
+                  data-type="v"
+                  data-skin-color="#2758EB"
+                  data-shadow=""
+                  style={{ width: '100%', aspectRatio: '1.77778 / 1', background: 'linear-gradient(45deg, rgb(142, 150, 164) 0%, rgb(201, 208, 222) 100%)', borderRadius: '10px' }}
+                />
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
               <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">

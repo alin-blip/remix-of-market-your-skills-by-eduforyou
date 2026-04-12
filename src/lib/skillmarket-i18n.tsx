@@ -24,8 +24,8 @@ const t = {
       login: "Login",
     },
     hero: {
-      badge: "AI-POWERED",
-      badgeSub: "Powered by Gemini 2.5 Flash",
+      badge: "",
+      badgeSub: "",
       headline1: "Market & Monetize",
       headlineGold: "Your Skills",
       headline2: "While You Study.",
@@ -285,8 +285,8 @@ const t = {
       login: "Autentificare",
     },
     hero: {
-      badge: "AI-POWERED",
-      badgeSub: "Powered by Gemini 2.5 Flash",
+      badge: "",
+      badgeSub: "",
       headline1: "Promovează & Monetizează",
       headlineGold: "Skill-urile Tale",
       headline2: "Cât Studiezi.",
@@ -546,8 +546,8 @@ const t = {
       login: "Увійти",
     },
     hero: {
-      badge: "AI-POWERED",
-      badgeSub: "Powered by Gemini 2.5 Flash",
+      badge: "",
+      badgeSub: "",
       headline1: "Просувайте & Монетизуйте",
       headlineGold: "Свої Навички",
       headline2: "Під Час Навчання.",
