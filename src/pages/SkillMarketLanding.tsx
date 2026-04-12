@@ -218,7 +218,6 @@ function HeroSubheadline({ lines }: { lines: string[] }) {
 function Hero() {
   const { t, lang } = useSkillMarketLang();
   const heroRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
   // Load Voomly embed script for RO locale
