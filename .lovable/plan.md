@@ -1,105 +1,83 @@
 
 
-# Plan: SEO & GEO Optimization pentru UK — Prima Pagină Google
+# Audit de Lansare — Platforma Market Your Skill
 
-## Situația actuală (probleme critice)
+## Verdict: ⚠️ Aproape gata, dar are câteva probleme critice de rezolvat
 
-Platforma are **zero SEO tehnic** implementat:
-- **Fără sitemap.xml** — Google nu știe ce pagini există
-- **Fără canonical URLs** — risc de duplicate content
-- **Fără hreflang tags** — Google nu știe că ai EN/RO/UA
-- **Fără JSON-LD structured data** — nicio rich snippet în SERP
-- **Meta description în română** pe index.html — Google UK vede text românesc
-- **Fără meta tags per pagină** — toate paginile au același title/description
-- **robots.txt fără sitemap reference**
-- **SPA fără SSR/prerender** — crawlerii văd doar un `<div id="root">`
+Am verificat edge functions, Stripe, baza de date și fluxurile de acces. Iată ce am găsit:
 
-## Conectori disponibili
+---
 
-- **Firecrawl** (deja linked) — putem face audit SEO automat, crawl site-ul și identifica probleme
-- **Perplexity** (deja linked) — putem genera keyword research UK-specific în edge functions
+## ✅ Ce funcționează corect
+- **Landing page & SEO** — implementat cu meta tags UK, sitemap, JSON-LD
+- **Sistem de autentificare** — login, register, forgot password, register EduForYou
+- **Checkout Stripe** — funcția `stripe-checkout` creează sesiuni corect
+- **Verificare subscripție** — `check-subscription` funcționează (confirmat din loguri live)
+- **Feature gating** — Starter/Pro/EduForYou cu limite corecte
+- **Accesul la cursuri** — verificare prin `course_purchases` + preț 0 = gratuit
+- **Customer portal** — funcțional pentru gestionare abonament
+- **Admin dashboard** — complet cu notificări real-time
 
-## Ce construim
+## ⚠️ Probleme critice de rezolvat înainte de lansare
 
-### Faza 1: Fundația SEO Tehnică (zero risc, nu afectează UI)
+### 1. Webhook Stripe — SDK vechi și desincronizat
+`stripe-webhook/index.ts` folosește **Stripe SDK v14.21.0** și API `2023-10-16`, în timp ce `stripe-checkout` folosește **v18.5.0** și `2025-08-27.basil`. Asta poate cauza **incompatibilități** la procesarea evenimentelor noi de la Stripe.
 
-**1. Sitemap.xml static** (`public/sitemap.xml`)
-- Listează toate paginile publice: `/`, `/en`, `/ro`, `/ua`, `/case-studies`, `/adn-test/en`, `/adn-test/ro`, `/courses/*`, `/ebook/*`, `/pricing`
-- Adaugă `<xhtml:link rel="alternate" hreflang="...">` per pagină
+**Fix:** Actualizez webhook-ul la aceeași versiune SDK (18.5.0).
 
-**2. robots.txt actualizat** (`public/robots.txt`)
-- Adaugă `Sitemap: https://venture-stride-kit.lovable.app/sitemap.xml`
-- Blochează paginile admin și protected routes
+### 2. Subscripțiile din Stripe nu se sincronizează cu baza de date
+- **Stripe**: 4 subscripții active
+- **Baza de date**: doar 2 rânduri, ambele cu status `inactive`
+- Exemplu real: `alinflorinradu@icloud.com` are customer Stripe (`cus_ToH9ZiTMbaouy3`) dar check-subscription returnează "No active or trialing subscription found"
 
-**3. React Helmet pentru meta tags per pagină**
-- Instalez `react-helmet-async`
-- Creez componenta `SEOHead.tsx` reutilizabilă
-- Adaug meta tags unice pe fiecare pagină publică (title, description, canonical, hreflang, og:*)
+**Fix:** Funcția `check-subscription` deja face sync-ul, dar trebuie verificat de ce subscripțiile existente nu se mapează corect (posibil price ID-uri vechi).
 
-**4. JSON-LD Structured Data** (în `SEOHead.tsx`)
-- `Organization` schema pe homepage
-- `WebApplication` schema (SaaS)
-- `FAQPage` schema pe pricing
-- `Course` schema pe paginile de cursuri
-- `Article` schema pe case studies
+### 3. Guest checkout nu setează email-ul corect
+În `stripe-checkout`, dacă utilizatorul nu are un customer Stripe existent, sesiunea nu primește `customer_email`. Asta înseamnă că webhook-ul nu poate lega plata de utilizator.
 
-### Faza 2: GEO Targeting UK
+**Fix:** Adaug `customer_email` în parametrii sesiunii Stripe când nu există `customerId`.
 
-**5. Meta tags UK-specific pe `/en`**
-- Title: "Market Your Skill — Turn Your Skills Into Income | UK"
-- Description optimizat pentru keywords UK: "freelancing UK", "skill monetization", "career coaching AI"
-- `og:locale` = `en_GB`
+### 4. Pending subscriptions cu UUID placeholder
+Webhook-ul salvează subscripții guest cu `user_id = "00000000-0000-0000-0000-000000000000"`. Dacă 2 guests plătesc, al doilea va eșua pe constraint unique.
 
-**6. Hreflang implementation**
-```text
-<link rel="alternate" hreflang="en-GB" href="/en" />
-<link rel="alternate" hreflang="ro" href="/ro" />
-<link rel="alternate" hreflang="uk" href="/ua" />
-<link rel="alternate" hreflang="x-default" href="/en" />
-```
+**Fix:** Folosesc `customer_email` ca identificator temporar, nu un UUID fake.
 
-**7. Pagină dedicată `/blog` sau `/resources`** (opțional, faza 2+)
-- Content pages static pentru keyword targeting
-- Folosim Perplexity API pentru research topics trending în UK
+---
 
-### Faza 3: SEO Audit Automat (Admin Tool)
+## Plan de implementare (zero risc pentru cei 82 useri)
 
-**8. Pagină admin `/admin/seo-audit`**
-- Folosește Firecrawl connector să crawl-uiască site-ul
-- Afișează: pagini indexate, broken links, missing meta, page speed issues
-- Rulează on-demand din admin dashboard
+### Pas 1: Actualizez webhook-ul Stripe
+- Upgrade SDK la v18.5.0
+- Fix guest checkout email handling
+- Fix pending subscription storage
 
-## Fișiere afectate
+### Pas 2: Fix checkout-ul pentru guest users
+- Adaug `customer_email` în sesiunea Stripe
 
-| Fișier | Acțiune |
+### Pas 3: Sync subscripții existente
+- Verific cele 4 subscripții active din Stripe și le sincronizez în DB
+
+### Pas 4: Verific config.toml
+- `stripe-webhook` și `stripe-checkout` funcționează cu default `verify_jwt = false`, dar e bine să le adăugăm explicit
+
+### Fișiere afectate
+| Fișier | Schimbare |
 |---|---|
-| `public/sitemap.xml` | NOU — sitemap static |
-| `public/robots.txt` | UPDATE — adaug sitemap + blocări |
-| `src/components/seo/SEOHead.tsx` | NOU — componenta meta tags |
-| `src/components/seo/JsonLd.tsx` | NOU — structured data |
-| `src/pages/SkillMarketLanding.tsx` | UPDATE — adaug SEOHead |
-| `src/pages/CaseStudies.tsx` | UPDATE — adaug SEOHead |
-| `src/pages/Pricing.tsx` | UPDATE — adaug SEOHead |
-| `src/pages/CourseSalesPage.tsx` | UPDATE — adaug SEOHead |
-| `src/pages/DnaQuizPublic.tsx` | UPDATE — adaug SEOHead |
-| `index.html` | UPDATE — meta tags EN default, lang="en-GB" |
-| `src/pages/admin/SeoAudit.tsx` | NOU — admin SEO audit cu Firecrawl |
-| `src/App.tsx` | UPDATE — ruta /admin/seo-audit |
+| `supabase/functions/stripe-webhook/index.ts` | Upgrade SDK + fix guest flow |
+| `supabase/functions/stripe-checkout/index.ts` | Adaug customer_email |
+| `supabase/config.toml` | Adaug explicit stripe functions |
 
-## Siguranță
+### Ce NU modificăm
+- Nimic din frontend-ul existent
+- Nimic din auth, courses, dashboard
+- Nimic din flow-ul utilizatorilor activi
 
-- **Nicio modificare la logica existentă** — doar adăugăm componente SEO
-- **SEOHead e un wrapper React Helmet** — nu afectează rendering-ul
-- **Sitemap e un fișier static** în /public — zero impact pe build
-- **Admin SEO audit e pagină nouă** — izolată complet
+---
 
-## Pași implementare
-
-1. Instalez `react-helmet-async`, creez `SEOHead.tsx` și `JsonLd.tsx`
-2. Adaug SEOHead pe toate paginile publice cu meta tags UK-optimized
-3. Creez `sitemap.xml` și actualizez `robots.txt`
-4. Adaug JSON-LD structured data (Organization, Course, FAQ)
-5. Implementez hreflang corect pe toate versiunile lingvistice
-6. Creez pagina admin SEO Audit cu Firecrawl
-7. Actualizez `index.html` cu `lang="en-GB"` și meta tags EN default
+## După aceste fix-uri, ești gata să lansezi campanii de ads
+Traficul poate veni pe:
+- `/en` — landing page principal (EN, optimizat UK)
+- `/adn-test/en` — quiz ADN ca lead magnet
+- `/pricing` — direct la planuri
+- `/squeeze/[slug]` — squeeze pages pentru lead-uri
 
