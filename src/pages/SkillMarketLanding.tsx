@@ -181,10 +181,43 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   );
 }
 
+/* ─── Typewriter Sub-headline ─── */
+function HeroSubheadline({ lines }: { lines: string[] }) {
+  const [visibleCount, setVisibleCount] = useState(0);
+
+  useEffect(() => {
+    if (visibleCount >= lines.length) return;
+    const delay = visibleCount === 0 ? 800 : 2500;
+    const timer = setTimeout(() => setVisibleCount((c) => c + 1), delay);
+    return () => clearTimeout(timer);
+  }, [visibleCount, lines.length]);
+
+  return (
+    <div className="text-lg md:text-xl mb-8 max-w-2xl leading-relaxed sm-fade-up space-y-1" style={{ animationDelay: "0.2s" }}>
+      {lines.map((line, i) => {
+        const isBold = i > 0 && i < lines.length - 1;
+        const isLast = i === lines.length - 1;
+        return (
+          <span
+            key={i}
+            className={`block transition-all duration-700 ${
+              i < visibleCount
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-2"
+            } ${isBold ? "text-white font-semibold" : "text-light-sm"} ${isLast ? "text-gold/90 italic" : ""}`}
+          >
+            {line}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Hero ─── */
 function Hero() {
   const { t, lang } = useSkillMarketLang();
-  const connector = lang === "en" ? ", or " : lang === "ro" ? " sau " : " або ";
+  const heroRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
