@@ -349,11 +349,11 @@ function TaglineBanner() {
   const { t } = useSkillMarketLang();
   return (
     <div className="gold-divider" >
-      <div className="bg-[#162236] py-8 text-center">
+      <div className="bg-[#162236] text-center py-[3px]">
         <div className="sm-container">
-          <p className="text-base sm:text-xl md:text-2xl font-semibold leading-relaxed px-4">
-            <span className="text-light-sm">{t.tagline.part1}</span>{" "}
-            <span className="text-gold">{t.tagline.part2}</span>
+          <p className="text-base sm:text-xl md:text-2xl font-semibold leading-relaxed px-4 bg-accent-foreground">
+            <span className="text-light-sm text-lg">{t.tagline.part1}</span>{" "}
+            <span className="text-gold text-base">{t.tagline.part2}</span>
           </p>
         </div>
       </div>
