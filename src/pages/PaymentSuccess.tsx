@@ -58,6 +58,17 @@ export default function PaymentSuccess() {
       setPlan(planParam as keyof typeof planDetails);
     }
 
+    // Fire Meta Pixel Purchase event for Starter/Pro only
+    if (typeof fbq !== 'undefined' && (planParam === 'starter' || planParam === 'pro')) {
+      const value = planParam === 'starter' ? 49 : 97;
+      fbq('track', 'Purchase', {
+        value,
+        currency: 'GBP',
+        content_name: `${planParam} subscription`,
+        content_type: 'product',
+      });
+    }
+
     // Fire confetti
     const duration = 3000;
     const end = Date.now() + duration;
