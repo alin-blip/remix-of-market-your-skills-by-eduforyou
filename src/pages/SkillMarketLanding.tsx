@@ -147,7 +147,7 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
-          <a href="/waitlist" className="btn-gold text-sm px-4 py-2 rounded-lg">
+          <a href="#pricing" className="btn-gold text-sm px-4 py-2 rounded-lg">
             {t.nav.getAccess}
           </a>
         </div>
@@ -172,7 +172,7 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
           <Link to="/auth/login" onClick={() => setMobileOpen(false)} className="block text-sm text-light-sm hover:text-gold py-2">
             {t.nav.login}
           </Link>
-          <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
+          <a href="#pricing" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>
         </div>
@@ -191,13 +191,18 @@ function Hero() {
   // Load Voomly embed script for RO locale
   useEffect(() => {
     if (lang !== 'ro') return;
-    const script = document.createElement('script');
-    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+    try {
+      const script = document.createElement('script');
+      script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+      script.async = true;
+      script.onerror = () => console.warn('Voomly script failed to load');
+      document.body.appendChild(script);
+      return () => {
+        try { document.body.removeChild(script); } catch {}
+      };
+    } catch (err) {
+      console.warn('Voomly init error:', err);
+    }
   }, [lang]);
 
   // Parallax on hero grid
@@ -883,6 +888,19 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
   };
   const seo = seoByLang[lang] || seoByLang.en;
 
+  const [showStickyCta, setShowStickyCta] = useState(true);
+
+  useEffect(() => {
+    const pricingEl = document.getElementById('pricing');
+    if (!pricingEl) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(pricingEl);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="skillmarket-landing">
       <SEOHead
@@ -907,6 +925,18 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
       <Pricing />
       <FAQ />
       <Footer />
+
+      {/* Sticky CTA for mobile */}
+      {showStickyCta && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#0D1B2A]/95 backdrop-blur-sm border-t border-[#D4A843]/20 p-3">
+          <a
+            href="#pricing"
+            className="btn-gold block text-center text-sm font-semibold px-6 py-3 rounded-xl"
+          >
+            {lang === 'ro' ? 'Vezi Planurile →' : lang === 'ua' ? 'Переглянути плани →' : 'View Plans →'}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
