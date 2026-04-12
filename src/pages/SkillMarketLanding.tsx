@@ -888,6 +888,19 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
   };
   const seo = seoByLang[lang] || seoByLang.en;
 
+  const [showStickyCta, setShowStickyCta] = useState(true);
+
+  useEffect(() => {
+    const pricingEl = document.getElementById('pricing');
+    if (!pricingEl) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(pricingEl);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="skillmarket-landing">
       <SEOHead
@@ -912,6 +925,18 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
       <Pricing />
       <FAQ />
       <Footer />
+
+      {/* Sticky CTA for mobile */}
+      {showStickyCta && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#0D1B2A]/95 backdrop-blur-sm border-t border-[#D4A843]/20 p-3">
+          <a
+            href="#pricing"
+            className="btn-gold block text-center text-sm font-semibold px-6 py-3 rounded-xl"
+          >
+            {lang === 'ro' ? 'Vezi Planurile →' : lang === 'ua' ? 'Переглянути плани →' : 'View Plans →'}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
