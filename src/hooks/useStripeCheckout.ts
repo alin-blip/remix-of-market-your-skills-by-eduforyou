@@ -29,6 +29,7 @@ export function useStripeCheckout() {
 
     setIsLoading(true);
     try {
+      window.fbq?.('track', 'InitiateCheckout', { value: 49, currency: 'GBP', content_name: 'Starter subscription' });
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
         body: {
           priceId: STRIPE_PRICES.starter,
@@ -59,6 +60,7 @@ export function useStripeCheckout() {
 
     setIsLoading(true);
     try {
+      window.fbq?.('track', 'InitiateCheckout', { value: 97, currency: 'GBP', content_name: 'Pro subscription' });
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
         body: {
           priceId: STRIPE_PRICES.pro,
