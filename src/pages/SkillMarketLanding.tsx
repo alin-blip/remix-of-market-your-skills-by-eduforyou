@@ -147,7 +147,7 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
           <a href="#eduforyou" className="btn-gold-outline text-sm px-4 py-2 rounded-lg">
             {t.nav.eduBtn}
           </a>
-          <a href="/waitlist" className="btn-gold text-sm px-4 py-2 rounded-lg">
+          <a href="#pricing" className="btn-gold text-sm px-4 py-2 rounded-lg">
             {t.nav.getAccess}
           </a>
         </div>
@@ -172,7 +172,7 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
           <Link to="/auth/login" onClick={() => setMobileOpen(false)} className="block text-sm text-light-sm hover:text-gold py-2">
             {t.nav.login}
           </Link>
-          <a href="/waitlist" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
+          <a href="#pricing" onClick={() => setMobileOpen(false)} className="btn-gold block text-center text-sm px-4 py-3 rounded-lg mt-3">
             {t.nav.getAccess}
           </a>
         </div>
@@ -191,13 +191,18 @@ function Hero() {
   // Load Voomly embed script for RO locale
   useEffect(() => {
     if (lang !== 'ro') return;
-    const script = document.createElement('script');
-    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+    try {
+      const script = document.createElement('script');
+      script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+      script.async = true;
+      script.onerror = () => console.warn('Voomly script failed to load');
+      document.body.appendChild(script);
+      return () => {
+        try { document.body.removeChild(script); } catch {}
+      };
+    } catch (err) {
+      console.warn('Voomly init error:', err);
+    }
   }, [lang]);
 
   // Parallax on hero grid
