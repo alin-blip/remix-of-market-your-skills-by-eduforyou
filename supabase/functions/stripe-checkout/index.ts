@@ -62,7 +62,11 @@ serve(async (req) => {
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/pricing?canceled=true`,
       metadata,
-      ...(customerId ? { customer: customerId } : {}),
+      ...(customerId 
+        ? { customer: customerId } 
+        : customerEmail 
+          ? { customer_email: customerEmail } 
+          : {}),
     };
 
     // Apply coupon if provided (for Early Bird pricing)

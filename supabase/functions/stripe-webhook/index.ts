@@ -1,9 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-08-27.basil",
 });
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -15,7 +15,7 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
-async function getCustomerEmail(stripe: Stripe, customerId: string): Promise<string | null> {
+async function getCustomerEmail(customerId: string): Promise<string | null> {
   try {
     const customer = await stripe.customers.retrieve(customerId);
     if (customer.deleted) return null;
@@ -25,13 +25,26 @@ async function getCustomerEmail(stripe: Stripe, customerId: string): Promise<str
   }
 }
 
+async function resolveUserId(userId: string | null | undefined, customerEmail: string | null): Promise<string | null> {
+  if (userId) return userId;
+  if (!customerEmail) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", customerEmail.toLowerCase())
+    .maybeSingle();
+
+  return profile?.id || null;
+}
+
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-  
+
   let event: Stripe.Event;
-  
+
   try {
     if (webhookSecret && signature) {
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
@@ -54,19 +67,15 @@ serve(async (req) => {
         const userId = session.metadata?.userId;
         const courseId = session.metadata?.courseId;
         const bundleId = session.metadata?.bundleId;
+        const customerEmail = session.customer_details?.email || session.customer_email || null;
 
-        logStep("Checkout session completed", { userId, courseId, bundleId, mode: session.mode });
+        logStep("Checkout session completed", { userId, courseId, bundleId, mode: session.mode, customerEmail });
 
-      if (session.mode === "subscription") {
-          // Handle subscription
-          const subscription = await stripe.subscriptions.retrieve(
-            session.subscription as string
-          );
-          
+        if (session.mode === "subscription") {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
           const planName = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
-          const resolvedUserId = userId || null;
-          const customerEmail = session.customer_details?.email || session.customer_email || null;
-          
+          const resolvedUserId = await resolveUserId(userId, customerEmail);
+
           if (resolvedUserId) {
             await supabase
               .from("subscriptions")
@@ -74,57 +83,60 @@ serve(async (req) => {
                 user_id: resolvedUserId,
                 plan: planName,
                 status: "active",
+                customer_email: customerEmail?.toLowerCase() || null,
                 current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
                 current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
               }, { onConflict: "user_id" });
             logStep("Subscription created", { userId: resolvedUserId, planName });
           } else if (customerEmail) {
-            // Guest checkout — find user by email in profiles
-            const { data: profile } = await supabase
-              .from("profiles")
+            // Guest checkout — no matching profile yet, store with email as identifier
+            // Use upsert on customer_email to avoid duplicates
+            const { data: existing } = await supabase
+              .from("subscriptions")
               .select("id")
-              .eq("email", customerEmail.toLowerCase())
+              .eq("customer_email", customerEmail.toLowerCase())
               .maybeSingle();
-            
-            if (profile) {
+
+            if (existing) {
               await supabase
                 .from("subscriptions")
-                .upsert({
-                  user_id: profile.id,
-                  plan: planName,
-                  status: "active",
-                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                }, { onConflict: "user_id" });
-              logStep("Subscription linked to existing user via email", { email: customerEmail, userId: profile.id, planName });
-            } else {
-              // Store pending subscription for later linking at registration
-              await supabase
-                .from("subscriptions")
-                .insert({
-                  user_id: "00000000-0000-0000-0000-000000000000",
+                .update({
                   plan: planName,
                   status: "pending_user",
                   current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
                   current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                })
+                .eq("id", existing.id);
+            } else {
+              await supabase
+                .from("subscriptions")
+                .insert({
+                  user_id: crypto.randomUUID(),
+                  plan: planName,
+                  status: "pending_user",
                   customer_email: customerEmail.toLowerCase(),
+                  current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                  current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
                 });
-              logStep("Pending subscription saved for guest", { email: customerEmail, planName });
             }
+            logStep("Pending subscription saved for guest", { email: customerEmail, planName });
           } else {
             logStep("No userId or email found for subscription — skipping");
           }
-        } else if (session.mode === "payment" && userId) {
-          // Handle one-time payment
+        } else if (session.mode === "payment") {
+          const resolvedUserId = await resolveUserId(userId, customerEmail);
+          if (!resolvedUserId) {
+            logStep("No user found for payment — skipping", { userId, customerEmail });
+            break;
+          }
+
           if (bundleId) {
-            // Bundle purchase
-            logStep("Processing bundle purchase", { bundleId, userId });
-            
-            // Insert bundle purchase record
+            logStep("Processing bundle purchase", { bundleId, userId: resolvedUserId });
+
             const { error: bundlePurchaseError } = await supabase
               .from("bundle_purchases")
               .insert({
-                user_id: userId,
+                user_id: resolvedUserId,
                 bundle_id: bundleId,
                 amount: (session.amount_total || 0) / 100,
                 currency: session.currency?.toUpperCase() || "GBP",
@@ -134,11 +146,8 @@ serve(async (req) => {
 
             if (bundlePurchaseError) {
               logStep("Error inserting bundle purchase", { error: bundlePurchaseError });
-            } else {
-              logStep("Bundle purchase recorded", { bundleId, userId });
             }
 
-            // Get all courses in the bundle and create individual course purchases
             const { data: bundleCourses } = await supabase
               .from("bundle_courses")
               .select("course_id")
@@ -146,57 +155,37 @@ serve(async (req) => {
 
             if (bundleCourses && bundleCourses.length > 0) {
               const coursePurchases = bundleCourses.map(bc => ({
-                user_id: userId,
+                user_id: resolvedUserId,
                 course_id: bc.course_id,
-                amount: 0, // Bundle courses are marked as 0 since paid via bundle
+                amount: 0,
                 currency: session.currency?.toUpperCase() || "GBP",
                 status: "completed",
               }));
 
-              const { error: coursesPurchaseError } = await supabase
-                .from("course_purchases")
-                .insert(coursePurchases);
-
-              if (coursesPurchaseError) {
-                logStep("Error inserting course purchases from bundle", { error: coursesPurchaseError });
-              } else {
-                logStep("Course purchases from bundle recorded", { 
-                  bundleId, 
-                  coursesCount: bundleCourses.length 
-                });
-              }
+              await supabase.from("course_purchases").insert(coursePurchases);
+              logStep("Bundle courses recorded", { count: bundleCourses.length });
             }
           } else if (courseId) {
-            // Individual course purchase
-            logStep("Processing course purchase", { courseId, userId });
-            
-            const { error: coursePurchaseError } = await supabase
-              .from("course_purchases")
-              .insert({
-                user_id: userId,
-                course_id: courseId,
-                amount: (session.amount_total || 0) / 100,
-                currency: session.currency?.toUpperCase() || "GBP",
-                status: "completed",
-              });
+            logStep("Processing course purchase", { courseId, userId: resolvedUserId });
 
-            if (coursePurchaseError) {
-              logStep("Error inserting course purchase", { error: coursePurchaseError });
-            } else {
-              logStep("Course purchase recorded", { courseId, userId });
-            }
+            await supabase.from("course_purchases").insert({
+              user_id: resolvedUserId,
+              course_id: courseId,
+              amount: (session.amount_total || 0) / 100,
+              currency: session.currency?.toUpperCase() || "GBP",
+              status: "completed",
+            });
+            logStep("Course purchase recorded", { courseId });
           } else {
             // Founder Accelerator (lifetime access)
-            await supabase
-              .from("subscriptions")
-              .upsert({
-                user_id: userId,
-                plan: "founder",
-                status: "active",
-                current_period_start: new Date().toISOString(),
-                current_period_end: new Date("2099-12-31").toISOString(),
-              }, { onConflict: "user_id" });
-            logStep("Founder Accelerator purchased", { userId });
+            await supabase.from("subscriptions").upsert({
+              user_id: resolvedUserId,
+              plan: "founder",
+              status: "active",
+              current_period_start: new Date().toISOString(),
+              current_period_end: new Date("2099-12-31").toISOString(),
+            }, { onConflict: "user_id" });
+            logStep("Founder Accelerator purchased", { userId: resolvedUserId });
           }
         }
         break;
@@ -204,26 +193,23 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        const customerEmail2 = await getCustomerEmail(stripe, subscription.customer as string);
-        if (customerEmail2) {
-          const { data: profile2 } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("email", customerEmail2.toLowerCase())
-            .maybeSingle();
-          if (profile2) {
+        const customerEmail = await getCustomerEmail(subscription.customer as string);
+        if (customerEmail) {
+          const resolvedUserId = await resolveUserId(null, customerEmail);
+          if (resolvedUserId) {
             const updatedPlan = determinePlanFromAmount(subscription.items.data[0].price.unit_amount || 0);
-            const updatedStatus = subscription.status === "active" ? "active" : subscription.status === "past_due" ? "past_due" : "canceled";
-            await supabase
-              .from("subscriptions")
-              .upsert({
-                user_id: profile2.id,
-                plan: updatedPlan,
-                status: updatedStatus,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              }, { onConflict: "user_id" });
-            logStep("Subscription updated in DB", { userId: profile2.id, status: updatedStatus, plan: updatedPlan });
+            const updatedStatus = subscription.status === "active" || subscription.status === "trialing" 
+              ? "active" 
+              : subscription.status === "past_due" ? "past_due" : "canceled";
+            await supabase.from("subscriptions").upsert({
+              user_id: resolvedUserId,
+              plan: updatedPlan,
+              status: updatedStatus,
+              customer_email: customerEmail.toLowerCase(),
+              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            }, { onConflict: "user_id" });
+            logStep("Subscription updated", { userId: resolvedUserId, status: updatedStatus, plan: updatedPlan });
           }
         }
         break;
@@ -231,19 +217,12 @@ serve(async (req) => {
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        const customerEmail3 = await getCustomerEmail(stripe, subscription.customer as string);
-        if (customerEmail3) {
-          const { data: profile3 } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("email", customerEmail3.toLowerCase())
-            .maybeSingle();
-          if (profile3) {
-            await supabase
-              .from("subscriptions")
-              .update({ status: "canceled" })
-              .eq("user_id", profile3.id);
-            logStep("Subscription canceled in DB", { userId: profile3.id });
+        const customerEmail = await getCustomerEmail(subscription.customer as string);
+        if (customerEmail) {
+          const resolvedUserId = await resolveUserId(null, customerEmail);
+          if (resolvedUserId) {
+            await supabase.from("subscriptions").update({ status: "canceled" }).eq("user_id", resolvedUserId);
+            logStep("Subscription canceled", { userId: resolvedUserId });
           }
         }
         break;
@@ -257,14 +236,12 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logStep("Webhook processing error", { error: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-    });
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 });
 
 function determinePlanFromAmount(amountInCents: number): string {
-  if (amountInCents <= 6000) return "starter";  // Up to £60 (covers £49 and discounted prices)
-  if (amountInCents <= 12000) return "pro";      // Up to £120 (covers £97 and discounted prices)
+  if (amountInCents <= 6000) return "starter";
+  if (amountInCents <= 12000) return "pro";
   return "founder";
 }

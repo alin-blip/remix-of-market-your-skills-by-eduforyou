@@ -43,3 +43,13 @@ project_id = "fdjzjqkiuxygiemqyfim"
     verify_jwt = false
   [functions.auto-reengagement]
     verify_jwt = false
+  [functions.stripe-checkout]
+    verify_jwt = false
+  [functions.stripe-webhook]
+    verify_jwt = false
+  [functions.check-subscription]
+    verify_jwt = false
+  [functions.create-course-price]
+    verify_jwt = false
+  [functions.customer-portal]
+    verify_jwt = false
