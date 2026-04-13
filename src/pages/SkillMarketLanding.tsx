@@ -181,35 +181,33 @@ function Navbar({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean }) {
   );
 }
 
-/* ─── Typewriter Sub-headline ─── */
-function HeroSubheadline({ lines }: { lines: string[] }) {
-  const [visibleCount, setVisibleCount] = useState(0);
+/* ─── Hero Sub-headline with fast staggered bullets ─── */
+function HeroSubheadline() {
+  const { t } = useSkillMarketLang();
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (visibleCount >= lines.length) return;
-    const delay = visibleCount === 0 ? 800 : 2500;
-    const timer = setTimeout(() => setVisibleCount((c) => c + 1), delay);
+    const timer = setTimeout(() => setVisible(true), 600);
     return () => clearTimeout(timer);
-  }, [visibleCount, lines.length]);
+  }, []);
 
   return (
-    <div className="text-lg md:text-xl mb-8 max-w-2xl leading-relaxed sm-fade-up space-y-1" style={{ animationDelay: "0.2s" }}>
-      {lines.map((line, i) => {
-        const isBold = i > 0 && i < lines.length - 1;
-        const isLast = i === lines.length - 1;
-        return (
+    <div className="text-lg md:text-xl mb-8 max-w-2xl leading-relaxed sm-fade-up space-y-3" style={{ animationDelay: "0.2s" }}>
+      <p className="text-light-sm">{t.hero.sub}</p>
+      <div className="space-y-1.5">
+        {t.hero.bullets.map((bullet, i) => (
           <span
             key={i}
-            className={`block transition-all duration-700 ${
-              i < visibleCount
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2"
-            } ${isBold ? "text-white font-semibold" : "text-light-sm"} ${isLast ? "text-gold/90 italic" : ""}`}
+            className={`flex items-center gap-2 text-white font-semibold transition-all duration-500 ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            }`}
+            style={{ transitionDelay: visible ? `${i * 300}ms` : "0ms" }}
           >
-            {line}
+            <Check className="h-4 w-4 text-[#D4A843] flex-shrink-0" />
+            {bullet}
           </span>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -267,15 +265,7 @@ function Hero() {
               {t.hero.headline2}
             </h1>
 
-            <HeroSubheadline
-              lines={[
-                t.hero.sub,
-                t.hero.subBold1,
-                t.hero.subBold2,
-                t.hero.subBold3,
-                t.hero.subEnd,
-              ]}
-            />
+            <HeroSubheadline />
 
             {/* Voomly video on mobile */}
             {lang === 'ro' && (
