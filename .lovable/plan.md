@@ -1,49 +1,59 @@
 
 
-# Optimizare Hero Copy — Stil Hormozi, Axat pe Ce Primesc
+# Optimizare Mobile Above-the-Fold + CTA Tracking
 
-## Problema actuală
-Headline-ul "Promovează & Monetizează Skill-urile Tale Cât Studiezi" e vag — nu spune concret CE face platforma. Utilizatorul din ads nu înțelege valoarea în 3 secunde.
+## Ce se vede acum pe mobil (390px)
 
-## Direcția nouă
-Focus pe **ce face platforma concret** + **timeline realist** (30 min setup → primul contract în 30 zile).
+Above the fold: Headline + primele 2 linii din subheadline + începutul video-ului Voomly. Lipsesc:
+- Un element vizual care captează atenția instant (primele 2 secunde)
+- Tracking pe butoanele CTA
 
-## Copy propus (RO)
+## Plan de implementare
 
-**Headline:**
-- headline1: `"Platforma Care Îți Creează"`
-- headlineGold: `"Primul Contract"`  
-- headline2: `"În 30 de Zile."`
+### 1. Animație subtilă de atenție pe headline (gold shimmer pulse)
+**Fișier:** `src/pages/skillmarket.css`
 
-**Sub-headline:**
-- sub: `"În 30 de minute, AI-ul extrage skill-urile tale din universitate și experiența de viață, creează"`
-- subBold1: `"oferta ta de servicii"`
-- subBold2: `"100 de companii ideale"`
-- subBold3: `"mesaje de outreach personalizate"`
-- subEnd: `"— fie că vrei angajare, freelancing sau startup."`
+Adăugare animație de tip "gold glow pulse" pe textul gold din headline (`Primul Contract`) — un efect subtil de strălucire care pulsează o dată la 3 secunde, captând privirea imediat.
 
-**CTA:**
-- cta1: `"Începe Gratuit 7 Zile"` (mai clar decât "Vreau acces la SkillMarket")
+```css
+@keyframes sm-gold-pulse {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 20px rgba(212,168,67,0.4), 0 0 40px rgba(212,168,67,0.15); }
+}
+.sm-gold-pulse { animation: sm-gold-pulse 3s ease-in-out infinite; }
+```
 
-**Copy propus (EN) — echivalent:**
-- headline1: `"The Platform That Builds"`
-- headlineGold: `"Your First Contract"`
-- headline2: `"In 30 Days."`
-- sub: `"In 30 minutes, AI extracts your skills from university and life experience, creates"`
-- subBold1: `"your service offer"`
-- subBold2: `"100 ideal companies"`
-- subBold3: `"personalized outreach messages"`
-- subEnd: `"— whether you want employment, freelancing or a startup."`
-- cta1: `"Start Free 7-Day Trial"`
+### 2. Badge animat above headline — "AI-Powered" indicator
+**Fișier:** `src/pages/SkillMarketLanding.tsx`
+
+Adăugare un mic badge deasupra headline-ului (similar cu ce ai pe landing-ul principal) cu un dot care pulsează — element vizual mic dar eficient care semnalează "ceva se întâmplă".
+
+```
+[🤖 AI construiește planul tău în 30 de minute ●]
+```
+
+### 3. Meta Pixel tracking pe butoanele CTA din Hero
+**Fișier:** `src/pages/SkillMarketLanding.tsx`
+
+Adăugare `onClick` handler pe ambele butoane CTA din Hero:
+- **"Începe Gratuit 7 Zile"** → `fbq('trackCustom', 'HeroCTA_Primary', { button: 'start_free_trial' })`
+- **"Cont EduForYou"** → `fbq('trackCustom', 'HeroCTA_Secondary', { button: 'eduforyou' })`
+- **Sticky CTA mobil** → `fbq('trackCustom', 'StickyCTA_Click')`
+
+### 4. Aplicare gold pulse pe headline
+**Fișier:** `src/pages/SkillMarketLanding.tsx`
+
+Adăugare clasa `sm-gold-pulse` pe `<span className="text-gold italic">` din headline.
 
 ## Fișiere modificate
 
-| Fișier | Ce se schimbă |
+| Fișier | Schimbare |
 |---|---|
-| `src/lib/skillmarket-i18n.tsx` | Hero copy RO + EN + UA (headline, sub, cta1) |
+| `src/pages/skillmarket.css` | Animație `sm-gold-pulse` |
+| `src/pages/SkillMarketLanding.tsx` | Badge animat, gold pulse pe headline, `fbq` tracking pe 3 butoane CTA |
 
-## Ce NU se schimbă
-- Layout-ul Hero rămâne la fel
-- Video Voomly rămâne unde e
-- Sticky CTA, social proof, cta2 — neschimbate
+## Impact așteptat
+- Gold pulse atrage privirea în primele 2 secunde → reduce bounce
+- Badge-ul dă context instant ("AI face treaba, nu tu")
+- Tracking-ul CTA oferă date concrete despre rata de click din Hero
 
