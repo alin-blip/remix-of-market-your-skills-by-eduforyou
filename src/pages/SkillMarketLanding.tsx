@@ -254,9 +254,16 @@ function Hero() {
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)]">
           <div className="max-w-3xl">
 
+            {/* AI badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4A843]/30 bg-[#D4A843]/8 text-xs font-semibold tracking-wider uppercase text-[#D4A843] mb-4 sm-fade-up">
+              <span>🤖</span>
+              <span>{lang === 'ro' ? 'AI construiește planul tău în 30 de minute' : lang === 'ua' ? 'AI будує твій план за 30 хвилин' : 'AI builds your plan in 30 minutes'}</span>
+              <span className="h-2 w-2 rounded-full bg-[#D4A843] animate-pulse" />
+            </div>
+
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] mb-6 sm-fade-up" style={{ animationDelay: "0.1s" }}>
               {t.hero.headline1}{" "}
-              <span className="text-gold italic">{t.hero.headlineGold}</span>{" "}
+              <span className="text-gold italic sm-gold-pulse">{t.hero.headlineGold}</span>{" "}
               {t.hero.headline2}
             </h1>
 
@@ -286,10 +293,10 @@ function Hero() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2">
+              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Primary', { button: 'start_free_trial' })}>
                 {t.hero.cta1} <ArrowRight className="h-4 w-4" />
               </a>
-              <a href="/auth/register-eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center">
+              <a href="/auth/register-eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Secondary', { button: 'eduforyou' })}>
                 {t.hero.cta2}
               </a>
             </div>
@@ -976,6 +983,7 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
           <a
             href="#pricing"
             className="btn-gold block text-center text-sm font-semibold px-6 py-3 rounded-xl"
+            onClick={() => window.fbq?.('trackCustom', 'StickyCTA_Click')}
           >
             {lang === 'ro' ? 'Vezi Planurile →' : lang === 'ua' ? 'Переглянути плани →' : 'View Plans →'}
           </a>
