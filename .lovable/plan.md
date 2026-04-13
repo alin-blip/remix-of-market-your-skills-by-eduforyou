@@ -1,59 +1,42 @@
 
 
-# Optimizare Mobile Above-the-Fold + CTA Tracking
+# Optimizare Sub-headline Hero — Mai Scurt, Mai Clar
 
-## Ce se vede acum pe mobil (390px)
+## Problema
+Sub-headline-ul are 5 linii care apar secvențial cu pauze de 2.5s fiecare. Pe mobil (390px), utilizatorul așteaptă ~12 secunde să vadă tot textul. E prea lung, prea lent — pierde atenția.
 
-Above the fold: Headline + primele 2 linii din subheadline + începutul video-ului Voomly. Lipsesc:
-- Un element vizual care captează atenția instant (primele 2 secunde)
-- Tracking pe butoanele CTA
+## Soluția: O singură propoziție puternică + 3 bullet-uri rapide
 
-## Plan de implementare
+Înlocuim typewriter-ul cu un format compact:
 
-### 1. Animație subtilă de atenție pe headline (gold shimmer pulse)
-**Fișier:** `src/pages/skillmarket.css`
+**RO:**
+> AI-ul îți extrage skill-urile, creează oferta, găsește clienți și scrie mesajele — în 30 de minute.
 
-Adăugare animație de tip "gold glow pulse" pe textul gold din headline (`Primul Contract`) — un efect subtil de strălucire care pulsează o dată la 3 secunde, captând privirea imediat.
+**EN:**
+> AI extracts your skills, builds your offer, finds clients & writes outreach — in 30 minutes.
 
-```css
-@keyframes sm-gold-pulse {
-  0%, 100% { text-shadow: 0 0 0 transparent; }
-  50% { text-shadow: 0 0 20px rgba(212,168,67,0.4), 0 0 40px rgba(212,168,67,0.15); }
-}
-.sm-gold-pulse { animation: sm-gold-pulse 3s ease-in-out infinite; }
-```
-
-### 2. Badge animat above headline — "AI-Powered" indicator
-**Fișier:** `src/pages/SkillMarketLanding.tsx`
-
-Adăugare un mic badge deasupra headline-ului (similar cu ce ai pe landing-ul principal) cu un dot care pulsează — element vizual mic dar eficient care semnalează "ceva se întâmplă".
+### Opțiunea vizuală
+În loc de typewriter lent, folosim **3 icon-bullets** care apar rapid (fade-in staggered la 0.3s interval) sub propoziția principală:
 
 ```
-[🤖 AI construiește planul tău în 30 de minute ●]
+✓ Ofertă de servicii personalizată
+✓ 100 companii ideale pentru tine  
+✓ Mesaje de outreach gata de trimis
 ```
 
-### 3. Meta Pixel tracking pe butoanele CTA din Hero
-**Fișier:** `src/pages/SkillMarketLanding.tsx`
+Bullet-urile au un fade-in rapid (300ms delay între ele), nu 2.5s. Total reveal: ~1.5s vs ~12s actual.
 
-Adăugare `onClick` handler pe ambele butoane CTA din Hero:
-- **"Începe Gratuit 7 Zile"** → `fbq('trackCustom', 'HeroCTA_Primary', { button: 'start_free_trial' })`
-- **"Cont EduForYou"** → `fbq('trackCustom', 'HeroCTA_Secondary', { button: 'eduforyou' })`
-- **Sticky CTA mobil** → `fbq('trackCustom', 'StickyCTA_Click')`
+## Modificări tehnice
 
-### 4. Aplicare gold pulse pe headline
-**Fișier:** `src/pages/SkillMarketLanding.tsx`
+### `src/lib/skillmarket-i18n.tsx`
+- Înlocuire `sub`, `subBold1-3`, `subEnd` cu:
+  - `sub`: propoziție unică (cea de sus)
+  - `bullets`: array de 3 stringuri scurte
 
-Adăugare clasa `sm-gold-pulse` pe `<span className="text-gold italic">` din headline.
+### `src/pages/SkillMarketLanding.tsx`
+- Simplificare `HeroSubheadline`: un `<p>` + 3 `<span>` bullets cu staggered fade-in la 300ms
+- Eliminare logica de typewriter cu 2.5s delay
 
-## Fișiere modificate
-
-| Fișier | Schimbare |
-|---|---|
-| `src/pages/skillmarket.css` | Animație `sm-gold-pulse` |
-| `src/pages/SkillMarketLanding.tsx` | Badge animat, gold pulse pe headline, `fbq` tracking pe 3 butoane CTA |
-
-## Impact așteptat
-- Gold pulse atrage privirea în primele 2 secunde → reduce bounce
-- Badge-ul dă context instant ("AI face treaba, nu tu")
-- Tracking-ul CTA oferă date concrete despre rata de click din Hero
+### Fix runtime error
+- Investigare și fix pentru `ReferenceError: e is not defined`
 
