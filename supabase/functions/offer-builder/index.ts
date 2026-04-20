@@ -7,187 +7,114 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { skills, ikigaiResult, studyField, locale } = await req.json();
+    const { skills, ikigaiResult, studyField, locale, companyContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
-    const outputLanguage = langMap[locale] || 'Romanian';
-    const currency = locale === 'ro' ? 'RON' : 'EUR';
-    const priceMultiplier = locale === 'ro' ? 1 : 0.2;
+    const outputLanguage = langMap[locale] || 'English';
+    const currency = locale === 'ro' ? 'RON' : (locale === 'ua' ? 'UAH' : 'GBP');
 
-    const systemPrompt = `Ești un expert în pricing și crearea ofertelor de servicii pentru studenți care vor să-și monetizeze abilitățile.
+    const systemPrompt = `You are a B2B partnership deal architect (Hormozi/Ravikant style) building HYBRID commission offers for Dream 100 outreach.
 
-Bazat pe Ikigai-ul și competențele studentului, creează 3 pachete de servicii cu prețuri strategice.
+Build 3 partnership tiers — each tier MUST combine:
+- **% revenue share** (recurring or per-transaction)
+- **Fixed referral fee** (one-time per qualified deal)
+- **Performance bonus** (escalator at volume / outcome milestones)
 
-Regulile de pricing:
-- Starter: Pachet de intrare accesibil, livrare rapidă (1-3 zile)
-- Standard: Valoare excelentă pentru preț, livrare medie (5-7 zile)  
-- Premium: Serviciu complet cu suport extins, livrare premium (7-14 zile)
+Tier framework:
+- **Affiliate Tier (low-touch):** broad reach, partner just shares a link/code. Lower % + small fixed fee + tiered bonus on volume.
+- **Referral Tier (warm intro):** partner makes a personal intro, no selling. Mid % + meaningful fixed fee + bonus on closed deals.
+- **Joint Venture Tier (co-sell):** partner co-sells, co-markets, may even white-label. Highest % + premium fixed fee + revenue-share escalator + strategic bonuses (equity, exclusivity).
 
-Prețurile trebuie să fie în ${currency} și adaptate pentru piața ${locale === 'ro' ? 'română' : locale === 'ua' ? 'ucraineană' : 'europeană'}.
-Pentru studenți, prețurile starter încep de la ${locale === 'ro' ? '150-300 RON' : '30-60 EUR'}.
+For each tier specify: name, tagline, commission_pct, fixed_fee, currency, bonus rules, deliverables (what partner gets + what we deliver), ideal partner profile, expected partner earnings example.
 
-Fii specific cu livrabilele și include metrici concrete.
-IMPORTANT: Write ALL text content in ${outputLanguage}.
-Răspunde DOAR prin tool call, nu text liber.`;
+Currency: ${currency}. Adapt amounts to a realistic B2B deal size for the company's market.
+Write in ${outputLanguage}. Respond ONLY via tool call.`;
 
-    const skillsList = Array.isArray(skills) ? skills.map((s: any) => `${s.skill} (${s.category}, ${s.confidence}% încredere)`).join(', ') : 'Nicio competență';
-    const serviceAngles = Array.isArray(ikigaiResult?.service_angles) ? ikigaiResult.service_angles.map((a: any) => a.title).join(', ') : 'Nespecificate';
-    const corePositioning = ikigaiResult?.core_positioning || 'Nespecificat';
-    const whatCanBePaidFor = Array.isArray(ikigaiResult?.what_you_can_be_paid_for) ? ikigaiResult.what_you_can_be_paid_for.join(', ') : 'Nespecificat';
+    const skillsList = Array.isArray(skills) ? skills.map((s: any) => `${s.skill || s.name} (${s.category})`).join(', ') : 'No assets';
+    const serviceAngles = Array.isArray(ikigaiResult?.service_angles) ? ikigaiResult.service_angles.map((a: any) => a.title).join(', ') : 'Not specified';
+    const corePositioning = ikigaiResult?.core_positioning || 'Not specified';
+    const whatCanBePaidFor = Array.isArray(ikigaiResult?.what_you_can_be_paid_for) ? ikigaiResult.what_you_can_be_paid_for.join(', ') : 'Not specified';
 
-    const userPrompt = `Creează oferta de servicii pentru acest student:
+    const userPrompt = `Build 3 hybrid partnership offers for this company:
 
-**Poziționare Ikigai:** ${corePositioning}
+**Positioning:** ${corePositioning}
 
-**Competențe:** ${skillsList}
+**Strategic assets:** ${skillsList}
 
-**Pentru ce poate fi plătit:** ${whatCanBePaidFor}
+**Monetizable outcomes:** ${whatCanBePaidFor}
 
-**Unghiuri de servicii sugerate:** ${serviceAngles}
+**Partnership angles:** ${serviceAngles}
 
-**Domeniu de studiu:** ${studyField || 'Nespecificat'}
+**Industry:** ${studyField || 'Not specified'}
 
-Generează 3 pachete de servicii cu prețuri în ${currency}, SMV (Simple Mega Value), și justificarea prețurilor.`;
+${companyContext ? `**Company context:**\n${companyContext}` : ''}
+
+Output 3 hybrid commission tiers (Affiliate / Referral / Joint Venture) with %, fixed fee, bonuses, and partner ROI examples in ${currency}.`;
+
+    const packageSchema = {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        tagline: { type: "string" },
+        price: { type: "number", description: "Headline fixed referral fee per closed deal" },
+        currency: { type: "string" },
+        commission_pct: { type: "number", description: "Revenue share percentage" },
+        commission_fixed: { type: "number", description: "Fixed referral fee per qualified deal" },
+        performance_bonus: { type: "string", description: "Bonus rules (e.g. +5% after 10 deals/quarter, £500 bonus on first close)" },
+        delivery_time: { type: "string", description: "Time-to-payout cycle (e.g. 30 days post-close)" },
+        deliverables: { type: "array", items: { type: "string" }, description: "What the partner gets + what we deliver to their referral" },
+        ideal_for: { type: "string", description: "Ideal partner profile" },
+        partner_earnings_example: { type: "string", description: "Concrete example: '5 deals/month → £X total commission'" }
+      },
+      required: ["name", "tagline", "price", "currency", "commission_pct", "commission_fixed", "delivery_time", "deliverables", "ideal_for"]
+    };
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "generate_offer",
-              description: "Returnează oferta completă cu pachete de servicii",
-              parameters: {
-                type: "object",
-                properties: {
-                  smv: {
-                    type: "string",
-                    description: "Simple Mega Value - o propoziție puternică care rezumă valoarea unică oferită"
-                  },
-                  target_market: {
-                    type: "string",
-                    description: "Piața țintă ideală pentru aceste servicii"
-                  },
-                  pricing_justification: {
-                    type: "string",
-                    description: "Explicație scurtă de ce prețurile sunt justificate"
-                  },
-                  starter_package: {
-                    type: "object",
-                    properties: {
-                      name: { type: "string", description: "Numele pachetului" },
-                      tagline: { type: "string", description: "Slogan scurt și atractiv" },
-                      price: { type: "number", description: "Prețul în moneda locală" },
-                      currency: { type: "string", description: "RON sau EUR" },
-                      delivery_time: { type: "string", description: "Timp de livrare" },
-                      deliverables: {
-                        type: "array",
-                        items: { type: "string" },
-                        description: "Lista livrabilelor incluse"
-                      },
-                      ideal_for: { type: "string", description: "Pentru cine este ideal" }
-                    },
-                    required: ["name", "tagline", "price", "currency", "delivery_time", "deliverables", "ideal_for"]
-                  },
-                  standard_package: {
-                    type: "object",
-                    properties: {
-                      name: { type: "string", description: "Numele pachetului" },
-                      tagline: { type: "string", description: "Slogan scurt și atractiv" },
-                      price: { type: "number", description: "Prețul în moneda locală" },
-                      currency: { type: "string", description: "RON sau EUR" },
-                      delivery_time: { type: "string", description: "Timp de livrare" },
-                      deliverables: {
-                        type: "array",
-                        items: { type: "string" },
-                        description: "Lista livrabilelor incluse"
-                      },
-                      ideal_for: { type: "string", description: "Pentru cine este ideal" },
-                      popular: { type: "boolean", description: "Marchează ca popular/recomandat" }
-                    },
-                    required: ["name", "tagline", "price", "currency", "delivery_time", "deliverables", "ideal_for"]
-                  },
-                  premium_package: {
-                    type: "object",
-                    properties: {
-                      name: { type: "string", description: "Numele pachetului" },
-                      tagline: { type: "string", description: "Slogan scurt și atractiv" },
-                      price: { type: "number", description: "Prețul în moneda locală" },
-                      currency: { type: "string", description: "RON sau EUR" },
-                      delivery_time: { type: "string", description: "Timp de livrare" },
-                      deliverables: {
-                        type: "array",
-                        items: { type: "string" },
-                        description: "Lista livrabilelor incluse"
-                      },
-                      ideal_for: { type: "string", description: "Pentru cine este ideal" },
-                      includes_support: { type: "boolean", description: "Include suport extins" }
-                    },
-                    required: ["name", "tagline", "price", "currency", "delivery_time", "deliverables", "ideal_for"]
-                  }
-                },
-                required: [
-                  "smv",
-                  "target_market", 
-                  "pricing_justification",
-                  "starter_package",
-                  "standard_package",
-                  "premium_package"
-                ],
-                additionalProperties: false
-              }
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        tools: [{
+          type: "function",
+          function: {
+            name: "generate_offer",
+            description: "Returns 3 hybrid partnership commission offers",
+            parameters: {
+              type: "object",
+              properties: {
+                smv: { type: "string", description: "One-line value proposition pitched to a partner" },
+                target_market: { type: "string", description: "Ideal partner segment (industry, size, persona)" },
+                pricing_justification: { type: "string", description: "Why these commission structures are competitive" },
+                starter_package: { ...packageSchema, description: "Affiliate tier" },
+                standard_package: { ...packageSchema, description: "Referral tier (recommended)" },
+                premium_package: { ...packageSchema, description: "Joint Venture tier" }
+              },
+              required: ["smv", "target_market", "pricing_justification", "starter_package", "standard_package", "premium_package"],
+              additionalProperties: false
             }
           }
-        ],
+        }],
         tool_choice: { type: "function", function: { name: "generate_offer" } }
       }),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limită de cereri depășită. Încearcă din nou în câteva secunde." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Credite insuficiente. Contactează administratorul." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+      if (response.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      throw new Error("Eroare la generarea ofertei");
+      throw new Error("Error generating partnership offers");
     }
 
     const data = await response.json();
-    
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      throw new Error("Nu s-a primit răspuns valid de la AI");
-    }
-
+    if (!toolCall) throw new Error("Invalid AI response");
     const result = JSON.parse(toolCall.function.arguments);
 
     try {
@@ -198,14 +125,9 @@ Generează 3 pachete de servicii cu prețuri în ${currency}, SMV (Simple Mega V
       await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "offer-builder", input_json: { skills, ikigaiResult, studyField, locale }, output_json: result });
     } catch (e) { console.error("ai_outputs insert error:", e); }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify(result), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
-    console.error("Offer builder error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Eroare necunoscută" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.error("Partnership offer builder error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

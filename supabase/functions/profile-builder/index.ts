@@ -21,72 +21,71 @@ serve(async (req) => {
 
     const platformInstructions: Record<string, string> = {
       facebook: `
-        Generate a professional Facebook business page profile with:
-        - bio: Short description (max 255 chars) for the page intro
-        - about: Detailed "About" section (300-500 words) covering services, experience, and value proposition
-        - cta: A compelling call-to-action text for the page button
-        - username_suggestions: 3 professional username ideas based on the person's niche
+        Generate a B2B-positioned Facebook business page profile:
+        - bio: Short company intro (max 255 chars) — frame as "we partner with X to deliver Y"
+        - about: Detailed "About" (300-500 words) for partner discovery — services, partner program, commission structure, results
+        - cta: CTA for partnership inquiries (e.g. "Become a Partner")
+        - username_suggestions: 3 brand handles
       `,
       instagram: `
-        Generate an optimized Instagram bio with:
-        - bio: Short, impactful bio (max 150 chars) with emoji, line breaks, and a hook
-        - hashtags: 15 relevant hashtags for their niche (mix of popular and niche-specific)
-        - content_pillars: 4-5 content themes they should post about
-        - cta: A call-to-action for the link in bio
-        - username_suggestions: 3 creative username ideas
+        Generate a B2B founder/operator Instagram bio:
+        - bio: Short, sharp bio (max 150 chars) signalling B2B / partnership readiness with a hook
+        - hashtags: 15 B2B / industry / partnership hashtags
+        - content_pillars: 4-5 content themes (case studies, partner wins, deal breakdowns, market insights)
+        - cta: CTA for partnership inquiries
+        - username_suggestions: 3 brand-aligned handles
       `,
       linkedin: `
-        Generate a complete LinkedIn profile with:
-        - headline: Professional headline (max 220 chars) that shows value proposition
-        - about: Comprehensive "About" section (2000-2600 chars) with storytelling, achievements, and services
-        - cta: A professional call-to-action for connecting
-        - username_suggestions: 3 professional URL customization ideas
+        Generate a partnership-ready LinkedIn company/founder profile:
+        - headline: Max 220 chars — clear positioning + partnership invitation (e.g. "Helping [ICP] achieve [outcome] | Open to JV & affiliate partners")
+        - about: 2000-2600 chars — story, ICP, results, partnership angles, commission summary, social proof
+        - cta: Professional CTA for booking a partnership call
+        - username_suggestions: 3 vanity URL ideas
       `,
       tiktok: `
-        Generate a TikTok creator profile with:
-        - bio: Very short, catchy bio (max 80 chars) with personality
-        - hashtags: 10 trending and niche hashtags for discoverability
-        - content_pillars: 3-4 content themes/formats that work on TikTok
-        - cta: A short call-to-action for the link in bio
-        - username_suggestions: 3 catchy, memorable username ideas
+        Generate a B2B founder TikTok profile (founder-led brand):
+        - bio: Max 80 chars — punchy, signal expertise + audience
+        - hashtags: 10 niche B2B / industry hashtags
+        - content_pillars: 3-4 content themes for B2B authority building
+        - cta: CTA driving to partnership/case-study link
+        - username_suggestions: 3 memorable handles
       `
     };
 
     const langMap: Record<string, string> = { ro: 'Romanian', en: 'English', ua: 'Ukrainian' };
-    const outputLanguage = langMap[locale] || 'Romanian';
+    const outputLanguage = langMap[locale] || 'English';
 
-    const systemPrompt = `You are an expert social media strategist and personal branding consultant.
-Your task is to create optimized social media profile content based on the user's offer and unique value proposition.
+    const systemPrompt = `You are a B2B brand strategist building partnership-ready social profiles for Dream 100 outreach.
 
-IMPORTANT RULES:
-1. Write in ${outputLanguage} language
-2. Be specific to the user's niche and services
-3. Make the content authentic and personality-driven
-4. Focus on benefits and transformation, not features
-5. Include relevant keywords for discoverability
-6. Match the tone and style to the platform
-7. Make usernames memorable and easy to spell
+Every profile must signal: clear ICP, proven results, partnership/commission readiness, founder-credibility.
 
-${platformInstructions[platform] || platformInstructions.instagram}`;
+RULES:
+1. Write in ${outputLanguage}
+2. Speak to potential PARTNERS (referrers, affiliates, JV partners) — not end customers
+3. Lead with outcomes & numbers, never feature lists
+4. Include partnership / commission language where the platform allows
+5. Match platform tone (LinkedIn formal, IG/TikTok punchy, FB community)
 
-    const userPrompt = `Create a ${platform.toUpperCase()} profile for this freelancer:
+${platformInstructions[platform] || platformInstructions.linkedin}`;
 
-NAME: ${userName || 'Freelancer'}
+    const userPrompt = `Create a B2B partnership-ready ${platform.toUpperCase()} profile for this company:
 
-OFFER/SERVICES:
-- Target Market: ${offer.target_market || 'Not specified'}
-- Unique Value: ${offer.smv || 'Professional services'}
-- Starter Package: ${offer.starter_package?.name || 'Basic service'}
-- Standard Package: ${offer.standard_package?.name || 'Standard service'}
-- Premium Package: ${offer.premium_package?.name || 'Premium service'}
+OPERATOR / COMPANY: ${userName || 'B2B Operator'}
 
-IKIGAI/UNIQUE STRENGTHS:
-- What they love: ${ikigaiResult.what_you_love?.join(', ') || 'Helping others'}
-- What they're good at: ${ikigaiResult.what_youre_good_at?.join(', ') || 'Professional skills'}
-- What the world needs: ${ikigaiResult.what_world_needs?.join(', ') || 'Quality services'}
-- Key statements: ${ikigaiResult.ikigai_statements?.slice(0, 2).join('; ') || 'Professional freelancer'}
+PARTNERSHIP OFFER:
+- Ideal partner segment: ${offer.target_market || 'Not specified'}
+- Pitch (SMV): ${offer.smv || 'Strategic partnership program'}
+- Affiliate tier: ${offer.starter_package?.name || 'Affiliate'}
+- Referral tier: ${offer.standard_package?.name || 'Referral'}
+- JV tier: ${offer.premium_package?.name || 'Joint Venture'}
 
-Generate the complete ${platform} profile content now.`;
+POSITIONING & ANGLES:
+- Audience we serve: ${ikigaiResult.what_you_love?.join(', ') || 'B2B clients'}
+- Our strengths: ${ikigaiResult.what_youre_good_at?.join(', ') || 'Operator expertise'}
+- Market problem solved: ${ikigaiResult.what_world_needs?.join(', ') || 'Pipeline & conversion'}
+- Core positioning: ${ikigaiResult.ikigai_statements?.slice(0, 2).map((s: any) => s.statement || s).join('; ') || 'Strategic operator'}
+
+Generate the complete ${platform} profile now, optimized for partner discovery.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
