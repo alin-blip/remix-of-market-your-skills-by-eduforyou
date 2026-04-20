@@ -12,8 +12,8 @@ import {
   CheckCircle2,
   Download,
   Dna,
-  Briefcase,
-  Laptop,
+  Link2,
+  Handshake,
   Rocket,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -68,16 +68,16 @@ const pathSteps = [
   },
 ];
 
-const dnaIcons: Record<string, typeof Briefcase> = {
-  employee: Briefcase,
-  freelancer: Laptop,
-  startup: Rocket,
+const dnaIcons: Record<string, typeof Link2> = {
+  affiliate: Link2,
+  referral: Handshake,
+  jv: Rocket,
 };
 
 const dnaLabels: Record<string, Record<string, string>> = {
-  ro: { employee: 'Angajat', freelancer: 'Freelancer', startup: 'Startup' },
-  en: { employee: 'Employee', freelancer: 'Freelancer', startup: 'Startup' },
-  ua: { employee: 'Працівник', freelancer: 'Фрілансер', startup: 'Стартап' },
+  ro: { affiliate: 'Affiliate Operator', referral: 'Referral Networker', jv: 'JV Builder' },
+  en: { affiliate: 'Affiliate Operator', referral: 'Referral Networker', jv: 'JV Builder' },
+  ua: { affiliate: 'Афіліат-оператор', referral: 'Реферальний нетворкер', jv: 'JV-будівельник' },
 };
 
 export default function DefineYourPath() {
@@ -239,7 +239,7 @@ export default function DefineYourPath() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      {locale === 'en' ? 'Discover your natural path: Employee, Freelancer or Startup' : (locale as string) === 'ua' ? 'Відкрийте свій шлях: Працівник, Фрілансер чи Стартап' : 'Descoperă-ți calea naturală: Angajat, Freelancer sau Startup'}
+                      {locale === 'en' ? 'Discover your partnership style: Affiliate, Referral or JV Builder' : (locale as string) === 'ua' ? 'Відкрийте свій стиль партнерства: Афіліат, Реферал чи JV' : 'Descoperă stilul tău de parteneriat: Affiliate, Referral sau JV Builder'}
                     </p>
                   </div>
                 </div>
