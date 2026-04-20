@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { SwipeHireSettings } from "@/components/integrations/SwipeHireSettings";
-import { AutoSyncSettings } from "@/components/integrations/AutoSyncSettings";
 import { useI18n } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plug, User, CreditCard, Crown, Loader2, ExternalLink, RotateCcw } from "lucide-react";
+import { User, CreditCard, Crown, Loader2, ExternalLink, RotateCcw } from "lucide-react";
 import { useSubscription, PLAN_LIMITS } from "@/hooks/useSubscription";
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
@@ -79,10 +77,6 @@ export default function Settings() {
             <TabsTrigger value="subscription" className="gap-2">
               <CreditCard className="h-4 w-4" />
               Subscripție
-            </TabsTrigger>
-            <TabsTrigger value="integrations" className="gap-2">
-              <Plug className="h-4 w-4" />
-              {t.settings?.integrations || "Integrations"}
             </TabsTrigger>
           </TabsList>
 
@@ -251,10 +245,6 @@ export default function Settings() {
             )}
           </TabsContent>
 
-          <TabsContent value="integrations" className="space-y-6">
-            <SwipeHireSettings />
-            <AutoSyncSettings />
-          </TabsContent>
         </Tabs>
       </div>
     </MainLayout>

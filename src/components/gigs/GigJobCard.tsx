@@ -19,7 +19,7 @@ interface GigJobCardProps {
   isPublished: boolean;
   onEdit: () => void;
   onDelete: () => void;
-  onPublish: () => void;
+  onPublish?: () => void;
   isPublishing?: boolean;
 }
 
