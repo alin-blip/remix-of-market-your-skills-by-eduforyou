@@ -24,7 +24,7 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
   
   const [phase, setPhase] = useState<Phase>('quiz');
   const [currentQ, setCurrentQ] = useState(0);
-  const [scores, setScores] = useState<Record<DnaProfile, number>>({ employee: 0, freelancer: 0, startup: 0 });
+  const [scores, setScores] = useState<Record<DnaProfile, number>>({ affiliate: 0, referral: 0, jv: 0 });
   const [answers, setAnswers] = useState<number[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [result, setResult] = useState<{ primary: DnaProfile; secondary?: DnaProfile } | null>(null);
@@ -121,7 +121,7 @@ export function DnaQuizContainer({ lang, isPublic, onComplete, onNavigate }: Dna
   const handleRetake = () => {
     setPhase('quiz');
     setCurrentQ(0);
-    setScores({ employee: 0, freelancer: 0, startup: 0 });
+    setScores({ affiliate: 0, referral: 0, jv: 0 });
     setAnswers([]);
     setSelectedIndex(null);
     setResult(null);
