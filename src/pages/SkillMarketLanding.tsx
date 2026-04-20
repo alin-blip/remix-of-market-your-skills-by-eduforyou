@@ -254,8 +254,8 @@ function Hero() {
 
             {/* AI badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4A843]/30 bg-[#D4A843]/8 text-xs font-semibold tracking-wider uppercase text-[#D4A843] mb-4 sm-fade-up">
-              <span>🤖</span>
-              <span>{lang === 'ro' ? 'AI construiește planul tău în 30 de minute' : lang === 'ua' ? 'AI будує твій план за 30 хвилин' : 'AI builds your plan in 30 minutes'}</span>
+              <span>🤝</span>
+              <span>{lang === 'ro' ? 'Motor B2B de parteneriate strategice' : lang === 'ua' ? 'B2B-двигун стратегічних партнерств' : 'B2B Strategic Partnership Engine'}</span>
               <span className="h-2 w-2 rounded-full bg-[#D4A843] animate-pulse" />
             </div>
 
@@ -283,10 +283,10 @@ function Hero() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10 sm-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Primary', { button: 'start_free_trial' })}>
+              <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base flex items-center justify-center gap-2" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Primary', { button: 'start_dream100' })}>
                 {t.hero.cta1} <ArrowRight className="h-4 w-4" />
               </a>
-              <a href="/auth/register-eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Secondary', { button: 'eduforyou' })}>
+              <a href="#eduforyou" className="btn-gold-outline px-8 py-4 rounded-xl text-base text-center" onClick={() => window.fbq?.('trackCustom', 'HeroCTA_Secondary', { button: 'book_demo' })}>
                 {t.hero.cta2}
               </a>
             </div>
@@ -693,15 +693,15 @@ function EduForYou() {
           </div>
 
           <div className="space-y-4">
-            <a href="/auth/register-eduforyou" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+            <a href="#pricing" className="btn-gold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
               {t.edu.cta1} <ArrowRight className="h-4 w-4" />
             </a>
             <div>
-              <a href="/auth/register-eduforyou" className="text-gold text-sm hover:underline">{t.edu.cta2}</a>
+              <a href="mailto:hello@marketyourskill.co.uk" className="text-gold text-sm hover:underline">{t.edu.cta2}</a>
             </div>
             <p className="text-sm text-muted-sm">
               {t.edu.notYet}{" "}
-              <a href="/auth/register-eduforyou" className="text-gold hover:underline">{t.edu.applyNow}</a>{" "}
+              <a href="mailto:hello@marketyourskill.co.uk" className="text-gold hover:underline">{t.edu.applyNow}</a>{" "}
               {t.edu.notYetEnd}
             </p>
           </div>
@@ -719,8 +719,8 @@ function Pricing() {
 
   const handleCheckout = async (planIndex: number) => {
     if (planIndex === 2) {
-      // EduForYou → register form
-      window.location.href = "/auth/register-eduforyou";
+      // Agency → contact email
+      window.location.href = "mailto:hello@marketyourskill.co.uk?subject=Agency%20Plan%20Inquiry";
       return;
     }
 
@@ -909,20 +909,20 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
   const { lang } = useSkillMarketLang();
   const seoByLang: Record<string, { title: string; desc: string; locale: string; path: string }> = {
     en: {
-      title: 'Market Your Skill — Turn Your Skills Into Income',
-      desc: 'AI-powered career coaching platform. Scan your skills, build offers, optimise profiles, and land freelancing gigs or jobs in the UK and beyond.',
+      title: 'Market Your Skill — Close 100 Strategic Partnerships in 90 Days',
+      desc: 'AI-powered B2B partnership engine. Identify 100 ideal partners, build commission offers, run outreach sequences, and close strategic deals — without cold calls.',
       locale: 'en_GB',
       path: '/en',
     },
     ro: {
-      title: 'Market Your Skill — Monetizează-ți Skill-urile',
-      desc: 'Platformă AI de coaching care îți transformă skill-urile în ofertă de angajare, venit din freelancing sau afacere proprie.',
+      title: 'Market Your Skill — Închide 100 Parteneriate Strategice în 90 Zile',
+      desc: 'Motor B2B de parteneriate AI. Identifici 100 de parteneri ideali, construiești oferte de comision, rulezi secvențe de outreach și închizi deal-uri strategice — fără cold calls.',
       locale: 'ro_RO',
       path: '/ro',
     },
     ua: {
-      title: 'Market Your Skill — Монетизуй свої навички',
-      desc: 'AI-платформа для кар\'єрного коучингу. Скануй навички, створюй оферти, оптимізуй профілі.',
+      title: 'Market Your Skill — Закрийте 100 Стратегічних Партнерств за 90 Днів',
+      desc: 'AI-двигун B2B-партнерств. Знаходьте 100 ідеальних партнерів, будуйте комісійні пропозиції, запускайте outreach і закривайте стратегічні угоди — без холодних дзвінків.',
       locale: 'uk_UA',
       path: '/ua',
     },
@@ -975,7 +975,7 @@ function SkillMarketPage({ autoOpenLangPicker }: { autoOpenLangPicker?: boolean 
             className="btn-gold block text-center text-sm font-semibold px-6 py-3 rounded-xl"
             onClick={() => window.fbq?.('trackCustom', 'StickyCTA_Click')}
           >
-            {lang === 'ro' ? 'Vezi Planurile →' : lang === 'ua' ? 'Переглянути плани →' : 'View Plans →'}
+            {lang === 'ro' ? 'Începe Dream 100 →' : lang === 'ua' ? 'Почати Dream 100 →' : 'Start Dream 100 →'}
           </a>
         </div>
       )}
