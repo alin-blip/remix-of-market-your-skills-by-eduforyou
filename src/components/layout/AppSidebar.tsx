@@ -14,7 +14,6 @@ import {
   GraduationCap,
   DollarSign,
   Users,
-  BookOpen,
   Crosshair,
   Search,
   FileText,
@@ -288,29 +287,6 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             </SidebarGroupLabel>
           )}
           <SidebarMenu className="gap-1">
-            {!isEduforyouMember && (
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === '/learning-hub'}
-                tooltip={t.sidebar?.learningHub || 'Learning Hub'}
-                className="h-10 rounded-lg"
-              >
-                <NavLink
-                  to="/learning-hub"
-                  className={cn(
-                    "flex items-center gap-3 px-3 transition-all",
-                    currentPath === '/learning-hub' && "bg-primary/15 text-primary font-medium rounded-xl"
-                  )}
-                  activeClassName=""
-                >
-                  <BookOpen className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.learningHub || 'Learning Hub'}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            )}
-
             {/* Founder Accelerator - Premium */}
             <SidebarMenuItem>
               <SidebarMenuButton

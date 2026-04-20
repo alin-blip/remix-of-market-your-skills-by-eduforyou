@@ -34,26 +34,16 @@ import LifeOSSetup from "./pages/life-os/LifeOSSetup";
 import WeeklySprintPage from "./pages/life-os/WeeklySprintPage";
 import VerificationsManager from "./pages/admin/VerificationsManager";
 import UsersManager from "./pages/admin/UsersManager";
-import CoursesManager from "./pages/admin/CoursesManager";
-import CourseAnalytics from "./pages/admin/CourseAnalytics";
 import Pricing from "./pages/Pricing";
 import IncomeTracker from "./pages/IncomeTracker";
-import LearningHub from "./pages/LearningHub";
 import ClientCRM from "./pages/ClientCRM";
 import ToolsHub from "./pages/ToolsHub";
 import PaymentSuccess from "./pages/PaymentSuccess";
-import CourseViewer from "./pages/CourseViewer";
-import PartnerCourses from "./pages/PartnerCourses";
-import PLRCourseImporter from "./pages/admin/PLRCourseImporter";
-import BundlesManager from "./pages/admin/BundlesManager";
 import FeedbackManager from "./pages/admin/FeedbackManager";
 import AIOutputsManager from "./pages/admin/AIOutputsManager";
 import SeoAudit from "./pages/admin/SeoAudit";
 import UserDetail from "./pages/admin/UserDetail";
 import EmailAnalytics from "./pages/admin/EmailAnalytics";
-import CourseSalesPage from "./pages/CourseSalesPage";
-import BundleSalesPage from "./pages/BundleSalesPage";
-import EbookSalesPage from "./pages/EbookSalesPage";
 import Dream100Tracker from "./pages/dream100/Dream100Tracker";
 import Dream100Scanner from "./pages/dream100/Dream100Scanner";
 import CVBuilder from "./pages/dream100/CVBuilder";
@@ -245,14 +235,7 @@ const App = () => (
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/learning-hub" 
-                  element={
-                    <ProtectedRoute>
-                      <LearningHub />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/learning-hub" element={<Navigate to="/dashboard" replace />} />
                 <Route 
                   path="/client-crm" 
                   element={
@@ -270,54 +253,16 @@ const App = () => (
                   } 
                 />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
-                <Route 
-                  path="/course/:courseId" 
-                  element={
-                    <ProtectedRoute>
-                      <CourseViewer />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/courses" 
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <CoursesManager />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/course-analytics" 
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <CourseAnalytics />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/partners/:partnerId" 
-                  element={
-                    <ProtectedRoute>
-                      <PartnerCourses />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/plr-import" 
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <PLRCourseImporter />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/bundles" 
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <BundlesManager />
-                    </ProtectedRoute>
-                  } 
-                />
+                {/* Legacy course routes redirect to dashboard */}
+                <Route path="/course/:courseId" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/partners/:partnerId" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/admin/courses" element={<Navigate to="/admin" replace />} />
+                <Route path="/admin/course-analytics" element={<Navigate to="/admin" replace />} />
+                <Route path="/admin/plr-import" element={<Navigate to="/admin" replace />} />
+                <Route path="/admin/bundles" element={<Navigate to="/admin" replace />} />
+                <Route path="/courses/:slug" element={<Navigate to="/" replace />} />
+                <Route path="/bundles/:slug" element={<Navigate to="/" replace />} />
+                <Route path="/ebook/:slug" element={<Navigate to="/" replace />} />
                 <Route 
                   path="/admin/feedback" 
                   element={
@@ -347,10 +292,6 @@ const App = () => (
                 <Route path="/case-studies" element={<CaseStudies />} />
                 {/* DNA Quiz Public Routes */}
                 <Route path="/adn-test/:lang" element={<DnaQuizPublic />} />
-                {/* Public Sales Pages */}
-                <Route path="/courses/:slug" element={<CourseSalesPage />} />
-                <Route path="/bundles/:slug" element={<BundleSalesPage />} />
-                <Route path="/ebook/:slug" element={<EbookSalesPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

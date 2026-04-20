@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, 
-  BookOpen, 
   Users, 
   CreditCard,
   ArrowRight,
@@ -27,16 +26,6 @@ const ToolsHub = () => {
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/20',
-    },
-    {
-      id: 'learning-hub',
-      title: t.sidebar?.learningHub || 'Learning Hub',
-      description: toolsHubT.learningHubDesc || 'Access courses, tutorials, and resources to level up your freelancing skills.',
-      icon: BookOpen,
-      path: '/learning-hub',
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
     },
     {
       id: 'client-crm',

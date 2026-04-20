@@ -356,7 +356,11 @@ export type Database = {
       }
       clients: {
         Row: {
+          commission_currency: string | null
+          commission_fixed: number | null
+          commission_pct: number | null
           company: string | null
+          contract_status: string | null
           created_at: string | null
           email: string | null
           id: string
@@ -364,6 +368,8 @@ export type Database = {
           name: string
           next_followup_at: string | null
           notes: string | null
+          partner_type: string | null
+          performance_bonus_json: Json | null
           phone: string | null
           source: string | null
           status: string | null
@@ -371,7 +377,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          commission_currency?: string | null
+          commission_fixed?: number | null
+          commission_pct?: number | null
           company?: string | null
+          contract_status?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -379,6 +389,8 @@ export type Database = {
           name: string
           next_followup_at?: string | null
           notes?: string | null
+          partner_type?: string | null
+          performance_bonus_json?: Json | null
           phone?: string | null
           source?: string | null
           status?: string | null
@@ -386,7 +398,11 @@ export type Database = {
           user_id: string
         }
         Update: {
+          commission_currency?: string | null
+          commission_fixed?: number | null
+          commission_pct?: number | null
           company?: string | null
+          contract_status?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -394,6 +410,8 @@ export type Database = {
           name?: string
           next_followup_at?: string | null
           notes?: string | null
+          partner_type?: string | null
+          performance_bonus_json?: Json | null
           phone?: string | null
           source?: string | null
           status?: string | null
@@ -1053,42 +1071,60 @@ export type Database = {
         Row: {
           amount: number
           client_name: string | null
+          commission_fixed: number | null
+          commission_pct: number | null
           created_at: string | null
           currency: string | null
           description: string | null
           gig_id: string | null
           id: string
+          partner_id: string | null
           payment_date: string
           payment_status: string | null
+          payout_status: string | null
           platform: string
+          referrals_count: number | null
+          revenue_attributed: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           amount: number
           client_name?: string | null
+          commission_fixed?: number | null
+          commission_pct?: number | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
           gig_id?: string | null
           id?: string
+          partner_id?: string | null
           payment_date: string
           payment_status?: string | null
+          payout_status?: string | null
           platform: string
+          referrals_count?: number | null
+          revenue_attributed?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           amount?: number
           client_name?: string | null
+          commission_fixed?: number | null
+          commission_pct?: number | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
           gig_id?: string | null
           id?: string
+          partner_id?: string | null
           payment_date?: string
           payment_status?: string | null
+          payout_status?: string | null
           platform?: string
+          referrals_count?: number | null
+          revenue_attributed?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1098,6 +1134,13 @@ export type Database = {
             columns: ["gig_id"]
             isOneToOne: false
             referencedRelation: "gigs_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freelance_income_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -1682,6 +1725,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           campus: string | null
+          company_country: string | null
+          company_industry: string | null
+          company_name: string | null
+          company_sells: string | null
+          company_size: string | null
+          company_website: string | null
           created_at: string | null
           date_of_birth: string | null
           email: string | null
@@ -1689,11 +1738,14 @@ export type Database = {
           freedom_score: number | null
           full_name: string | null
           goals: Json | null
+          icp_json: Json | null
           id: string
           interests: Json | null
+          ipp_json: Json | null
           is_eduforyou_member: boolean
           locale: string | null
           onboarding_completed: boolean | null
+          partnership_offer_json: Json | null
           projects_experience: string | null
           role: Database["public"]["Enums"]["user_role"]
           study_field: string | null
@@ -1705,6 +1757,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           campus?: string | null
+          company_country?: string | null
+          company_industry?: string | null
+          company_name?: string | null
+          company_sells?: string | null
+          company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
@@ -1712,11 +1770,14 @@ export type Database = {
           freedom_score?: number | null
           full_name?: string | null
           goals?: Json | null
+          icp_json?: Json | null
           id: string
           interests?: Json | null
+          ipp_json?: Json | null
           is_eduforyou_member?: boolean
           locale?: string | null
           onboarding_completed?: boolean | null
+          partnership_offer_json?: Json | null
           projects_experience?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           study_field?: string | null
@@ -1728,6 +1789,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           campus?: string | null
+          company_country?: string | null
+          company_industry?: string | null
+          company_name?: string | null
+          company_sells?: string | null
+          company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
@@ -1735,11 +1802,14 @@ export type Database = {
           freedom_score?: number | null
           full_name?: string | null
           goals?: Json | null
+          icp_json?: Json | null
           id?: string
           interests?: Json | null
+          ipp_json?: Json | null
           is_eduforyou_member?: boolean
           locale?: string | null
           onboarding_completed?: boolean | null
+          partnership_offer_json?: Json | null
           projects_experience?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           study_field?: string | null

@@ -268,16 +268,16 @@ export default function Dashboard() {
       });
     }
     
-    // Priority 4: Learn more
+    // Priority 4: Explore Dream 100 once all wizard modules complete
     if (allModulesCompleted) {
       steps.push({
-        id: 'learn',
-        title: locale === 'ro' ? 'Explorează cursurile' : 'Explore courses',
+        id: 'dream100',
+        title: locale === 'ro' ? 'Construiește Dream 100' : 'Build your Dream 100',
         description: locale === 'ro' 
-          ? 'Continuă să înveți cu Learning Hub' 
-          : 'Continue learning with Learning Hub',
-        path: '/learning-hub',
-        icon: <BookOpen className="h-5 w-5" />,
+          ? 'Identifică 100 parteneri strategici' 
+          : 'Identify 100 strategic partners',
+        path: '/dream100',
+        icon: <Briefcase className="h-5 w-5" />,
         priority: 4,
       });
     }
