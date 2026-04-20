@@ -1,19 +1,19 @@
 import { motion } from 'framer-motion';
-import { Briefcase, Laptop, Rocket, ArrowRight, RotateCcw } from 'lucide-react';
+import { Link2, Handshake, Rocket, ArrowRight, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { DnaProfile, QuizTranslation } from './quizData';
 
-const profileIcons: Record<DnaProfile, typeof Briefcase> = {
-  employee: Briefcase,
-  freelancer: Laptop,
-  startup: Rocket,
+const profileIcons: Record<DnaProfile, typeof Link2> = {
+  affiliate: Link2,
+  referral: Handshake,
+  jv: Rocket,
 };
 
 const profileColors: Record<DnaProfile, string> = {
-  employee: 'from-blue-500 to-blue-700',
-  freelancer: 'from-emerald-500 to-emerald-700',
-  startup: 'from-orange-500 to-amber-600',
+  affiliate: 'from-blue-500 to-blue-700',
+  referral: 'from-emerald-500 to-emerald-700',
+  jv: 'from-orange-500 to-amber-600',
 };
 
 interface DnaQuizResultProps {
@@ -63,7 +63,7 @@ export function DnaQuizResult({ primary, secondary, scores, t, isPublic, isAuthe
 
       {/* Score bars */}
       <Card className="p-4 space-y-3">
-        {(['employee', 'freelancer', 'startup'] as DnaProfile[]).map((profile) => {
+        {(['affiliate', 'referral', 'jv'] as DnaProfile[]).map((profile) => {
           const PIcon = profileIcons[profile];
           const pct = Math.round((scores[profile] / maxScore) * 100);
           return (
