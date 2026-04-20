@@ -39,14 +39,14 @@ serve(async (req) => {
         companySize === "small" ? "10-50 employees" :
         companySize === "medium" ? "50-200 employees" : "200+ employees";
 
-      const searchQuery = pathType === "employee"
-        ? `Companies hiring in ${industry || "tech"} industry, ${location || "UK"}, ${sizeLabel}, that value ${values || "innovation"}`
-        : pathType === "freelancer"
-        ? `Companies in ${industry || "tech"} that hire freelancers or agencies, ${location || "UK"}, ${sizeLabel}, budget ${budget || "any"}`
-        : `Startups in ${industry || "tech"} looking for co-founders or partners, ${location || "UK"}, ${sizeLabel}`;
+      // Dream 100 = B2B partnership scanner (multi-tenant generic)
+      // pathType maps to partnership model: affiliate / referral / jv / white_label
+      const partnershipModel = pathType === "employee" ? "affiliate" : pathType === "freelancer" ? "referral" : pathType === "startup" ? "joint venture" : (pathType || "referral");
+
+      const searchQuery = `Companies in ${industry || "any industry"} that already serve our ICP and could become ${partnershipModel} partners. Region: ${location || "UK"}. Size: ${sizeLabel}. Values/fit signals: ${values || "growth-oriented"}. ${budget ? `Commission budget tolerance: ${budget}.` : ""}`;
 
       try {
-        console.log("Perplexity search:", searchQuery);
+        console.log("Perplexity Dream 100 search:", searchQuery);
         const pRes = await fetch("https://api.perplexity.ai/chat/completions", {
           method: "POST",
           headers: {
@@ -56,8 +56,8 @@ serve(async (req) => {
           body: JSON.stringify({
             model: "sonar",
             messages: [
-              { role: "system", content: "You are a business research assistant. Provide real, verifiable companies with accurate information." },
-              { role: "user", content: `Find 25 real companies matching these criteria: ${searchQuery}. For each company provide: company name, industry, short description, why they're a good fit, their LinkedIn URL or website, and who the decision maker typically is (job title). Format as detailed text.` },
+              { role: "system", content: "You are a B2B partnership research analyst. Find real, verifiable companies that could become strategic distribution/referral/JV partners — never end customers, always partners." },
+              { role: "user", content: `Find 25 real companies matching these Dream 100 partner criteria: ${searchQuery}. For each: company name, industry, what they sell (so we know overlap with our ICP), why they'd be a strong ${partnershipModel} partner (commission upside, audience fit, distribution leverage), LinkedIn URL or website, and the typical decision-maker job title (Head of Partnerships, BD, Founder, etc.). Format as detailed text.` },
             ],
           }),
         });
@@ -78,16 +78,18 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Based on the following research, create a structured list of 20-25 companies suitable for a ${pathType} in ${industry || "tech"}.
+    const prompt = `Based on the following research, structure 20-25 Dream 100 PARTNER companies (not end-customers) suitable for a ${pathType || "referral"} partnership in ${industry || "any industry"}.
 
-${searchResults ? `Research results:\n${searchResults}` : `Generate suggestions for: ${industry || "tech"} industry, ${location || "UK"}, ${companySize || "any"} size companies that value ${values || "innovation"}.`}
+${searchResults ? `Research:\n${searchResults}` : `Generate suggestions: ${industry || "any"} industry partners, ${location || "UK"}, ${companySize || "any"} size, fit signals: ${values || "growth-oriented"}.`}
 
-Path type: ${pathType}
+Partnership model: ${pathType || "referral"}
 Industry: ${industry || "any"}
 Location: ${location || "UK"}
-Company size preference: ${companySize || "any"}
-Values: ${values || "any"}
-${budget ? `Budget range: ${budget}` : ""}`;
+Partner size preference: ${companySize || "any"}
+Fit signals: ${values || "any"}
+${budget ? `Commission budget tolerance: ${budget}` : ""}
+
+For each partner, "why_fit" must explain the COMMISSION/REFERRAL angle, not a job opportunity.`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
