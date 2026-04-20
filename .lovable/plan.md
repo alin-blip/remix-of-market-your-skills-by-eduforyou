@@ -1,127 +1,77 @@
 
 
-# Faza 2: Multi-Tenant B2B Partnership Wizard
+# Status Faza 2 — Ce e gata și ce mai rămâne
 
-## Decizii confirmate
-1. **Multi-tenant** — orice business folosește platforma pentru Dream 100 B2B
-2. **Generic** pentru orice industrie (HR, edu, SaaS, consultanță, agenții, etc.)
-3. **Scoate Learning Hub complet** (+ Courses, Quiz, Gamification, Notes — tot ecosistemul educațional)
-4. **Pricing model hibrid**: % comision + fee fix + bonus performance, configurabil per ofertă
+## ✅ Ce am terminat (Fazele 2A-2D)
 
-## Ce scoatem complet (Learning ecosystem)
+- **2A Cleanup**: Learning Hub, Courses, Gamification, Quiz, Notes — toate șterse (pagini, componente, hooks, edge functions)
+- **2B DB Migration**: câmpuri company_* pe `profiles`, commission fields pe `clients`, partner attribution pe `freelance_income`
+- **2C Wizard Rebrand**: 6 edge functions cu prompturi B2B multi-tenant, OnboardingStepCompany adăugat
+- **2D CRM**: ClientCRM → Partner CRM (comision hibrid % + fix + bonus), IncomeTracker → Commission Tracker (per-partner breakdown)
 
-### Pagini & rute
-- `LearningHub.tsx`, `CourseViewer.tsx`, `PartnerCourses.tsx`
-- `CourseSalesPage.tsx`, `EbookSalesPage.tsx`, `BundleSalesPage.tsx`
-- `admin/CoursesManager.tsx`, `admin/CourseAnalytics.tsx`, `admin/BundlesManager.tsx`, `admin/PLRCourseImporter.tsx`
+## ⚠️ Ce a rămas necurățat (gap-uri reale)
 
-### Componente
-- Tot folderul `src/components/courses/`
-- `BadgesDisplay.tsx`, `useGamification.ts`, `useCourseAccess.ts`
-- `LessonNotes`, `LessonQuiz`, `CourseCertificatePDF`, `SecureVideoPlayer`, etc.
+Am verificat codebase-ul și am găsit lucruri care **NU** au fost finalizate complet:
 
-### Edge functions
-- `course-notifications`, `course-recommendations`, `create-course-price`, `extract-zip`, `elevenlabs-tts`
+### 1. **Pagini wizard cu nume B2C încă în cod**
+Edge functions au fost actualizate, dar fișierele UI au păstrat numele vechi:
+- `SkillScanner.tsx` (UI încă zice "skills" în loc de "company assets")
+- `IkigaiBuilder.tsx` (UI încă zice "Ikigai" în loc de "ICP/IPP")
+- `OfferBuilder.tsx` (UI nu arată cele 3 tier-uri hibrid clar: Affiliate/Referral/JV)
+- `ProfileBuilder.tsx`, `GigJobBuilder.tsx`, `CVBuilder.tsx`, `FreedomPlanExport.tsx`
+- `DnaQuizPublic.tsx` (încă cu Employee/Freelancer/Startup în loc de Affiliate/Referral/JV/White Label)
 
-### Sidebar & Tools Hub
-- Scoatem itemul "Learning Hub" din sidebar și `ToolsHub.tsx`
+### 2. **i18n încă plin de copy B2C**
+- `src/lib/i18n/translations/ro.ts` și `en.ts` — labels wizard încă zic "Skills", "Ikigai", "Gig", "Freedom Plan"
+- `DefineYourPath.tsx` folosește `t.defineYourPath.steps.skillScanner` etc. — labels neactualizate
 
-### DB (păstrăm tabelele, doar nu le mai folosim în UI)
-Nu ștergem tabelele din DB acum (risk-free) — doar dezactivăm UI. Cleanup DB îl facem la sfârșit dacă confirmi.
+### 3. **Onboarding flow incomplet**
+- Am adăugat `OnboardingStepCompany.tsx` ca step nou, dar **vechile** steps 6-8 (Skills, Ikigai personal, Offer personal) au rămas în flow
+- Trebuie să decizi: înlocuim steps 6-8 sau le păstrăm pe lângă step company?
 
-## Ce transformăm (Wizard B2B)
+### 4. **Sidebar items vechi**
+- "Define Your Path" încă apare cu icoane/labels vechi
+- Itemele wizard în sidebar arată `SkillScanner`, `IkigaiBuilder` etc. în loc de noile nume
 
-### 1. Onboarding (înlocuim steps 6-8 personale cu steps companie)
-| Step nou | Conținut |
-|---|---|
-| **Step 6: Company Profile** | Industry, company size, country, website, what you sell |
-| **Step 7: ICP & IPP Builder** | Ideal Client Profile (cui vinzi) + Ideal Partner Profile (cine te-ar putea recomanda) |
-| **Step 8: Partnership Offer Builder** | Hybrid commission: % rev share + fixed referral fee + performance bonus |
+### 5. **DnaQuiz tipologii**
+- `quizData.ts` are întrebări pentru Employee/Freelancer/Startup
+- Edge functions `dna-quiz-email` și `dna-quiz-followup` au prompturi B2C
+- Trebuie rebuild complet pentru tipologii B2B: **Affiliate Operator / Referral Networker / JV Builder / White Label Reseller**
 
-### 2. Wizard tools rebrand
-| Vechi (B2C) | Nou (B2B Multi-tenant) |
-|---|---|
-| `SkillScanner.tsx` | **CompanyAssetScanner.tsx** — audiență, produse, expertiză, case studies, distribution channels |
-| `IkigaiBuilder.tsx` | **ICPBuilder.tsx** — Ideal Client + Ideal Partner profile cu segmentare industrie |
-| `OfferBuilder.tsx` | **PartnershipOfferBuilder.tsx** — 3 tier hibrid: Affiliate (%), Referral (fix £), Joint Venture (rev share + bonus) |
-| `ProfileBuilder.tsx` | **CompanyProfileBuilder.tsx** — one-pager pentru pitch parteneriat |
-| `GigJobBuilder.tsx` | **PartnershipPitchBuilder.tsx** — propunere formală cu term sheet |
-| `FreedomPlanExport.tsx` | **PartnershipStrategyExport.tsx** — PDF plan 90 zile |
-| `CVBuilder.tsx` | **PartnershipPitchDeck.tsx** — Deck PDF pentru meeting cu parteneri |
-| `DnaQuizPublic.tsx` | **PartnershipDnaQuiz.tsx** — Affiliate / Referral / JV / White Label |
+### 6. **CV / Pitch Deck Generator**
+- `cv-generator/index.ts` încă generează CV personal
+- Trebuie refactorizat pentru **Partnership Pitch Deck** (one-pager + term sheet B2B)
 
-### 3. Edge functions — update prompts (multi-tenant generic)
-- `skill-scanner` → `company-asset-scanner` (analizează ce oferă **compania**, nu persoana)
-- `ikigai-builder` → `icp-builder` (ICP + IPP)
-- `offer-builder` → `partnership-offer-builder` (output: 3 oferte hibride cu % + fix + bonus)
-- `gig-generator` / `gig-platform-generator` → `partnership-pitch-generator`
-- `profile-builder` → `company-profile-builder`
-- `cv-generator` → `pitch-deck-generator`
-- `dream100-scanner` → prompt update: caută **parteneri B2B generici** în industria userului (nu studenți)
-- `outreach-generator` → tonul B2B partnership outreach (nu freelance)
-- `dna-quiz-email`, `dna-quiz-followup` → tipologii partnership
+### 7. **Freedom Plan PDF**
+- `FreedomPlanPDF.tsx` și `FreedomPlanDocx.tsx` au structură B2C personal
+- Trebuie rebrand → **Partnership Strategy 90-Day Plan** (PDF B2B)
 
-### 4. DB schema additions (multi-tenant friendly)
-Adăugăm câmpuri în `profiles` pentru context companie (toți userii sunt operatori B2B):
-- `company_name`, `company_industry`, `company_size`, `company_website`, `company_country`
-- `company_sells` (text — ce vinde compania)
-- `icp_json`, `ipp_json` (Ideal Client/Partner profiles)
-- `partnership_offer_json` (oferta hibridă activă)
+## 🎯 Recomandare: Faza 3 — Finalizare wizard B2B
 
-### 5. CRM & Tracking
-- `ClientCRM.tsx` → `PartnerCRM.tsx`: tracking parteneri activi, contracte, comision agreed (% + fix), status
-- `IncomeTracker.tsx` → `CommissionTracker.tsx`: revenue per partener, referrals, commission earned, payouts
+Împărțit în 3 sub-faze digerabile:
 
-### 6. i18n updates
-- Update `skillmarket-i18n.tsx` + `lib/i18n/translations/{ro,en}.ts`: rebrand toate label-urile wizard-ului pe limbaj B2B partnership
-- Scoatem toate string-urile legate de Learning Hub, Courses, Badges
+### **3A. Wizard UI Rebrand (8 fișiere)**
+Rename + refactor copy + redesign secțiuni:
+- SkillScanner → Company Asset Scanner UI
+- IkigaiBuilder → ICP/IPP Builder UI cu 2 coloane (clienți vs parteneri)
+- OfferBuilder → 3 carduri tier (Affiliate / Referral / JV) cu inputs hibrid
+- ProfileBuilder, CVBuilder, FreedomPlanExport, DefineYourPath — UI refresh
 
-## Plan execuție Faza 2 (4 sub-faze)
+### **3B. i18n Complete Rebrand**
+- Update `ro.ts` + `en.ts` cu toate labels B2B
+- Sidebar labels actualizate
+- Onboarding steps 6-8 înlocuite cu Company / ICP / Offer hibrid
 
-### **2A. Cleanup Learning Ecosystem**
-- Șterg pagini, componente, edge functions Learning
-- Curăț rute în `App.tsx` + sidebar + ToolsHub
-- Șterg i18n keys aferente
+### **3C. DNA Quiz B2B + Pitch Deck**
+- Rebuild `quizData.ts` cu întrebări pentru Affiliate/Referral/JV/White Label
+- Update `dna-quiz-email` + `dna-quiz-followup` prompturi
+- Refactor `cv-generator` → `pitch-deck-generator` (output: 1-page partnership pitch deck)
+- Rebrand `FreedomPlanPDF` → Partnership Strategy 90-Day Plan PDF
 
-### **2B. DB Migration — Company fields**
-- Migration: ADD COLUMN-uri company_* pe `profiles`
-- RLS: rămân pe own-row (deja are)
+## Estimare
+- **3A**: ~8 fișiere refactor mediu
+- **3B**: ~3 fișiere mari (i18n) + sidebar
+- **3C**: ~5 fișiere (quiz + 2 edge functions + 2 PDF)
 
-### **2C. Wizard Rebrand (UI + Edge Functions)**
-- Refactor 8 pagini wizard + 8 edge functions cu prompturi B2B generice multi-tenant
-- Update onboarding steps 6-8
-
-### **2D. CRM + Commission Tracker**
-- Rename ClientCRM → PartnerCRM, adaug câmpuri commission_pct + commission_fixed + bonus
-- Rename IncomeTracker → CommissionTracker, adaug per-partner breakdown
-
-## Fișiere de șters (cleanup)
-
-```text
-DELETE pages:
-- src/pages/LearningHub.tsx
-- src/pages/CourseViewer.tsx
-- src/pages/PartnerCourses.tsx
-- src/pages/CourseSalesPage.tsx
-- src/pages/EbookSalesPage.tsx
-- src/pages/BundleSalesPage.tsx
-- src/pages/admin/CoursesManager.tsx
-- src/pages/admin/CourseAnalytics.tsx
-- src/pages/admin/BundlesManager.tsx
-- src/pages/admin/PLRCourseImporter.tsx
-
-DELETE folder:
-- src/components/courses/ (tot)
-- src/components/admin/AdminCourseDialog, LessonManagerDialog, QuizManagerDialog
-- src/components/gamification/
-
-DELETE hooks:
-- useCourseAccess, useGamification
-
-DELETE edge functions:
-- course-notifications, course-recommendations, create-course-price
-- extract-zip, elevenlabs-tts
-```
-
-## Întrebări înainte de cod
+**Total Faza 3**: ~16 fișiere modificate, ~2-3 turn-uri de execuție
 
