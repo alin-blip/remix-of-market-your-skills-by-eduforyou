@@ -1,6 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-import FiverrEbookSalesPage from "./pages/FiverrEbookSalesPage";
-import FiverrCourseSalesPage from "./pages/FiverrCourseSalesPage";
 import FounderAcceleratorUpgrade from "./pages/FounderAcceleratorUpgrade";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,7 +12,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import RegisterEduForYou from "./pages/auth/RegisterEduForYou";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import WaitlistForm from "./pages/WaitlistForm";
@@ -56,7 +53,6 @@ import UserDetail from "./pages/admin/UserDetail";
 import EmailAnalytics from "./pages/admin/EmailAnalytics";
 import CourseSalesPage from "./pages/CourseSalesPage";
 import BundleSalesPage from "./pages/BundleSalesPage";
-import SqueezePage from "./pages/SqueezePage";
 import EbookSalesPage from "./pages/EbookSalesPage";
 import Dream100Tracker from "./pages/dream100/Dream100Tracker";
 import Dream100Scanner from "./pages/dream100/Dream100Scanner";
@@ -85,7 +81,11 @@ const App = () => (
                 <Route path="/ua" element={<SkillMarketLanding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
-                <Route path="/auth/register-eduforyou" element={<RegisterEduForYou />} />
+                {/* Legacy redirects from B2C routes */}
+                <Route path="/auth/register-eduforyou" element={<Navigate to="/auth/register" replace />} />
+                <Route path="/free/:slug" element={<Navigate to="/" replace />} />
+                <Route path="/ebook/fiverr" element={<Navigate to="/" replace />} />
+                <Route path="/course/fiverr" element={<Navigate to="/" replace />} />
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/waitlist" element={<Navigate to="/auth/register" replace />} />
@@ -350,10 +350,7 @@ const App = () => (
                 {/* Public Sales Pages */}
                 <Route path="/courses/:slug" element={<CourseSalesPage />} />
                 <Route path="/bundles/:slug" element={<BundleSalesPage />} />
-                <Route path="/free/:slug" element={<SqueezePage />} />
                 <Route path="/ebook/:slug" element={<EbookSalesPage />} />
-                <Route path="/ebook/fiverr" element={<FiverrEbookSalesPage />} />
-                <Route path="/course/fiverr" element={<FiverrCourseSalesPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
