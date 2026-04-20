@@ -86,7 +86,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-display font-bold text-lg text-sidebar-foreground leading-tight">
-                Market Your <span className="text-primary">Skill</span>
+                Partnership <span className="text-primary">Engine</span>
               </span>
             </div>
           )}
@@ -166,7 +166,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/wizard/gig-job-builder'}
-                tooltip={t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}
+                tooltip={t.sidebar?.gigJobBuilder || 'Lead Magnet Builder'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -178,7 +178,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName=""
                 >
                   <Briefcase className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Gig & Job Builder'}</span>}
+                  {!collapsed && <span>{t.sidebar?.gigJobBuilder || 'Lead Magnet Builder'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -239,7 +239,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
               <SidebarMenuButton
                 asChild
                 isActive={currentPath === '/cv-builder'}
-                tooltip={t.sidebar?.cvBuilder || 'CV Builder'}
+                tooltip={t.sidebar?.cvBuilder || 'Pitch Deck Builder'}
                 className="h-10 rounded-lg"
               >
                 <NavLink
@@ -251,7 +251,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
                   activeClassName=""
                 >
                   <FileText className="h-5 w-5" />
-                  {!collapsed && <span>{t.sidebar?.cvBuilder || 'CV Builder'}</span>}
+                  {!collapsed && <span>{t.sidebar?.cvBuilder || 'Pitch Deck Builder'}</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -396,7 +396,7 @@ export function AppSidebar({ completedSteps = 0, totalSteps = 6 }: AppSidebarPro
             />
             {isComplete && (
               <p className="text-[10px] text-green-500 mt-1.5 font-medium">
-                ✓ Freedom Path Complete!
+                ✓ Partnership Path Complete!
               </p>
             )}
           </div>

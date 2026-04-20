@@ -12,9 +12,9 @@ const LOGO_URL =
 const SENDER_DOMAIN = "notify.mk.eduforyou.co.uk";
 
 const profileLabels: Record<string, string> = {
-  employee: "Angajat de Top",
-  freelancer: "Freelancer Independent",
-  startup: "Fondator de Startup",
+  affiliate: "Affiliate Operator",
+  referral: "Referral Networker",
+  jv: "JV Builder",
 };
 
 function getFollowupHtml(resultType: string): string {
@@ -22,26 +22,23 @@ function getFollowupHtml(resultType: string): string {
   return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:'Inter',Arial,sans-serif;">
 <div style="max-width:600px;margin:0 auto;padding:32px 28px;">
-  <img src="${LOGO_URL}" alt="Market Your Skill" width="160" style="margin-bottom:24px;" />
+  <img src="${LOGO_URL}" alt="Partnership Engine" width="160" style="margin-bottom:24px;" />
   <h1 style="font-size:24px;font-weight:bold;color:#0D1B2A;margin:0 0 20px;font-family:'Playfair Display',Georgia,serif;">
-    Calea ta te așteaptă înăuntru
+    Dream 100 te așteaptă înăuntru
   </h1>
   <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Acum 2 zile ai descoperit că ești <strong style="color:#0D1B2A;">${profileLabel}</strong>.</p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Ai citit rezultatul. Poate l-ai salvat. Poate l-ai arătat cuiva.</p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Dar nu ai intrat încă în platformă.</p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Știu de ce. Nu este lipsă de interes. Este că nu știi exact ce te așteaptă înăuntru și nu vrei să pierzi timp cu ceva care nu livrează.</p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Îți spun direct ce găsești:</p>
+  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Ai citit rezultatul. Poate l-ai trimis cuiva. Dar nu ai intrat încă să îți construiești lista Dream 100 de parteneri.</p>
+  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Îți spun direct ce găsești în Partnership Engine pentru profilul tău:</p>
   <p style="font-size:15px;color:#0D1B2A;line-height:1.8;margin:0 0 16px;">
-    → Modulul construit specific pentru profilul tău ${profileLabel}<br/>
-    → Comunitatea studenților care execută, nu doar vorbesc<br/>
-    → Sesiuni live săptămânale cu mine direct
+    → Asset Scanner — auditul activelor strategice ale companiei tale<br/>
+    → ICP/IPP Builder — clienții ideali și partenerii ideali, lado-a-lado<br/>
+    → Partnership Offer hibrid — comision % + fix + bonus performanță<br/>
+    → Dream 100 Tracker cu kanban dedicat profilului ${profileLabel}<br/>
+    → Outreach automat (Ziua 1 / 4 / 9) pentru fiecare cont
   </p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Nu este un curs cu 47 de lecții pe care nu le vei termina niciodată. Este un sistem de execuție pas cu pas.</p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 24px;">Intră acum. Primele 48 de ore sunt cele mai importante:</p>
+  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Nu este un curs. Este sistemul Hormozi/Cialdini de a transforma rețeaua în 100 de parteneri care îți aduc comisioane lunare.</p>
+  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 24px;">Primele 48 de ore decid totul:</p>
   <p style="margin:0 0 16px;"><a href="https://mk.eduforyou.co.uk/ro" style="display:inline-block;background:#D4A843;color:#0D1B2A;font-size:15px;font-weight:bold;border-radius:12px;padding:14px 24px;text-decoration:none;">Intră în platformă →</a></p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Și dacă vrei să intri și în comunitatea Skool unde discutăm direct:</p>
-  <p style="margin:0 0 24px;"><a href="https://www.skool.com/marketyourskill/about" style="display:inline-block;background:#0D1B2A;color:#D4A843;font-size:15px;font-weight:bold;border-radius:12px;padding:14px 24px;text-decoration:none;">Comunitatea Skool →</a></p>
-  <p style="font-size:15px;color:#6B7A8D;line-height:1.6;margin:0 0 16px;">Studenții EduForYou — acces gratuit.</p>
   <p style="font-size:15px;color:#0D1B2A;font-weight:bold;margin:24px 0 4px;">Alin Radu</p>
   <p style="font-size:13px;color:#6B7A8D;margin:0;">Fondator EduForYou</p>
 </div>
@@ -87,9 +84,9 @@ Deno.serve(async (req) => {
           queue_name: "transactional_emails",
           payload: {
             to: result.email,
-            from: `Market Your Skill <noreply@${SENDER_DOMAIN}>`,
+            from: `Partnership Engine <noreply@${SENDER_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
-            subject: "Calea ta te așteaptă înăuntru",
+            subject: "Dream 100 te așteaptă înăuntru",
             html,
             purpose: "transactional",
             label: "dna_quiz_followup",
@@ -126,7 +123,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
