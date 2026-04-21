@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Zap, Globe, Coins } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 interface IkigaiCirclesProps {
   whatYouLove: string[];
@@ -10,37 +11,6 @@ interface IkigaiCirclesProps {
   onQuadrantClick?: (quadrant: string) => void;
 }
 
-const quadrants = [
-  { 
-    key: 'love', 
-    label: 'Ce Iubești', 
-    icon: Heart,
-    color: 'rgba(244, 63, 94, 0.6)',
-    hoverColor: 'rgba(244, 63, 94, 0.8)',
-  },
-  { 
-    key: 'good', 
-    label: 'La Ce Ești Bun', 
-    icon: Zap,
-    color: 'rgba(59, 130, 246, 0.6)',
-    hoverColor: 'rgba(59, 130, 246, 0.8)',
-  },
-  { 
-    key: 'needs', 
-    label: 'Ce Are Nevoie Lumea', 
-    icon: Globe,
-    color: 'rgba(16, 185, 129, 0.6)',
-    hoverColor: 'rgba(16, 185, 129, 0.8)',
-  },
-  { 
-    key: 'paid', 
-    label: 'Pentru Ce Poți Fi Plătit', 
-    icon: Coins,
-    color: 'rgba(245, 158, 11, 0.6)',
-    hoverColor: 'rgba(245, 158, 11, 0.8)',
-  },
-];
-
 export function IkigaiCircles({
   whatYouLove,
   whatYoureGoodAt,
@@ -49,6 +19,19 @@ export function IkigaiCircles({
   onQuadrantClick,
 }: IkigaiCirclesProps) {
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const { t } = useI18n();
+  const c = (t.ikigaiBuilder as any).circles ?? {
+    center: 'PARTNERSHIP FIT',
+    love: 'Value', good: 'Capability', needs: 'Demand', paid: 'Revenue',
+    passion: 'Differentiator', mission: 'Pitch', profession: 'Delivery capacity', vocation: 'Commercial model',
+    moreItems: '+{count} more...'
+  };
+  const quadrants = [
+    { key: 'love', label: c.love, icon: Heart },
+    { key: 'good', label: c.good, icon: Zap },
+    { key: 'needs', label: c.needs, icon: Globe },
+    { key: 'paid', label: c.paid, icon: Coins },
+  ];
 
   const getQuadrantData = (key: string) => {
     switch (key) {
