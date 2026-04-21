@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Zap, Globe, Coins } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 interface IkigaiCirclesProps {
   whatYouLove: string[];
@@ -10,37 +11,6 @@ interface IkigaiCirclesProps {
   onQuadrantClick?: (quadrant: string) => void;
 }
 
-const quadrants = [
-  { 
-    key: 'love', 
-    label: 'Ce Iubești', 
-    icon: Heart,
-    color: 'rgba(244, 63, 94, 0.6)',
-    hoverColor: 'rgba(244, 63, 94, 0.8)',
-  },
-  { 
-    key: 'good', 
-    label: 'La Ce Ești Bun', 
-    icon: Zap,
-    color: 'rgba(59, 130, 246, 0.6)',
-    hoverColor: 'rgba(59, 130, 246, 0.8)',
-  },
-  { 
-    key: 'needs', 
-    label: 'Ce Are Nevoie Lumea', 
-    icon: Globe,
-    color: 'rgba(16, 185, 129, 0.6)',
-    hoverColor: 'rgba(16, 185, 129, 0.8)',
-  },
-  { 
-    key: 'paid', 
-    label: 'Pentru Ce Poți Fi Plătit', 
-    icon: Coins,
-    color: 'rgba(245, 158, 11, 0.6)',
-    hoverColor: 'rgba(245, 158, 11, 0.8)',
-  },
-];
-
 export function IkigaiCircles({
   whatYouLove,
   whatYoureGoodAt,
@@ -49,6 +19,19 @@ export function IkigaiCircles({
   onQuadrantClick,
 }: IkigaiCirclesProps) {
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const { t } = useI18n();
+  const c = (t.ikigaiBuilder as any).circles ?? {
+    center: 'PARTNERSHIP FIT',
+    love: 'Value', good: 'Capability', needs: 'Demand', paid: 'Revenue',
+    passion: 'Differentiator', mission: 'Pitch', profession: 'Delivery capacity', vocation: 'Commercial model',
+    moreItems: '+{count} more...'
+  };
+  const quadrants = [
+    { key: 'love', label: c.love, icon: Heart },
+    { key: 'good', label: c.good, icon: Zap },
+    { key: 'needs', label: c.needs, icon: Globe },
+    { key: 'paid', label: c.paid, icon: Coins },
+  ];
 
   const getQuadrantData = (key: string) => {
     switch (key) {
@@ -209,11 +192,11 @@ export function IkigaiCircles({
             y="205"
             textAnchor="middle"
             fill="white"
-            fontSize="14"
+            fontSize="11"
             fontWeight="bold"
             fontFamily="Outfit, sans-serif"
           >
-            IKIGAI
+            {c.center}
           </text>
         </motion.g>
       </svg>
@@ -226,7 +209,7 @@ export function IkigaiCircles({
         className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center gap-2 text-rose-400"
       >
         <Heart className="w-4 h-4" />
-        <span className="text-sm font-medium">Ce Iubești</span>
+        <span className="text-sm font-medium">{c.love}</span>
       </motion.div>
 
       <motion.div
@@ -235,7 +218,7 @@ export function IkigaiCircles({
         transition={{ delay: 0.45 }}
         className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center gap-2 text-blue-400"
       >
-        <span className="text-sm font-medium">Ești Bun</span>
+        <span className="text-sm font-medium">{c.good}</span>
         <Zap className="w-4 h-4" />
       </motion.div>
 
@@ -246,7 +229,7 @@ export function IkigaiCircles({
         className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-2 text-emerald-400"
       >
         <Globe className="w-4 h-4" />
-        <span className="text-sm font-medium">Lumea Are Nevoie</span>
+        <span className="text-sm font-medium">{c.needs}</span>
       </motion.div>
 
       <motion.div
@@ -256,7 +239,7 @@ export function IkigaiCircles({
         className="absolute top-1/2 left-0 -translate-y-1/2 flex items-center gap-2 text-amber-400"
       >
         <Coins className="w-4 h-4" />
-        <span className="text-sm font-medium">Plătit</span>
+        <span className="text-sm font-medium">{c.paid}</span>
       </motion.div>
 
       {/* Tooltip */}
@@ -285,7 +268,7 @@ export function IkigaiCircles({
               ))}
               {getQuadrantData(showTooltip).length > 3 && (
                 <li className="text-xs text-muted-foreground/60">
-                  +{getQuadrantData(showTooltip).length - 3} mai multe...
+                  {c.moreItems.replace('{count}', String(getQuadrantData(showTooltip).length - 3))}
                 </li>
               )}
             </ul>
@@ -302,19 +285,19 @@ export function IkigaiCircles({
       >
         {/* Passion: Love + Good */}
         <div className="absolute text-[10px] text-purple-400/80 font-medium" style={{ top: '28%', left: '50%', transform: 'translateX(-50%)' }}>
-          Pasiune
+          {c.passion}
         </div>
         {/* Mission: Love + Needs */}
         <div className="absolute text-[10px] text-teal-400/80 font-medium" style={{ top: '50%', left: '28%', transform: 'translateY(-50%)' }}>
-          Misiune
+          {c.mission}
         </div>
         {/* Profession: Good + Paid */}
         <div className="absolute text-[10px] text-cyan-400/80 font-medium" style={{ top: '50%', right: '28%', transform: 'translateY(-50%)' }}>
-          Profesie
+          {c.profession}
         </div>
         {/* Vocation: Needs + Paid */}
         <div className="absolute text-[10px] text-lime-400/80 font-medium" style={{ bottom: '28%', left: '50%', transform: 'translateX(-50%)' }}>
-          Vocație
+          {c.vocation}
         </div>
       </motion.div>
     </div>

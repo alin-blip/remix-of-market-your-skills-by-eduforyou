@@ -440,6 +440,18 @@ export const ro = {
       whatWorldNeeds: 'Ce Cere Piața (Demand)',
       whatYouCanBePaidFor: 'Cum Se Monetizează (Revenue)',
     },
+    circles: {
+      center: 'PARTNERSHIP FIT',
+      love: 'Value',
+      good: 'Capability',
+      needs: 'Demand',
+      paid: 'Revenue',
+      passion: 'Diferențiator',
+      mission: 'Pitch',
+      profession: 'Capacitate de livrare',
+      vocation: 'Model comercial',
+      moreItems: '+{count} mai multe...'
+    },
   },
 
   // Partnership Offer Builder page (B2B - 3 hybrid tiers)
