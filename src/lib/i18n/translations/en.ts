@@ -440,6 +440,18 @@ export const en = {
       whatWorldNeeds: 'What The Market Wants (Demand)',
       whatYouCanBePaidFor: 'How It Monetizes (Revenue)',
     },
+    circles: {
+      center: 'PARTNERSHIP FIT',
+      love: 'Value',
+      good: 'Capability',
+      needs: 'Demand',
+      paid: 'Revenue',
+      passion: 'Differentiator',
+      mission: 'Pitch',
+      profession: 'Delivery capacity',
+      vocation: 'Commercial model',
+      moreItems: '+{count} more...'
+    },
   },
 
   // Partnership Offer Builder page (B2B - 3 hybrid tiers)
