@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/lib/i18n';
-import { CVUpload } from '@/components/shared/CVUpload';
+import { WebsiteScrape } from '@/components/shared/WebsiteScrape';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -451,8 +451,13 @@ export default function SkillScanner() {
                 </p>
               </Card>
 
-              {/* CV Upload */}
-              <CVUpload onTextExtracted={(text) => setCvText(text)} />
+              {/* Company Website */}
+              <WebsiteScrape
+                onTextExtracted={(text) => setCvText(text)}
+                label="Company website (optional)"
+                placeholder="https://yourcompany.com"
+                hint="We will read your homepage to detect strategic assets, offers and audience."
+              />
 
               <div className="flex justify-between">
                 {savedSkills.length > 0 && (
