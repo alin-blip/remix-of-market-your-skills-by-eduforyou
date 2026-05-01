@@ -8,11 +8,20 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IkigaiCircles } from '@/components/ikigai/IkigaiCircles';
 import { useI18n } from '@/lib/i18n';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
   Target, 
   ArrowRight, 
@@ -25,7 +34,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Quote,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck,
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
 
 interface ServiceAngle {
@@ -59,6 +71,7 @@ interface Skill {
 
 export default function IkigaiBuilder() {
   const { user, profile } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminRole();
   const navigate = useNavigate();
   const { t } = useI18n();
   
@@ -68,6 +81,7 @@ export default function IkigaiBuilder() {
   const [result, setResult] = useState<IkigaiResult | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<number>(0);
   const [hasSavedResult, setHasSavedResult] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('ikigai-builder');
 
   useEffect(() => {
@@ -109,7 +123,21 @@ export default function IkigaiBuilder() {
     }
   };
 
+  const requestGenerate = () => {
+    if (skills.length === 0) {
+      toast.error(t.ikigaiBuilder.needSkillsFirst);
+      navigate('/wizard/skill-scanner');
+      return;
+    }
+    if (!isAdmin) {
+      toast.error('Acces restricționat — doar administratorii pot rula Partnership Fit Matrix.');
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
   const handleGenerate = async () => {
+    setConfirmOpen(false);
     if (skills.length === 0) {
       toast.error(t.ikigaiBuilder.needSkillsFirst);
       navigate('/wizard/skill-scanner');
