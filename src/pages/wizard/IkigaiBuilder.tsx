@@ -592,6 +592,53 @@ export default function IkigaiBuilder() {
           )}
         </AnimatePresence>
         <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="ikigai-builder" />
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                Confirmă rularea Partnership Fit Matrix
+              </DialogTitle>
+              <DialogDescription>
+                Această acțiune va genera ICP, IPP și unghiuri de parteneriat folosind AI și va fi înregistrată în audit log.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2 text-sm">
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Cont</span>
+                <span className="font-medium text-foreground truncate ml-2">{user?.email}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Rol detectat</span>
+                <Badge className="gap-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/40">
+                  <ShieldCheck className="w-3 h-3" /> Admin
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Active trimise spre AI</span>
+                <span className="font-medium text-foreground">{skills.length} skill-uri</span>
+              </div>
+              <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <ShieldAlert className="w-4 h-4 mt-0.5 shrink-0" />
+                <span className="text-xs">
+                  Datele de profil al companiei și skill-urile vor fi trimise modelului AI și salvate în <code>ai_outputs</code> + <code>admin_audit_log</code>.
+                </span>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                Anulează
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                className="gap-2 bg-gradient-to-r from-primary to-accent"
+              >
+                <Target className="w-4 h-4" />
+                Confirm & Generate
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
