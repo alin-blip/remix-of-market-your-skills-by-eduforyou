@@ -367,15 +367,31 @@ export default function IkigaiBuilder() {
               </Card>
 
               <div className="flex justify-center">
-                <Button 
-                  onClick={handleGenerate}
-                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  size="lg"
-                >
-                  <Target className="w-5 h-5" />
-                  {t.ikigaiBuilder.generateButton}
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
+                <div className="flex flex-col items-center gap-3">
+                  {!adminLoading && (
+                    <Badge
+                      variant="outline"
+                      className={
+                        isAdmin
+                          ? 'gap-1.5 border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                          : 'gap-1.5 border-amber-500/40 text-amber-400 bg-amber-500/10'
+                      }
+                    >
+                      {isAdmin ? <ShieldCheck className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                      {isAdmin ? 'Admin Mode' : 'Restricted — admin only'}
+                    </Badge>
+                  )}
+                  <Button
+                    onClick={requestGenerate}
+                    disabled={adminLoading || !isAdmin}
+                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 disabled:opacity-60"
+                    size="lg"
+                  >
+                    <Target className="w-5 h-5" />
+                    {t.ikigaiBuilder.generateButton}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
