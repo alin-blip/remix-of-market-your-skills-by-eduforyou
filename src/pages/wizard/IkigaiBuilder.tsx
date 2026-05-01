@@ -8,11 +8,20 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IkigaiCircles } from '@/components/ikigai/IkigaiCircles';
 import { useI18n } from '@/lib/i18n';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
   Target, 
   ArrowRight, 
@@ -25,7 +34,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Quote,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck,
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
 
 interface ServiceAngle {
@@ -59,6 +71,7 @@ interface Skill {
 
 export default function IkigaiBuilder() {
   const { user, profile } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminRole();
   const navigate = useNavigate();
   const { t } = useI18n();
   
@@ -68,6 +81,7 @@ export default function IkigaiBuilder() {
   const [result, setResult] = useState<IkigaiResult | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<number>(0);
   const [hasSavedResult, setHasSavedResult] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const { showFeedback, setShowFeedback, triggerFeedback } = useFeedback('ikigai-builder');
 
   useEffect(() => {
@@ -109,7 +123,21 @@ export default function IkigaiBuilder() {
     }
   };
 
+  const requestGenerate = () => {
+    if (skills.length === 0) {
+      toast.error(t.ikigaiBuilder.needSkillsFirst);
+      navigate('/wizard/skill-scanner');
+      return;
+    }
+    if (!isAdmin) {
+      toast.error('Acces restricționat — doar administratorii pot rula Partnership Fit Matrix.');
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
   const handleGenerate = async () => {
+    setConfirmOpen(false);
     if (skills.length === 0) {
       toast.error(t.ikigaiBuilder.needSkillsFirst);
       navigate('/wizard/skill-scanner');
@@ -339,15 +367,31 @@ export default function IkigaiBuilder() {
               </Card>
 
               <div className="flex justify-center">
-                <Button 
-                  onClick={handleGenerate}
-                  className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  size="lg"
-                >
-                  <Target className="w-5 h-5" />
-                  {t.ikigaiBuilder.generateButton}
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
+                <div className="flex flex-col items-center gap-3">
+                  {!adminLoading && (
+                    <Badge
+                      variant="outline"
+                      className={
+                        isAdmin
+                          ? 'gap-1.5 border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                          : 'gap-1.5 border-amber-500/40 text-amber-400 bg-amber-500/10'
+                      }
+                    >
+                      {isAdmin ? <ShieldCheck className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                      {isAdmin ? 'Admin Mode' : 'Restricted — admin only'}
+                    </Badge>
+                  )}
+                  <Button
+                    onClick={requestGenerate}
+                    disabled={adminLoading || !isAdmin}
+                    className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 disabled:opacity-60"
+                    size="lg"
+                  >
+                    <Target className="w-5 h-5" />
+                    {t.ikigaiBuilder.generateButton}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -548,6 +592,53 @@ export default function IkigaiBuilder() {
           )}
         </AnimatePresence>
         <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} stepKey="ikigai-builder" />
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                Confirmă rularea Partnership Fit Matrix
+              </DialogTitle>
+              <DialogDescription>
+                Această acțiune va genera ICP, IPP și unghiuri de parteneriat folosind AI și va fi înregistrată în audit log.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2 text-sm">
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Cont</span>
+                <span className="font-medium text-foreground truncate ml-2">{user?.email}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Rol detectat</span>
+                <Badge className="gap-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/40">
+                  <ShieldCheck className="w-3 h-3" /> Admin
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center p-2 rounded-lg bg-muted/40">
+                <span className="text-muted-foreground">Active trimise spre AI</span>
+                <span className="font-medium text-foreground">{skills.length} skill-uri</span>
+              </div>
+              <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <ShieldAlert className="w-4 h-4 mt-0.5 shrink-0" />
+                <span className="text-xs">
+                  Datele de profil al companiei și skill-urile vor fi trimise modelului AI și salvate în <code>ai_outputs</code> + <code>admin_audit_log</code>.
+                </span>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                Anulează
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                className="gap-2 bg-gradient-to-r from-primary to-accent"
+              >
+                <Target className="w-4 h-4" />
+                Confirm & Generate
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );

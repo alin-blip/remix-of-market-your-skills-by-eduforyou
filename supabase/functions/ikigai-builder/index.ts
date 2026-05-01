@@ -10,6 +10,39 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // ============= ADMIN-ONLY GUARD =============
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const { data: userData, error: userErr } = await adminClient.auth.getUser(token);
+    const authedUser = userData?.user;
+    if (userErr || !authedUser) {
+      return new Response(
+        JSON.stringify({ error: "Invalid session" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const { data: isAdmin, error: roleErr } = await adminClient.rpc("has_role", {
+      _user_id: authedUser.id,
+      _role: "admin",
+    });
+    if (roleErr || isAdmin !== true) {
+      console.warn("Non-admin attempted Partnership Fit Matrix:", authedUser.email);
+      return new Response(
+        JSON.stringify({ error: "Admin access required to run Partnership Fit Matrix" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // ============================================
+
     const body = await req.json();
     const { skills, studyField, companyContext } = body;
     const goalsText = Array.isArray(body.goals) ? body.goals.join(', ') : (typeof body.goals === 'string' ? body.goals : '');
@@ -140,12 +173,30 @@ Output the full Partnership Fit Matrix with concrete, monetizable angles.`;
     const result = JSON.parse(toolCall.function.arguments);
 
     try {
-      const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-      const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-      let userId = null;
-      if (token) { const { data } = await adminClient.auth.getUser(token); userId = data?.user?.id || null; }
-      await adminClient.from("ai_outputs").insert({ user_id: userId, tool: "ikigai-builder", input_json: { skills, studyField, goals: goalsText, values: valuesText }, output_json: result });
+      await adminClient.from("ai_outputs").insert({
+        user_id: authedUser.id,
+        tool: "ikigai-builder",
+        input_json: { skills, studyField, goals: goalsText, values: valuesText },
+        output_json: result,
+      });
     } catch (e) { console.error("ai_outputs insert error:", e); }
+
+    // Audit log for admin action
+    try {
+      await adminClient.from("admin_audit_log").insert({
+        user_id: authedUser.id,
+        user_email: authedUser.email,
+        action: "partnership_matrix_generated",
+        resource: "ikigai-builder",
+        metadata: {
+          skills_count: Array.isArray(skills) ? skills.length : 0,
+          study_field: studyField || null,
+          angles_count: result.service_angles?.length ?? 0,
+        },
+        ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+        user_agent: req.headers.get("user-agent"),
+      });
+    } catch (e) { console.error("audit log insert error:", e); }
 
     return new Response(JSON.stringify(result), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
