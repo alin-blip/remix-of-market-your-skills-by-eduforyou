@@ -91,13 +91,11 @@ Target Market: ${targetMarket || 'Small businesses and startups'}
 
 Generate platform-specific content that will help them succeed. IMPORTANT: Write ALL content in ${outputLanguage}. Return valid JSON only.`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lovable.dev',
-        'X-Title': 'Student Freedom OS',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
@@ -106,13 +104,12 @@ Generate platform-specific content that will help them succeed. IMPORTANT: Write
           { role: 'user', content: userPrompt }
         ],
         response_format: { type: 'json_object' },
-        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('OpenRouter error:', error);
+      console.error('AI Gateway error:', response.status, error);
       throw new Error('Failed to generate content');
     }
 
